@@ -1,5 +1,15 @@
 # Roadmap Change Log
 
+## v0.7.0 — 2026-07-24
+
+### Completed
+
+- Marked Milestone 6 — Member Management complete.
+- Recorded implementation of directories, families, children, contacts,
+  medical summaries, permissions, tags, and search.
+- Recorded connected Supabase and separate administrator/family acceptance.
+- Confirmed Milestone 7 remains not started.
+
 ## v0.6.1 — 2026-07-24
 
 ### Reconciled

@@ -1,5 +1,14 @@
 # Testing Change Log
 
+## v0.7.0 — 2026-07-24
+
+### Added
+
+- Added the Milestone 6 Member Management test report.
+- Added synthetic directory, family, child, contact, medical, permission, tag,
+  search, audit, and denial verification.
+- Recorded 11 connected checks and two-account browser acceptance.
+
 ## v0.6.1 — 2026-07-24
 
 ### Added

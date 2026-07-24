@@ -1,5 +1,13 @@
 # Project Journal Change Log
 
+## v0.7.0 — 2026-07-24
+
+### Added
+
+- Added the Milestone 6 Member Management journal.
+- Recorded privacy, audit, synthetic-data, and two-account acceptance outcomes.
+- Confirmed Milestone 7 remains not started.
+
 ## v0.6.1 — 2026-07-24
 
 ### Added

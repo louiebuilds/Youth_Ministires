@@ -1,5 +1,15 @@
 # Database Change Log
 
+## v0.7.0 — 2026-07-24
+
+### Added
+
+- Added the Milestone 6 member-management migration and database design.
+- Added member tags, privacy-filtered projections, and audited family, child,
+  contact, relationship, and tag workflows.
+- Revoked direct authenticated member-data mutations.
+- Added synthetic execution tests and privacy-safe connected acceptance.
+
 ## v0.6.1 — 2026-07-24
 
 ### Added

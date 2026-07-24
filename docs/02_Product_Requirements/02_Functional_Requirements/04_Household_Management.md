@@ -4,11 +4,11 @@
 
 **Document ID:** FR-HOUSEHOLD
 
-**Document Version:** 1.0
+**Document Version:** 1.1
 
-**Status:** Draft
+**Status:** Implemented
 
-**Milestone:** 0 – Foundation
+**Milestone:** 6 — Member Management
 
 ---
 
@@ -19,9 +19,9 @@
 | Owner | Product Owner |
 | Related Requirements | FR-AUTH, FR-USER, FR-STUDENT |
 | Related Architecture | ARCH-001 (Core Domain Model) |
-| Related Database | DB-HOUSEHOLDS *(Future)* |
+| Related Database | Milestone 6 Member Management Database |
 | Related APIs | API-HOUSEHOLDS *(Future)* |
-| Related Testing | TEST-HOUSEHOLD *(Future)* |
+| Related Testing | Milestone 6 Member Management Test Report |
 
 ---
 
@@ -386,4 +386,5 @@ These enhancements are outside the approved Version 1 scope.
 
 | Version | Date | Description |
 |----------|------|-------------|
+| 1.1 | 2026-07-24 | Recorded implemented family workspaces, contacts, communication preferences, lifecycle, search, auditing, and relationship-scoped access. |
 | 1.0 | Initial | Initial Household Management functional requirements. |

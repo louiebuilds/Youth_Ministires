@@ -8,6 +8,7 @@ export type PlatformCapability =
   | "dashboard.view"
   | "events.view"
   | "families.view"
+  | "members.manage"
   | "permission_forms.manage"
   | "reports.view"
   | "settings.manage"
@@ -27,6 +28,7 @@ const roleCapabilities = {
     "dashboard.view",
     "students.view",
     "families.view",
+    "members.manage",
     "volunteers.view",
     "attendance.manage",
     "check_in.manage",
@@ -40,6 +42,7 @@ const roleCapabilities = {
     "dashboard.view",
     "students.view",
     "families.view",
+    "members.manage",
     "volunteers.view",
     "attendance.manage",
     "check_in.manage",
@@ -59,6 +62,7 @@ const roleCapabilities = {
     "dashboard.view",
     "students.view",
     "families.view",
+    "members.manage",
     "volunteers.view",
     "attendance.manage",
     "check_in.manage",

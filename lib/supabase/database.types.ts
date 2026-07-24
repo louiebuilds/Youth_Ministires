@@ -184,6 +184,21 @@ export type AuditEventRow = {
   metadata: Json;
 };
 
+export type MemberTagRow = {
+  id: string;
+  name: string;
+  color: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type MemberTagAssignmentRow = {
+  id: string;
+  person_id: string;
+  tag_id: string;
+  created_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -214,9 +229,31 @@ export type Database = {
         AuditEventRow,
         "action" | "entity_type" | "result" | "source"
       >;
+      member_tags: TableDefinition<MemberTagRow, "name">;
+      member_tag_assignments: TableDefinition<
+        MemberTagAssignmentRow,
+        "person_id" | "tag_id"
+      >;
     };
     Views: Record<never, never>;
     Functions: {
+      add_family_adult: {
+        Args: {
+          p_email: string | null;
+          p_first_name: string;
+          p_household_id: string;
+          p_is_primary_contact: boolean;
+          p_is_responsible_adult: boolean;
+          p_last_name: string;
+          p_phone: string | null;
+          p_preferred_name: string | null;
+          p_receive_email: boolean;
+          p_receive_emergency_notifications: boolean;
+          p_receive_sms: boolean;
+          p_relationship_label: string;
+        };
+        Returns: string;
+      };
       admin_update_account: {
         Args: {
           p_display_name: string;
@@ -225,6 +262,63 @@ export type Database = {
           p_status: AccountStatus;
         };
         Returns: undefined;
+      };
+      create_child: {
+        Args: {
+          p_allergy_summary: string | null;
+          p_birth_date: string;
+          p_dietary_summary: string | null;
+          p_first_name: string;
+          p_grade: string;
+          p_guardian_person_id: string;
+          p_household_id: string;
+          p_last_name: string;
+          p_medical_summary: string | null;
+          p_preferred_name: string | null;
+          p_status: StudentStatus;
+        };
+        Returns: string;
+      };
+      create_family: {
+        Args: {
+          p_address_line_1: string | null;
+          p_address_line_2: string | null;
+          p_adult_email: string | null;
+          p_adult_first_name: string;
+          p_adult_last_name: string;
+          p_adult_phone: string | null;
+          p_adult_preferred_name: string | null;
+          p_city: string | null;
+          p_country_code: string;
+          p_name: string;
+          p_postal_code: string | null;
+          p_receive_email: boolean;
+          p_receive_emergency_notifications: boolean;
+          p_receive_sms: boolean;
+          p_region: string | null;
+          p_relationship_label: string;
+          p_status: HouseholdStatus;
+        };
+        Returns: string;
+      };
+      create_member_tag: {
+        Args: {
+          p_color: string;
+          p_name: string;
+        };
+        Returns: string;
+      };
+      get_family_workspace: {
+        Args: {
+          p_household_id: string;
+        };
+        Returns: Json;
+      };
+      get_child_workspace: {
+        Args: {
+          p_student_id: string;
+        };
+        Returns: Json;
       };
       list_managed_accounts: {
         Args: {
@@ -240,9 +334,109 @@ export type Database = {
           updated_at: string;
         }[];
       };
+      list_accessible_families: {
+        Args: {
+          p_search?: string | null;
+        };
+        Returns: {
+          adult_count: number;
+          city: string | null;
+          household_id: string;
+          household_name: string;
+          region: string | null;
+          status: HouseholdStatus;
+          student_count: number;
+        }[];
+      };
+      list_member_directory: {
+        Args: {
+          p_grade?: string | null;
+          p_search?: string | null;
+          p_status?: StudentStatus | null;
+          p_tag_id?: string | null;
+        };
+        Returns: {
+          display_name: string;
+          grade: string;
+          household_id: string;
+          household_name: string;
+          status: StudentStatus;
+          student_id: string;
+          tags: Json;
+        }[];
+      };
+      set_child_tags: {
+        Args: {
+          p_student_id: string;
+          p_tag_ids: string[];
+        };
+        Returns: undefined;
+      };
       update_own_profile: {
         Args: {
           p_display_name: string;
+        };
+        Returns: undefined;
+      };
+      update_family_adult: {
+        Args: {
+          p_email: string | null;
+          p_first_name: string;
+          p_household_id: string;
+          p_is_primary_contact: boolean;
+          p_is_responsible_adult: boolean;
+          p_last_name: string;
+          p_person_id: string;
+          p_phone: string | null;
+          p_preferred_name: string | null;
+          p_receive_email: boolean;
+          p_receive_emergency_notifications: boolean;
+          p_receive_sms: boolean;
+          p_relationship_label: string;
+        };
+        Returns: undefined;
+      };
+      update_family_details: {
+        Args: {
+          p_address_line_1: string | null;
+          p_address_line_2: string | null;
+          p_city: string | null;
+          p_country_code: string;
+          p_household_id: string;
+          p_name: string;
+          p_postal_code: string | null;
+          p_region: string | null;
+          p_status: HouseholdStatus;
+        };
+        Returns: undefined;
+      };
+      update_child_details: {
+        Args: {
+          p_allergy_summary: string | null;
+          p_birth_date: string;
+          p_dietary_summary: string | null;
+          p_first_name: string;
+          p_grade: string;
+          p_last_name: string;
+          p_medical_summary: string | null;
+          p_preferred_name: string | null;
+          p_status: StudentStatus;
+          p_student_id: string;
+        };
+        Returns: undefined;
+      };
+      update_child_relationship: {
+        Args: {
+          p_is_authorized_pickup: boolean;
+          p_is_emergency_contact: boolean;
+          p_is_legal_guardian: boolean;
+          p_may_sign_permission_forms: boolean;
+          p_may_view_student_information: boolean;
+          p_person_id: string;
+          p_receive_email: boolean;
+          p_receive_sms: boolean;
+          p_relationship_type: string;
+          p_student_id: string;
         };
         Returns: undefined;
       };

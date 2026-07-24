@@ -1,5 +1,13 @@
 # Release Notes Change Log
 
+## v0.7.0 — 2026-07-24
+
+### Added
+
+- Published Milestone 6 Member Management release notes.
+- Documented directories, workspaces, creation/editing, contacts, medical
+  boundaries, permissions, tags, search, auditing, and acceptance.
+
 ## v0.6.1 — 2026-07-24
 
 ### Added

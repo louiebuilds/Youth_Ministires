@@ -21,12 +21,11 @@ planning, status reporting, and future scope must reference this roadmap.
 | 3 | Authentication & User Management | Complete |
 | 4 | Application Shell | Complete |
 | 5 | Ministry Dashboard | Complete |
-| 6 | Member Management | Not started |
+| 6 | Member Management | Complete |
 | 7–20 | Later approved roadmap | Not started |
 
-Milestone 3 reconciliation and Milestone 5 were accepted by the Product Owner
-using separate administrative and family accounts on 2026-07-24. Milestone 6
-has not started.
+Milestones 3, 5, and 6 were accepted by the Product Owner using separate
+administrative and family accounts on 2026-07-24. Milestone 7 has not started.
 
 ## Historical Numbering Reconciliation
 
@@ -159,7 +158,7 @@ Reconciled implementation:
 
 ## Milestone 6 — Member Management
 
-**Status:** Not started
+**Status:** Complete
 
 - Member directory
 - Families
@@ -169,6 +168,12 @@ Reconciled implementation:
 - Permissions
 - Tags
 - Search
+
+The completed implementation includes role- and relationship-scoped
+directories, family and child workspaces, audited creation and editing,
+contact/communication preferences, guarded medical summaries, relationship
+permissions, ministry-only tags, expanded search, and archive-based lifecycle
+controls.
 
 ## Milestone 7 — Volunteer Management
 
@@ -305,4 +310,4 @@ Reconciled implementation:
 - A milestone is complete only after implementation, automated verification,
   Product Owner acceptance, documentation, and a milestone commit.
 - Synthetic data is required for development and testing.
-- Milestone 6 must not begin until the Product Owner explicitly starts it.
+- Milestone 7 must not begin until the Product Owner explicitly starts it.

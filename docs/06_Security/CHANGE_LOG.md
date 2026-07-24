@@ -1,5 +1,15 @@
 # Security Change Log
 
+## v0.7.0 — 2026-07-24
+
+### Added
+
+- Added relationship-scoped family and child workspace projections.
+- Added legal-guardian medical-summary access enforcement.
+- Added ministry-only member tags and management workflows.
+- Added audited family, child, contact, relationship, and tag mutations.
+- Revoked direct authenticated core member-data and tag mutations.
+
 ## v0.6.1 — 2026-07-24
 
 ### Added

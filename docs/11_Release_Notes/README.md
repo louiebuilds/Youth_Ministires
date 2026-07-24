@@ -5,6 +5,7 @@ Platform.
 
 ## Releases
 
+- [v0.7.0 — Milestone 6 Member Management](v0.7.0_Milestone6_Member_Management.md)
 - [v0.6.1 — Milestone 3 User Management Reconciliation](v0.6.1_Milestone3_User_Management_Reconciliation.md)
 - [v0.6.0 — Milestone 5 Ministry Dashboard](v0.6.0_Milestone5_Ministry_Dashboard.md)
 - [v0.5.0 — Milestone 4 Security](v0.5.0_Milestone4_Security.md)

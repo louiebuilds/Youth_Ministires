@@ -4,11 +4,11 @@
 
 **Document ID:** FR-STUDENT
 
-**Document Version:** 1.0
+**Document Version:** 1.1
 
-**Status:** Draft
+**Status:** Implemented
 
-**Milestone:** 0 – Foundation
+**Milestone:** 6 — Member Management
 
 ---
 
@@ -19,9 +19,9 @@
 | Owner | Product Owner |
 | Related Requirements | FR-AUTH, FR-USER |
 | Related Architecture | ARCH-001 (Core Domain Model) |
-| Related Database | DB-STUDENTS *(Future)* |
+| Related Database | Milestone 6 Member Management Database |
 | Related APIs | API-STUDENTS *(Future)* |
-| Related Testing | TEST-STUDENT *(Future)* |
+| Related Testing | Milestone 6 Member Management Test Report |
 
 ---
 
@@ -362,4 +362,12 @@ Future versions may include:
 - Achievement tracking
 - Volunteer mentoring assignments
 - Multi-campus participation
-```
+
+---
+
+# Revision History
+
+| Version | Date | Description |
+|---|---|---|
+| 1.1 | 2026-07-24 | Recorded the implemented Milestone 6 child workspace, lifecycle, medical, relationship-permission, tag, search, audit, and privacy controls. |
+| 1.0 | Initial | Initial Student Management functional requirements. |

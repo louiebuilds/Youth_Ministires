@@ -1,7 +1,7 @@
 # Security Controls and Authorization
 
 **Document ID:** SEC-001
-**Version:** v0.6.1
+**Version:** v0.7.0
 **Status:** Implemented
 **Milestone:** 4 — Security
 **Date:** 2026-07-23
@@ -137,9 +137,8 @@ household merely by knowing its identifier.
 
 Parent access to a student includes the student's core row and the related
 person record. The current student row contains health and safety summaries.
-That access is permitted only for the explicitly authorized relationship and
-must be narrowed by later feature projections when operational screens are
-implemented.
+Milestone 6 narrows the operational medical projection to ministry management
+roles or an explicitly related legal guardian who may view the child.
 
 ---
 
@@ -308,6 +307,10 @@ profile and administrative account updates append audit events through
 restricted database functions; browser clients cannot write audit rows
 directly.
 
+Milestone 6 member-data changes are also append-only audit producers. Audit
+metadata records the action and safe identifiers or counts but never copies
+medical, allergy, dietary, address, email, or phone values.
+
 ---
 
 ## Threat Model
@@ -428,5 +431,6 @@ Deferral does not grant access. Every absent capability remains denied.
 
 | Version | Date | Description |
 |---|---|---|
+| v0.7.0 | 2026-07-24 | Added relationship-scoped Member Management projections, medical boundaries, audited mutations, and direct-mutation denial. |
 | v0.6.1 | 2026-07-24 | Recorded audited Milestone 3 profile and existing-account administration controls. |
 | v0.5.0 | 2026-07-23 | Defined and implemented the Milestone 4 security control model. |
