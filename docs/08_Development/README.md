@@ -10,7 +10,8 @@ blueprint for the Youth Ministries Platform.
 
 ## Current Status
 
-Milestone 4 — Security is complete.
+Milestone 5 — Ministry Dashboard is complete.
 
-The next milestone must begin in a separate Codex task and follow the
-one-milestone-at-a-time delivery rule.
+The restored original roadmap is authoritative. Milestone 6 has not started,
+and the recorded Milestone 3 variance requires Product Owner resolution before
+future roadmap progression.

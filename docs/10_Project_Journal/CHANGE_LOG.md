@@ -1,5 +1,13 @@
 # Project Journal Change Log
 
+## v0.6.0 — 2026-07-24
+
+### Added
+
+- Added the Milestone 5 Ministry Dashboard journal.
+- Recorded separate administrative and family account acceptance.
+- Recorded restoration of the authoritative original roadmap.
+
 ## v0.5.0 — 2026-07-23
 
 ### Added

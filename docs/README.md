@@ -1,6 +1,6 @@
 # Youth Ministries Platform Documentation
 
-> **Version:** v0.5.0
+> **Version:** v0.6.0
 > **Status:** Active Development  
 > **Project Owner:** Louie  
 > **Technical Lead & Solution Architect:** ChatGPT
@@ -95,23 +95,26 @@ All documentation should:
 
 # Current Project Status
 
-**Current Version:** v0.5.0
+**Current Version:** v0.6.0
 
 **Completed Milestones**
 
 - ✅ Project Charter
 - ✅ Living Blueprint
 - ✅ Functional Requirements
-- ✅ Milestone 1 — Platform Architecture
+- ✅ Milestone 0 — Vision & Planning
+- ✅ Milestone 1 — Project Foundation
 - ✅ Milestone 2 — Foundation Infrastructure
-- ✅ Milestone 3 — Core Database Foundation
-- ✅ Milestone 4 — Security
+- ⚠️ Milestone 3 — Authentication & User Management variance review recorded
+- ✅ Milestone 4 — Application Shell
+- ✅ Milestone 5 — Ministry Dashboard
 
 **Current Status**
 
-- Milestone 4 is complete.
-- The next milestone has not started.
-- The next milestone must be completed in a separate Codex task.
+- Milestone 5 is complete.
+- The [original approved roadmap](15_Project_Roadmap/README.md) is the
+  authoritative milestone sequence.
+- Milestone 6 has not started.
 
 ---
 

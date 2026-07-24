@@ -1,5 +1,13 @@
 # Release Notes Change Log
 
+## v0.6.0 — 2026-07-24
+
+### Added
+
+- Published the Milestone 5 Ministry Dashboard release notes.
+- Documented separate administrative and family dashboard contexts,
+  verification, Product Owner acceptance, and roadmap restoration.
+
 ## v0.5.0 — 2026-07-23
 
 ### Added

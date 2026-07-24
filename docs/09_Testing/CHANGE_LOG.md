@@ -1,5 +1,13 @@
 # Testing Change Log
 
+## v0.6.0 — 2026-07-24
+
+### Added
+
+- Added the Milestone 5 Ministry Dashboard test report.
+- Added dashboard scope, synthetic-data, privacy, and account-context checks.
+- Recorded Product Owner acceptance with administrative and family accounts.
+
 ## v0.5.0 — 2026-07-23
 
 ### Added

@@ -1,5 +1,23 @@
 # Development Change Log
 
+## v0.6.0 — 2026-07-24
+
+### Added
+
+- Added typed Ministry Dashboard presentation contracts and synthetic fixtures.
+- Added separate administrative and family dashboard contexts.
+- Added responsive summaries, events, volunteer status, registrations,
+  prayer-request counts, birthdays, announcements, and quick actions.
+- Added focused dashboard regression verification.
+
+### Verified
+
+- Dashboard, database, privacy, and security regression suites
+- TypeScript
+- ESLint
+- Next.js production build
+- Product Owner acceptance with administrative and family accounts
+
 ## v0.5.0 — 2026-07-23
 
 ### Added
