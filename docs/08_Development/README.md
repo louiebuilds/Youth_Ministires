@@ -10,7 +10,7 @@ blueprint for the Youth Ministries Platform.
 
 ## Current Status
 
-Milestone 2 — Foundation Infrastructure is complete.
+Milestone 3 — Core Database Foundation is complete.
 
 The next milestone must begin in a separate Codex task and follow the
 one-milestone-at-a-time delivery rule.

@@ -1,6 +1,6 @@
 # Youth Ministries Platform Documentation
 
-> **Version:** v0.3.0  
+> **Version:** v0.4.0
 > **Status:** Active Development  
 > **Project Owner:** Louie  
 > **Technical Lead & Solution Architect:** ChatGPT
@@ -95,7 +95,7 @@ All documentation should:
 
 # Current Project Status
 
-**Current Version:** v0.3.0
+**Current Version:** v0.4.0
 
 **Completed Milestones**
 
@@ -104,10 +104,11 @@ All documentation should:
 - ✅ Functional Requirements
 - ✅ Milestone 1 — Platform Architecture
 - ✅ Milestone 2 — Foundation Infrastructure
+- ✅ Milestone 3 — Core Database Foundation
 
 **Current Status**
 
-- Milestone 2 is complete.
+- Milestone 3 is complete.
 - The next milestone has not started.
 - The next milestone must be completed in a separate Codex task.
 

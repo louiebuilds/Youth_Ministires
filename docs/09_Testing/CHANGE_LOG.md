@@ -1,5 +1,13 @@
 # Testing Change Log
 
+## v0.4.0 — 2026-07-23
+
+### Added
+
+- Added the Milestone 3 Core Database Foundation test report.
+- Added local PostgreSQL migration execution and contract verification.
+- Recorded connected Supabase Product Owner acceptance results.
+
 ## v0.3.0 — 2026-07-23
 
 ### Added

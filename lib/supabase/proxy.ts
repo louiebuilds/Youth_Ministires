@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getPublicEnvironment } from "@/config/env";
+import type { Database } from "@/lib/supabase/database.types";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -9,7 +10,7 @@ export async function updateSession(request: NextRequest) {
   });
   const environment = getPublicEnvironment();
 
-  const supabase = createServerClient(
+  const supabase = createServerClient<Database>(
     environment.supabaseUrl,
     environment.supabaseAnonKey,
     {

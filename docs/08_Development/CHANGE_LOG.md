@@ -1,5 +1,24 @@
 # Development Change Log
 
+## v0.4.0 — 2026-07-23
+
+### Added
+
+- Added strict TypeScript definitions for the core database schema.
+- Applied the database type contract to browser, server, and proxy Supabase
+  clients.
+- Added an in-process PostgreSQL migration verification command.
+
+### Verified
+
+- Core migration execution
+- Existing and future Auth-user profile creation
+- RLS policy and grant boundaries
+- Database constraints
+- TypeScript
+- ESLint
+- Next.js production build
+
 ## v0.3.0 — 2026-07-23
 
 ### Added

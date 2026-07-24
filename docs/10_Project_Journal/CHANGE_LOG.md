@@ -1,5 +1,13 @@
 # Project Journal Change Log
 
+## v0.4.0 — 2026-07-23
+
+### Added
+
+- Added the Milestone 3 Core Database Foundation journal.
+- Recorded the schema, security baseline, verification, and Product Owner
+  acceptance outcome.
+
 ## v0.3.0 — 2026-07-23
 
 ### Added

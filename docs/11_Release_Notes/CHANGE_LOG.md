@@ -1,5 +1,13 @@
 # Release Notes Change Log
 
+## v0.4.0 — 2026-07-23
+
+### Added
+
+- Published the Milestone 3 Core Database Foundation release notes.
+- Documented schema foundations, RLS baseline, database types, and verification
+  results.
+
 ## v0.3.0 — 2026-07-23
 
 ### Added
