@@ -1,5 +1,15 @@
 # Project Journal Change Log
 
+## v0.6.1 — 2026-07-24
+
+### Added
+
+- Added the Milestone 3 Authentication & User Management reconciliation
+  journal.
+- Recorded the approved five-role resolution, security boundary, and
+  two-account Product Owner acceptance.
+- Confirmed Milestone 6 remains not started.
+
 ## v0.6.0 — 2026-07-24
 
 ### Added

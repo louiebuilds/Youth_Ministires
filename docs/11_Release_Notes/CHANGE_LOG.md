@@ -1,5 +1,13 @@
 # Release Notes Change Log
 
+## v0.6.1 — 2026-07-24
+
+### Added
+
+- Published the Milestone 3 User Management Reconciliation release notes.
+- Documented self-service profile/password workflows, audited existing-account
+  administration, verification, and approved identity-provider deferrals.
+
 ## v0.6.0 — 2026-07-24
 
 ### Added

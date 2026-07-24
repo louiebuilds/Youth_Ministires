@@ -1,5 +1,13 @@
 # Testing Change Log
 
+## v0.6.1 — 2026-07-24
+
+### Added
+
+- Added the Milestone 3 User Management Reconciliation test report.
+- Added synthetic profile, account-management, audit, and denial tests.
+- Recorded eight connected Supabase checks and two-account browser acceptance.
+
 ## v0.6.0 — 2026-07-24
 
 ### Added

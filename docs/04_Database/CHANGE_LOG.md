@@ -1,5 +1,15 @@
 # Database Change Log
 
+## v0.6.1 — 2026-07-24
+
+### Added
+
+- Added restricted functions for self-service profile updates, administrator
+  account search, and audited existing-account administration.
+- Removed direct authenticated profile insert, update, and delete grants.
+- Added synthetic-data execution tests and a privacy-safe connected acceptance
+  query.
+
 ## v0.5.0 — 2026-07-23
 
 ### Added

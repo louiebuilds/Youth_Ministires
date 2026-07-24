@@ -1,7 +1,7 @@
 # Security Controls and Authorization
 
 **Document ID:** SEC-001
-**Version:** v0.5.0
+**Version:** v0.6.1
 **Status:** Implemented
 **Milestone:** 4 — Security
 **Date:** 2026-07-23
@@ -167,8 +167,11 @@ completed, and archived events are not exposed through the parent policy.
   account lifecycle status.
 - Accounts cannot update their own role, lifecycle status, or linked person.
 - No client-supplied registration value can assign a privileged role.
-- Administrative account changes must use a later audited administrative
-  service; Milestone 4 does not add a user-management screen.
+- Administrative account changes use database-enforced security-definer
+  functions that append safe audit metadata.
+- The Platform Administrator account-management screen manages existing
+  accounts only.
+- A Platform Administrator cannot demote or deactivate their own account.
 - Platform Administrator and Youth Pastor accounts can read audit events but
   cannot modify or delete them.
 - Database helper functions expose boolean authorization decisions only and
@@ -300,9 +303,10 @@ Current database controls:
 - metadata must never contain credentials, tokens, full medical notes, or
   complete confidential request payloads.
 
-Authentication-provider events and application audit-writing services remain
-future implementation work because no secure server audit gateway or
-administrative workflow exists in the current application.
+Authentication-provider event ingestion remains future work. Milestone 3
+profile and administrative account updates append audit events through
+restricted database functions; browser clients cannot write audit rows
+directly.
 
 ---
 
@@ -389,7 +393,7 @@ milestones and are not implemented here:
 
 - storage buckets and object policies;
 - audit-writing service and authentication-event ingestion;
-- user-management screens and administrative invitation workflow;
+- administrative invitation and administrator-triggered recovery workflows;
 - attendance and check-in projections for assigned volunteers;
 - permission-form ownership and signature controls;
 - communication, reporting, and export controls;
@@ -424,4 +428,5 @@ Deferral does not grant access. Every absent capability remains denied.
 
 | Version | Date | Description |
 |---|---|---|
+| v0.6.1 | 2026-07-24 | Recorded audited Milestone 3 profile and existing-account administration controls. |
 | v0.5.0 | 2026-07-23 | Defined and implemented the Milestone 4 security control model. |

@@ -216,7 +216,37 @@ export type Database = {
       >;
     };
     Views: Record<never, never>;
-    Functions: Record<never, never>;
+    Functions: {
+      admin_update_account: {
+        Args: {
+          p_display_name: string;
+          p_primary_role: AccountRole;
+          p_profile_id: string;
+          p_status: AccountStatus;
+        };
+        Returns: undefined;
+      };
+      list_managed_accounts: {
+        Args: {
+          p_search?: string | null;
+        };
+        Returns: {
+          created_at: string;
+          display_name: string;
+          email: string;
+          id: string;
+          primary_role: AccountRole;
+          status: AccountStatus;
+          updated_at: string;
+        }[];
+      };
+      update_own_profile: {
+        Args: {
+          p_display_name: string;
+        };
+        Returns: undefined;
+      };
+    };
     Enums: {
       account_role: AccountRole;
       account_status: AccountStatus;

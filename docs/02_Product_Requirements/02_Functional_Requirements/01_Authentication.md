@@ -3,9 +3,9 @@
 # Authentication
 
 **Document ID:** FR-AUTH  
-**Document Version:** 1.0  
-**Status:** Draft  
-**Milestone:** 0 – Foundation
+**Document Version:** 1.1
+**Status:** Implemented
+**Milestone:** 3 — Authentication & User Management
 
 ---
 
@@ -192,6 +192,14 @@ Successful and unsuccessful authentication attempts shall be available for audit
 5. User creates a new password.
 6. User signs in using the updated password.
 
+## Authenticated Password Change
+
+1. Authenticated user opens **Profile and password**.
+2. User enters and confirms a provider-compliant password.
+3. Supabase Auth updates the credential.
+4. The current session ends securely.
+5. User signs in with the updated password.
+
 ---
 
 # 8. Validation Rules
@@ -254,6 +262,7 @@ Authentication depends upon:
 | AC-AUTH-004 | Users can securely log out. |
 | AC-AUTH-005 | Password reset workflow functions correctly. |
 | AC-AUTH-006 | Authentication events are available for auditing. |
+| AC-AUTH-007 | Authenticated users can change their password and are signed out afterward. |
 
 ---
 
@@ -276,4 +285,5 @@ These items are outside the approved Version 1 scope and require future product 
 
 | Version | Date | Description |
 |----------|------|-------------|
+| 1.1 | 2026-07-24 | Recorded the implemented authenticated password-change workflow and Milestone 3 status. |
 | 1.0 | Initial | Initial functional requirements for authentication. |

@@ -1,5 +1,16 @@
 # Roadmap Change Log
 
+## v0.6.1 — 2026-07-24
+
+### Reconciled
+
+- Recorded Product Owner resolution of the Milestone 3 variance.
+- Marked Authentication & User Management complete.
+- Preserved the approved five-role model and Version 1 student-login exclusion.
+- Recorded privileged identity creation and administrator-triggered recovery
+  emails as separately gated future work.
+- Confirmed Milestone 6 remains not started.
+
 ## v0.6.0 — 2026-07-24
 
 ### Restored

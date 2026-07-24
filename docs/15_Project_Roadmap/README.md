@@ -18,14 +18,15 @@ planning, status reporting, and future scope must reference this roadmap.
 | 0 | Vision & Planning | Complete |
 | 1 | Project Foundation | Complete |
 | 2 | Foundation Infrastructure | Complete |
-| 3 | Authentication & User Management | Variance review required |
+| 3 | Authentication & User Management | Complete |
 | 4 | Application Shell | Complete |
 | 5 | Ministry Dashboard | Complete |
 | 6 | Member Management | Not started |
 | 7–20 | Later approved roadmap | Not started |
 
-Milestone 5 was accepted by the Product Owner using separate administrative and
-family accounts on 2026-07-24. Milestone 6 has not started.
+Milestone 3 reconciliation and Milestone 5 were accepted by the Product Owner
+using separate administrative and family accounts on 2026-07-24. Milestone 6
+has not started.
 
 ## Historical Numbering Reconciliation
 
@@ -41,12 +42,13 @@ preserved as immutable history. Their work maps to the roadmap as follows:
 | Milestone 4 — Security | Cross-cutting authorization and privacy foundation |
 | Milestone 5 — Ministry Dashboard | Milestone 5 — Ministry Dashboard |
 
-Original Milestone 3 included user profile, change password, and administrative
-role-management workflows that are not fully implemented. It also listed seven
-roles, including Student, while the later approved security decision established
-five permanent account roles and the Project Charter excludes student logins
-from Version 1. This variance must remain documented and receive Product Owner
-resolution before roadmap work advances beyond Milestone 5.
+The Product Owner resolved the Milestone 3 variance on 2026-07-24. Self-service
+profile and password workflows and audited administrator management of existing
+accounts are implemented. The approved five-role model remains authoritative,
+and the Project Charter continues to exclude student logins from Version 1.
+Creating Auth identities and administrator-triggered recovery emails require a
+future approved privileged identity-provider gateway and are not part of this
+reconciliation.
 
 ## Milestone 0 — Vision & Planning
 
@@ -91,7 +93,7 @@ resolution before roadmap work advances beyond Milestone 5.
 
 ## Milestone 3 — Authentication & User Management
 
-**Status:** Variance review required
+**Status:** Complete
 
 Original features:
 
@@ -113,10 +115,19 @@ Original roles:
 - Parent
 - Student
 
-The current approved security implementation uses Platform Administrator, Youth
-Pastor, Staff Member, Volunteer, and Parent or Guardian. Student accounts remain
-outside Version 1. The incomplete workflows and role-name variance require a
-separate Product Owner reconciliation decision.
+Reconciled implementation:
+
+- The current approved roles are Platform Administrator, Youth Pastor, Staff
+  Member, Volunteer, and Parent or Guardian.
+- Student accounts remain outside Version 1.
+- Every authenticated account can view its profile, update its display name,
+  and change its password.
+- Only Platform Administrators can search existing accounts and update display
+  name, permanent role, or lifecycle status.
+- Account changes are database-enforced and audited.
+- A Platform Administrator cannot demote or deactivate their own account.
+- Creating Auth identities and administrator-triggered recovery emails remain
+  deferred until a privileged identity-provider gateway is separately approved.
 
 ## Milestone 4 — Application Shell
 
@@ -294,5 +305,4 @@ separate Product Owner reconciliation decision.
 - A milestone is complete only after implementation, automated verification,
   Product Owner acceptance, documentation, and a milestone commit.
 - Synthetic data is required for development and testing.
-- Milestone 6 must not begin until the Product Owner explicitly starts it and
-  the Milestone 3 variance is resolved.
+- Milestone 6 must not begin until the Product Owner explicitly starts it.

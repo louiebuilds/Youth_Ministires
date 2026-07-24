@@ -1,5 +1,14 @@
 # Security Change Log
 
+## v0.6.1 — 2026-07-24
+
+### Added
+
+- Added audited self-service display-name updates.
+- Added database-enforced Platform-Administrator account search and management.
+- Removed direct authenticated profile mutation grants.
+- Added administrator self-demotion and self-deactivation protection.
+
 ## v0.5.0 — 2026-07-23
 
 ### Added

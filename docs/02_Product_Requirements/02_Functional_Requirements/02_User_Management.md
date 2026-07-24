@@ -3,9 +3,9 @@
 # User Management
 
 **Document ID:** FR-USER  
-**Document Version:** 1.0  
-**Status:** Draft  
-**Milestone:** 0 – Foundation
+**Document Version:** 1.1
+**Status:** Partially implemented
+**Milestone:** 3 — Authentication & User Management
 
 ---
 
@@ -18,7 +18,7 @@
 | Related Architecture | ARCH-USER *(Future)* |
 | Related Database | DB-USERS *(Future)* |
 | Related APIs | API-USERS *(Future)* |
-| Related Testing | TEST-USER *(Future)* |
+| Related Testing | Milestone 3 User Management Reconciliation Test Report |
 
 ---
 
@@ -36,7 +36,7 @@ Student records are managed separately under **Student Management**.
 
 This document includes:
 
-- User account creation
+- User account creation *(requires a future privileged identity-provider gateway)*
 - User profile management
 - User activation
 - User deactivation
@@ -62,9 +62,9 @@ The User Management module shall:
 
 # 4. Supported User Types
 
-Version 1 supports:
+The approved Version 1 role model supports:
 
-- System Administrator
+- Platform Administrator
 - Youth Pastor
 - Staff Member
 - Volunteer
@@ -112,6 +112,10 @@ Only authorized administrative roles may create, edit, deactivate, or reactivate
 
 Authorized administrators shall be able to create new user accounts.
 
+**Implementation note:** Deferred pending separate approval of a privileged
+identity-provider gateway. The Milestone 3 reconciliation manages existing
+accounts only.
+
 ---
 
 ## FR-USER-002 — Edit User
@@ -147,6 +151,10 @@ Users may update their own contact information unless restricted by administrati
 ## FR-USER-007 — Administrative Password Reset
 
 Authorized administrators may initiate password reset procedures for users.
+
+**Implementation note:** Deferred with the privileged identity-provider gateway.
+Self-service forgot-password and authenticated password-change workflows are
+implemented.
 
 ---
 
@@ -256,6 +264,10 @@ This feature depends on:
 | AC-USER-005 | Role assignments are enforced. |
 | AC-USER-006 | Administrative actions are auditable. |
 
+The implemented Milestone 3 subset satisfies AC-USER-002, AC-USER-004,
+AC-USER-005, and AC-USER-006 for existing accounts. AC-USER-001 and the
+administrator-triggered recovery portion remain separately gated.
+
 ---
 
 # 13. Future Considerations
@@ -277,4 +289,5 @@ These enhancements are outside the approved Version 1 scope.
 
 | Version | Date | Description |
 |----------|------|-------------|
+| 1.1 | 2026-07-24 | Recorded the approved role model, implemented existing-account workflows, and privileged identity-provider deferrals. |
 | 1.0 | Initial | Initial functional requirements for User Management. |

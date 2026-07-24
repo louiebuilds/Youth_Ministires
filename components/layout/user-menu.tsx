@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { LogOut, UserRound } from "lucide-react";
 
 import { signOutAction } from "@/features/auth/actions/sign-out-action";
@@ -43,6 +45,14 @@ export function UserMenu({ email, roleLabel }: UserMenuProps) {
             <p className="mt-0.5 text-xs text-slate-500">{roleLabel}</p>
           </div>
         </div>
+
+        <Link
+          className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700"
+          href="/profile"
+        >
+          <UserRound aria-hidden="true" className="size-4" />
+          Profile and password
+        </Link>
 
         <form action={signOutAction}>
           <button
