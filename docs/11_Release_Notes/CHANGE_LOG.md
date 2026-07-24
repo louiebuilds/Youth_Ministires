@@ -1,0 +1,19 @@
+# Release Notes Change Log
+
+## v0.3.0 — 2026-07-23
+
+### Added
+
+- Published the Milestone 2 Foundation Infrastructure release notes.
+- Documented authentication, protected routing, application shell, responsive
+  navigation, foundation routes, and verification results.
+
+## v0.2.0 — 2026-07-22
+
+### Added
+
+- Completed Platform Architecture milestone.
+- Added deployment architecture.
+- Added integration architecture.
+- Added architecture principles.
+- Finalized architectural standards for the Youth Ministries Platform.
