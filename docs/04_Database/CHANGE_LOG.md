@@ -1,5 +1,15 @@
 # Database Change Log
 
+## v0.5.0 — 2026-07-23
+
+### Added
+
+- Added the Milestone 4 authorization migration.
+- Added private fixed-search-path authorization helpers.
+- Added active-account, permanent-role, household, student-relationship,
+  event-assignment, and audit-oversight policies.
+- Added clean-database and connected-Supabase security verification.
+
 ## v0.4.0 — 2026-07-23
 
 ### Added

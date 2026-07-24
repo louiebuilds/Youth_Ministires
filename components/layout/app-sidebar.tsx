@@ -1,7 +1,11 @@
 import { NavigationItem } from "@/components/navigation/navigation-item";
-import { primaryNavigation } from "@/config/navigation-config";
+import type { NavigationItem as NavigationItemConfig } from "@/config/navigation-config";
 
-export function AppSidebar() {
+type AppSidebarProps = Readonly<{
+  navigation: readonly NavigationItemConfig[];
+}>;
+
+export function AppSidebar({ navigation }: AppSidebarProps) {
   return (
     <aside className="hidden w-64 shrink-0 border-r border-slate-800 bg-slate-950 text-white lg:flex lg:flex-col">
       <div className="border-b border-slate-800 px-6 py-6">
@@ -13,7 +17,7 @@ export function AppSidebar() {
 
       <nav aria-label="Primary navigation" className="flex-1 px-3 py-5">
         <ul className="space-y-1">
-          {primaryNavigation.map((item) => (
+          {navigation.map((item) => (
             <NavigationItem item={item} key={item.href} />
           ))}
         </ul>

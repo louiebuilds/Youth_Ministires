@@ -1,5 +1,15 @@
 # Testing Change Log
 
+## v0.5.0 — 2026-07-23
+
+### Added
+
+- Added the Milestone 4 Security test report.
+- Added clean-database five-role, lifecycle, relationship, assignment, audit,
+  escalation, and anonymous-access tests.
+- Added PII-minimized student display tests.
+- Recorded connected Supabase and browser Product Owner acceptance.
+
 ## v0.4.0 — 2026-07-23
 
 ### Added

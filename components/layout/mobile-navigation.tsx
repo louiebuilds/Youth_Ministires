@@ -5,9 +5,13 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 import { NavigationItem } from "@/components/navigation/navigation-item";
-import { primaryNavigation } from "@/config/navigation-config";
+import type { NavigationItem as NavigationItemConfig } from "@/config/navigation-config";
 
-export function MobileNavigation() {
+type MobileNavigationProps = Readonly<{
+  navigation: readonly NavigationItemConfig[];
+}>;
+
+export function MobileNavigation({ navigation }: MobileNavigationProps) {
   const pathname = usePathname();
   const menuRef = useRef<HTMLDetailsElement>(null);
 
@@ -30,7 +34,7 @@ export function MobileNavigation() {
         </p>
         <nav aria-label="Mobile navigation">
           <ul className="space-y-1">
-            {primaryNavigation.map((item) => (
+            {navigation.map((item) => (
               <NavigationItem item={item} key={item.href} />
             ))}
           </ul>

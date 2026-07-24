@@ -2,12 +2,12 @@
 
 > **Document ID:** ARCH-006  
 > **Section:** Platform Architecture  
-> **Version:** v0.2.0  
-> **Status:** Draft  
+> **Version:** v0.5.0
+> **Status:** Implemented
 > **Owner:** Product Owner (Louie)  
 > **Technical Lead & Solution Architect:** ChatGPT  
-> **Last Updated:** 2026-07-22  
-> **Next Review:** Milestone 1 Completion
+> **Last Updated:** 2026-07-23
+> **Next Review:** Production Readiness
 
 ---
 
@@ -1071,26 +1071,25 @@ Client-side restrictions alone are never considered sufficient security.
 
 ---
 
-# Open Items for Detailed Security Design
+# Detailed Security Design Outcome
 
-The following decisions will be finalized during Milestone 4 – Security:
+Milestone 4 finalized the following decisions in `SEC-001 — Security Controls
+and Authorization`:
 
-- Final role definitions
-- Permission matrix
-- Relationship-access rules
-- Row-Level Security policy design
-- Password and session policies
-- Multi-factor authentication requirements
-- Sensitive-field classification
-- Data-retention periods
-- Export controls
-- Rate-limiting thresholds
-- Incident-response procedures
-- Security testing standards
-- Administrative access review process
-- Audit-retention requirements
+- five permanent role definitions and a centralized capability matrix;
+- active-account lifecycle enforcement;
+- household, student-relationship, and event-assignment access rules;
+- resource-specific Row-Level Security policies;
+- password, session, and Version 1 MFA posture;
+- sensitive-field and PII display classification;
+- archive-first and interim audit-retention rules;
+- future export and rate-limit control requirements;
+- incident-response procedures;
+- security testing standards; and
+- quarterly administrative access review.
 
-These open items do not change the architectural direction established by this document.
+Feature-specific storage, exports, audit ingestion, and production operational
+controls remain denied until their approved implementation milestones.
 
 ---
 
@@ -1098,4 +1097,5 @@ These open items do not change the architectural direction established by this d
 
 | Version | Date | Description |
 |---|---|---|
+| 0.5.0 | 2026-07-23 | Recorded the implemented Milestone 4 security decisions. |
 | 0.2.0 | 2026-07-22 | Created Security Architecture document. |

@@ -1,5 +1,13 @@
 # Release Notes Change Log
 
+## v0.5.0 — 2026-07-23
+
+### Added
+
+- Published the Milestone 4 Security release notes.
+- Documented application capabilities, RLS, lifecycle, relationship,
+  assignment, audit, PII, and verification outcomes.
+
 ## v0.4.0 — 2026-07-23
 
 ### Added

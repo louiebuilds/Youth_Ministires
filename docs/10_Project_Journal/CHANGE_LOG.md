@@ -1,5 +1,13 @@
 # Project Journal Change Log
 
+## v0.5.0 — 2026-07-23
+
+### Added
+
+- Added the Milestone 4 Security journal.
+- Recorded the authorization, RLS, PII, verification, and Product Owner
+  acceptance outcomes.
+
 ## v0.4.0 — 2026-07-23
 
 ### Added

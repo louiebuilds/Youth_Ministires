@@ -4,9 +4,10 @@ import { signOutAction } from "@/features/auth/actions/sign-out-action";
 
 type UserMenuProps = Readonly<{
   email: string;
+  roleLabel: string;
 }>;
 
-export function UserMenu({ email }: UserMenuProps) {
+export function UserMenu({ email, roleLabel }: UserMenuProps) {
   const initial = email.charAt(0).toUpperCase();
 
   return (
@@ -39,6 +40,7 @@ export function UserMenu({ email }: UserMenuProps) {
             <p className="truncate text-sm font-semibold text-slate-900">
               {email}
             </p>
+            <p className="mt-0.5 text-xs text-slate-500">{roleLabel}</p>
           </div>
         </div>
 
