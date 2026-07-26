@@ -1,5 +1,13 @@
 # Database Change Log
 
+## v0.8.0 — 2026-07-26
+
+### Added
+
+- Added volunteer profiles, certifications, skills, and availability.
+- Added protected projections and audited volunteer workflows.
+- Added audited scheduling against existing events and revoked direct assignment writes.
+
 ## v0.7.0 — 2026-07-24
 
 ### Added

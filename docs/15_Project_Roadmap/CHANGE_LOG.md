@@ -1,5 +1,13 @@
 # Roadmap Change Log
 
+## v0.8.0 — 2026-07-26
+
+### Completed
+
+- Marked Milestone 7 — Volunteer Management complete.
+- Recorded verified profiles, compliance, skills, availability, and scheduling.
+- Confirmed Milestone 8 remains not started.
+
 ## v0.7.0 — 2026-07-24
 
 ### Completed

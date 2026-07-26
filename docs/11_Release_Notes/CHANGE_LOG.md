@@ -1,5 +1,11 @@
 # Release Notes Change Log
 
+## v0.8.0 — 2026-07-26
+
+### Added
+
+- Published Milestone 7 Volunteer Management release notes.
+
 ## v0.7.0 — 2026-07-24
 
 ### Added

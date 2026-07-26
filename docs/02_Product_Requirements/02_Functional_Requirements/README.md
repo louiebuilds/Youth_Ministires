@@ -7,3 +7,7 @@ This section contains the detailed functional requirements for each major featur
 Each document defines the business requirements, user workflows, validation rules, permissions, and acceptance criteria for a single functional area.
 
 These documents are the primary reference for implementation throughout the project.
+
+## Implemented Feature Documents
+
+- [Volunteer Management](13_Volunteer_Management.md) — Milestone 7

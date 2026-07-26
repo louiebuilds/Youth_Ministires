@@ -22,10 +22,12 @@ planning, status reporting, and future scope must reference this roadmap.
 | 4 | Application Shell | Complete |
 | 5 | Ministry Dashboard | Complete |
 | 6 | Member Management | Complete |
-| 7–20 | Later approved roadmap | Not started |
+| 7 | Volunteer Management | Complete |
+| 8–20 | Later approved roadmap | Not started |
 
-Milestones 3, 5, and 6 were accepted by the Product Owner using separate
-administrative and family accounts on 2026-07-24. Milestone 7 has not started.
+Milestones 3, 5, 6, and 7 were accepted by the Product Owner using separate
+administrative and family accounts. Milestone 7 acceptance passed on
+2026-07-26. Milestone 8 has not started.
 
 ## Historical Numbering Reconciliation
 
@@ -177,12 +179,20 @@ controls.
 
 ## Milestone 7 — Volunteer Management
 
+**Status:** Complete
+
 - Volunteer profiles
 - Background-check tracking
 - Certifications
 - Skills
 - Availability
 - Scheduling
+
+The completed implementation includes a protected volunteer directory,
+background-check status and expiration tracking, certification metadata,
+skills, recurring availability, assignments to existing events, volunteer
+responses, audit records, and separate ministry-manager, volunteer-self, and
+family-denial contexts.
 
 ## Milestone 8 — Attendance
 
@@ -310,4 +320,4 @@ controls.
 - A milestone is complete only after implementation, automated verification,
   Product Owner acceptance, documentation, and a milestone commit.
 - Synthetic data is required for development and testing.
-- Milestone 7 must not begin until the Product Owner explicitly starts it.
+- Milestone 8 must not begin until the Product Owner explicitly starts it.

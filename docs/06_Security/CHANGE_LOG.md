@@ -1,5 +1,13 @@
 # Security Change Log
 
+## v0.8.0 — 2026-07-26
+
+### Added
+
+- Added ministry-manager, volunteer-self, and family-denial boundaries.
+- Added protected background-check references and audited volunteer mutations.
+- Revoked direct volunteer and event-assignment mutations.
+
 ## v0.7.0 — 2026-07-24
 
 ### Added

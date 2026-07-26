@@ -4,6 +4,7 @@ This section preserves milestone outcomes and implementation history.
 
 ## Entries
 
+- [Milestone 7 — Volunteer Management](2026-07-26_Milestone7_Volunteer_Management.md)
 - [Milestone 6 — Member Management](2026-07-24_Milestone6_Member_Management.md)
 - [Milestone 3 — Authentication & User Management Reconciliation](2026-07-24_Milestone3_User_Management_Reconciliation.md)
 - [Milestone 5 — Ministry Dashboard](2026-07-24_Milestone5_Ministry_Dashboard.md)

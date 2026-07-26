@@ -1,5 +1,12 @@
 # Project Journal Change Log
 
+## v0.8.0 — 2026-07-26
+
+### Added
+
+- Added the Milestone 7 Volunteer Management journal.
+- Confirmed Milestone 8 remains not started.
+
 ## v0.7.0 — 2026-07-24
 
 ### Added

@@ -1,5 +1,12 @@
 # Testing Change Log
 
+## v0.8.0 — 2026-07-26
+
+### Added
+
+- Added the Milestone 7 Volunteer Management test report.
+- Recorded synthetic automated, connected, and two-account acceptance results.
+
 ## v0.7.0 — 2026-07-24
 
 ### Added

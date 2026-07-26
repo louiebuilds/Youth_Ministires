@@ -1,6 +1,6 @@
 {
   "name": "youth-ministries-platform-app",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -10,6 +10,7 @@
     "privacy:test": "node scripts/verify-privacy-display.mjs",
     "security:test": "node scripts/verify-security-authorization.mjs",
     "user-management:test": "node scripts/verify-user-management.mjs",
+    "volunteer-management:test": "node scripts/verify-volunteer-management-foundation.mjs",
     "start": "next start",
     "lint": "eslint",
     "member-management:test": "node scripts/verify-member-management-foundation.mjs"

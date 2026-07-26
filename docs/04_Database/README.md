@@ -6,16 +6,13 @@ database verification records for the Youth Ministries Platform.
 ## Documents
 
 - [Core Database Design](01_Core_Database_Design.md)
+- [Member Management Database](02_Member_Management_Database.md)
+- [Volunteer Management Database](03_Volunteer_Management_Database.md)
 - [Change Log](CHANGE_LOG.md)
 
 ## Current Status
 
-Milestone 4 — Security is complete.
-
-The version-controlled migration establishes the person-centric core schema,
-permanent account roles, event-scoped volunteer assignments, audit records,
-and a deny-by-default Row-Level Security baseline.
-
-The Milestone 4 additive migration expands that baseline with tested role,
-account-lifecycle, household, student-relationship, event-assignment, and audit
-oversight policies.
+Milestone 7 — Volunteer Management is complete. Additive migrations now cover
+the core and authorization foundations, Member Management, volunteer profiles,
+compliance metadata, skills, recurring availability, and audited assignments
+to existing events.

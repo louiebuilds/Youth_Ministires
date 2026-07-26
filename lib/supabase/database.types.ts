@@ -45,6 +45,20 @@ export type VolunteerAssignmentStatus =
   | "cancelled"
   | "completed";
 
+export type BackgroundCheckStatus =
+  | "not_required"
+  | "pending"
+  | "cleared"
+  | "review_required"
+  | "expired";
+
+export type VolunteerCertificationStatus = "active" | "expired" | "revoked";
+export type VolunteerSkillLevel =
+  | "interested"
+  | "beginner"
+  | "proficient"
+  | "advanced";
+
 export type AuditResult = "success" | "failure" | "denied";
 export type AuditSource = "web" | "api" | "system" | "migration";
 
@@ -199,6 +213,63 @@ export type MemberTagAssignmentRow = {
   created_at: string;
 };
 
+export type VolunteerProfileRow = {
+  profile_id: string;
+  ministry_title: string | null;
+  background_check_status: BackgroundCheckStatus;
+  background_check_completed_at: string | null;
+  background_check_expires_at: string | null;
+  background_check_reference: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type VolunteerCertificationRow = {
+  id: string;
+  profile_id: string;
+  name: string;
+  issuer: string | null;
+  issued_at: string | null;
+  expires_at: string | null;
+  status: VolunteerCertificationStatus;
+  reference: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type VolunteerSkillRow = {
+  id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type VolunteerSkillAssignmentRow = {
+  id: string;
+  profile_id: string;
+  skill_id: string;
+  skill_level: VolunteerSkillLevel;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type VolunteerAvailabilityRow = {
+  id: string;
+  profile_id: string;
+  day_of_week: number;
+  starts_at: string;
+  ends_at: string;
+  timezone: string;
+  effective_from: string;
+  effective_until: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -233,6 +304,20 @@ export type Database = {
       member_tag_assignments: TableDefinition<
         MemberTagAssignmentRow,
         "person_id" | "tag_id"
+      >;
+      volunteer_profiles: TableDefinition<VolunteerProfileRow, "profile_id">;
+      volunteer_certifications: TableDefinition<
+        VolunteerCertificationRow,
+        "profile_id" | "name"
+      >;
+      volunteer_skills: TableDefinition<VolunteerSkillRow, "name">;
+      volunteer_skill_assignments: TableDefinition<
+        VolunteerSkillAssignmentRow,
+        "profile_id" | "skill_id"
+      >;
+      volunteer_availability: TableDefinition<
+        VolunteerAvailabilityRow,
+        "profile_id" | "day_of_week" | "starts_at" | "ends_at"
       >;
     };
     Views: Record<never, never>;
@@ -365,6 +450,127 @@ export type Database = {
           tags: Json;
         }[];
       };
+      list_volunteer_directory: {
+        Args: { p_search?: string | null };
+        Returns: {
+          profile_id: string;
+          display_name: string;
+          primary_role: AccountRole;
+          ministry_title: string | null;
+          background_check_status: BackgroundCheckStatus;
+          background_check_expires_at: string | null;
+          is_active: boolean;
+          skills: Json;
+        }[];
+      };
+      list_volunteer_candidates: {
+        Args: Record<never, never>;
+        Returns: {
+          profile_id: string;
+          display_name: string;
+          primary_role: AccountRole;
+        }[];
+      };
+      get_volunteer_workspace: {
+        Args: { p_profile_id: string };
+        Returns: Json;
+      };
+      upsert_volunteer_profile: {
+        Args: {
+          p_profile_id: string;
+          p_ministry_title: string | null;
+          p_background_check_status: BackgroundCheckStatus;
+          p_background_check_completed_at: string | null;
+          p_background_check_expires_at: string | null;
+          p_background_check_reference: string | null;
+          p_is_active: boolean;
+        };
+        Returns: undefined;
+      };
+      save_volunteer_certification: {
+        Args: {
+          p_id: string | null;
+          p_profile_id: string;
+          p_name: string;
+          p_issuer: string | null;
+          p_issued_at: string | null;
+          p_expires_at: string | null;
+          p_status: VolunteerCertificationStatus;
+          p_reference: string | null;
+        };
+        Returns: string;
+      };
+      create_volunteer_skill: {
+        Args: { p_name: string; p_description: string | null };
+        Returns: string;
+      };
+      save_volunteer_skill_assignment: {
+        Args: {
+          p_profile_id: string;
+          p_skill_id: string;
+          p_skill_level: VolunteerSkillLevel;
+          p_notes: string | null;
+        };
+        Returns: undefined;
+      };
+      save_volunteer_availability: {
+        Args: {
+          p_id: string | null;
+          p_profile_id: string;
+          p_day_of_week: number;
+          p_starts_at: string;
+          p_ends_at: string;
+          p_timezone: string;
+          p_effective_from: string;
+          p_effective_until: string | null;
+          p_notes: string | null;
+        };
+        Returns: string;
+      };
+      list_volunteer_assignments: {
+        Args: { p_profile_id: string };
+        Returns: {
+          assignment_id: string;
+          event_id: string;
+          event_name: string;
+          event_status: EventStatus;
+          event_starts_at: string;
+          event_ends_at: string;
+          event_timezone: string;
+          assignment_role: string;
+          assignment_status: VolunteerAssignmentStatus;
+          assignment_starts_at: string | null;
+          assignment_ends_at: string | null;
+        }[];
+      };
+      list_schedulable_events: {
+        Args: Record<never, never>;
+        Returns: {
+          event_id: string;
+          event_name: string;
+          event_status: EventStatus;
+          starts_at: string;
+          ends_at: string;
+          timezone: string;
+        }[];
+      };
+      schedule_volunteer: {
+        Args: {
+          p_event_id: string;
+          p_profile_id: string;
+          p_assignment_role: string;
+          p_starts_at: string | null;
+          p_ends_at: string | null;
+        };
+        Returns: string;
+      };
+      set_volunteer_assignment_status: {
+        Args: {
+          p_assignment_id: string;
+          p_status: VolunteerAssignmentStatus;
+        };
+        Returns: undefined;
+      };
       set_child_tags: {
         Args: {
           p_student_id: string;
@@ -449,6 +655,9 @@ export type Database = {
       student_status: StudentStatus;
       event_status: EventStatus;
       volunteer_assignment_status: VolunteerAssignmentStatus;
+      background_check_status: BackgroundCheckStatus;
+      volunteer_certification_status: VolunteerCertificationStatus;
+      volunteer_skill_level: VolunteerSkillLevel;
       audit_result: AuditResult;
       audit_source: AuditSource;
     };
