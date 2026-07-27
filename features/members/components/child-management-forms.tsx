@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 
 import {
+  addChildRelationshipAction,
   updateChildDetailsAction,
   updateChildRelationshipAction,
 } from "@/features/members/actions/child-management-actions";
@@ -11,6 +12,12 @@ import type {
   ChildRelationship,
   ChildWorkspace,
 } from "@/features/members/types/child-workspace";
+
+type AvailableAdult = {
+  personId: string;
+  displayName: string;
+  householdRelationship: string;
+};
 
 const initialState = { success: false } as const;
 const inputClass =
@@ -102,6 +109,68 @@ export function ChildRelationshipForm({ relationship, studentId }: Readonly<{ re
       <Message state={state} />
       <button className="min-h-11 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:bg-slate-400" disabled={pending}>
         {pending ? "Saving…" : "Save permissions"}
+      </button>
+    </form>
+  );
+}
+
+export function AddChildRelationshipForm({
+  adults,
+  studentId,
+}: Readonly<{ adults: AvailableAdult[]; studentId: string }>) {
+  const [state, action, pending] = useActionState(
+    addChildRelationshipAction,
+    initialState,
+  );
+  if (adults.length === 0) return null;
+  const options = [
+    ["isLegalGuardian", "Legal guardian"],
+    ["isEmergencyContact", "Emergency contact"],
+    ["isAuthorizedPickup", "Authorized pickup"],
+    ["maySignPermissionForms", "May sign permission forms"],
+    ["mayViewStudentInformation", "May view child information"],
+    ["receiveEmail", "Receive email"],
+    ["receiveSms", "Receive text messages"],
+  ];
+  return (
+    <form action={action}
+      className="space-y-4 rounded-lg border border-dashed border-sky-300 bg-white p-4">
+      <input name="studentId" type="hidden" value={studentId} />
+      <h3 className="font-semibold text-slate-950">
+        Add parent or guardian relationship
+      </h3>
+      <p className="text-sm text-slate-600">
+        Only adults already recorded in this family are available. Select each
+        permission explicitly.
+      </p>
+      <label className="block text-sm font-medium text-slate-800">
+        Family adult
+        <select className={inputClass} name="personId" required>
+          <option value="">Select an adult</option>
+          {adults.map((adult) => (
+            <option key={adult.personId} value={adult.personId}>
+              {adult.displayName} — {adult.householdRelationship}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="block text-sm font-medium text-slate-800">
+        Relationship to child
+        <input className={inputClass} maxLength={80} name="relationshipType"
+          placeholder="Mother, Father, Guardian…" required />
+      </label>
+      <div className="grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
+        {options.map(([name, label]) => (
+          <label className="flex items-center gap-2" key={name}>
+            <input name={name} type="checkbox" />
+            {label}
+          </label>
+        ))}
+      </div>
+      <Message state={state} />
+      <button className="min-h-11 rounded-lg bg-sky-700 px-4 py-2 text-sm font-semibold text-white disabled:bg-slate-400"
+        disabled={pending}>
+        {pending ? "Adding…" : "Add relationship"}
       </button>
     </form>
   );

@@ -1,5 +1,13 @@
 # Testing Change Log
 
+## v0.9.0 — 2026-07-27
+
+### Added
+
+- Added the Milestone 8 Attendance test report.
+- Recorded synthetic database, full regression, production build, connected
+  Supabase, and two-account acceptance results.
+
 ## v0.8.0 — 2026-07-26
 
 ### Added

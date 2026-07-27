@@ -4,6 +4,7 @@ This section preserves milestone outcomes and implementation history.
 
 ## Entries
 
+- [Milestone 8 — Attendance](2026-07-27_Milestone8_Attendance.md)
 - [Milestone 7 — Volunteer Management](2026-07-26_Milestone7_Volunteer_Management.md)
 - [Milestone 6 — Member Management](2026-07-24_Milestone6_Member_Management.md)
 - [Milestone 3 — Authentication & User Management Reconciliation](2026-07-24_Milestone3_User_Management_Reconciliation.md)

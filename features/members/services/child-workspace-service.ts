@@ -92,6 +92,48 @@ export async function updateChildRelationship(input: {
   return { success: !error };
 }
 
+export async function listAvailableChildRelationshipAdults(studentId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc(
+    "list_available_child_relationship_adults",
+    { p_student_id: studentId },
+  );
+  if (error) return [];
+  return (data ?? []).map((adult) => ({
+    personId: adult.person_id,
+    displayName: adult.display_name,
+    householdRelationship: adult.household_relationship,
+  }));
+}
+
+export async function addChildRelationship(input: {
+  studentId: string;
+  personId: string;
+  relationshipType: string;
+  isLegalGuardian: boolean;
+  isEmergencyContact: boolean;
+  isAuthorizedPickup: boolean;
+  maySignPermissionForms: boolean;
+  mayViewStudentInformation: boolean;
+  receiveEmail: boolean;
+  receiveSms: boolean;
+}) {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("add_child_relationship", {
+    p_student_id: input.studentId,
+    p_person_id: input.personId,
+    p_relationship_type: input.relationshipType,
+    p_is_legal_guardian: input.isLegalGuardian,
+    p_is_emergency_contact: input.isEmergencyContact,
+    p_is_authorized_pickup: input.isAuthorizedPickup,
+    p_may_sign_permission_forms: input.maySignPermissionForms,
+    p_may_view_student_information: input.mayViewStudentInformation,
+    p_receive_email: input.receiveEmail,
+    p_receive_sms: input.receiveSms,
+  });
+  return { success: !error };
+}
+
 export async function createChild(input: {
   householdId: string;
   guardianPersonId: string;

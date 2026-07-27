@@ -1,5 +1,14 @@
 # Roadmap Change Log
 
+## v0.9.0 — 2026-07-27
+
+### Completed
+
+- Marked Milestone 8 — Attendance complete.
+- Recorded verified manual/class attendance, custody check-in, QR passes,
+  visitors, emergency rosters, corrections, and operational reports.
+- Confirmed Milestone 9 remains not started.
+
 ## v0.8.0 — 2026-07-26
 
 ### Completed

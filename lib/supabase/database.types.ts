@@ -38,6 +38,14 @@ export type EventStatus =
   | "completed"
   | "archived";
 
+export type CheckInStatus =
+  | "expected"
+  | "checked_in"
+  | "checked_out"
+  | "exception";
+
+export type VisitorCheckInStatus = "checked_in" | "checked_out";
+
 export type VolunteerAssignmentStatus =
   | "assigned"
   | "confirmed"
@@ -58,6 +66,8 @@ export type VolunteerSkillLevel =
   | "beginner"
   | "proficient"
   | "advanced";
+
+export type AttendanceStatus = "pending" | "present" | "absent" | "excused";
 
 export type AuditResult = "success" | "failure" | "denied";
 export type AuditSource = "web" | "api" | "system" | "migration";
@@ -270,6 +280,33 @@ export type VolunteerAvailabilityRow = {
   updated_at: string;
 };
 
+export type AttendanceSessionRow = {
+  id: string;
+  event_id: string;
+  session_date: string;
+  class_name: string;
+  starts_at: string | null;
+  ends_at: string | null;
+  finalized_at: string | null;
+  finalized_by_profile_id: string | null;
+  created_by_profile_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AttendanceRecordRow = {
+  id: string;
+  session_id: string;
+  student_id: string;
+  status: AttendanceStatus;
+  notes: string | null;
+  recorded_by_profile_id: string | null;
+  corrected_at: string | null;
+  corrected_by_profile_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -318,6 +355,14 @@ export type Database = {
       volunteer_availability: TableDefinition<
         VolunteerAvailabilityRow,
         "profile_id" | "day_of_week" | "starts_at" | "ends_at"
+      >;
+      attendance_sessions: TableDefinition<
+        AttendanceSessionRow,
+        "event_id" | "session_date" | "class_name"
+      >;
+      attendance_records: TableDefinition<
+        AttendanceRecordRow,
+        "session_id" | "student_id"
       >;
     };
     Views: Record<never, never>;
@@ -571,6 +616,187 @@ export type Database = {
         };
         Returns: undefined;
       };
+      list_attendance_events: {
+        Args: Record<never, never>;
+        Returns: {
+          event_id: string;
+          event_name: string;
+          event_status: EventStatus;
+          starts_at: string;
+          ends_at: string;
+          timezone: string;
+        }[];
+      };
+      list_attendance_sessions: {
+        Args: Record<never, never>;
+        Returns: {
+          session_id: string;
+          event_id: string;
+          event_name: string;
+          session_date: string;
+          class_name: string;
+          starts_at: string | null;
+          ends_at: string | null;
+          finalized_at: string | null;
+          present_count: number;
+          absent_count: number;
+          excused_count: number;
+          pending_count: number;
+        }[];
+      };
+      list_attendance_report_sessions: {
+        Args: { p_from_date: string; p_to_date: string };
+        Returns: {
+          session_id: string;
+          session_date: string;
+          event_name: string;
+          class_name: string;
+          finalized_at: string | null;
+          present_count: number;
+          absent_count: number;
+          excused_count: number;
+          pending_count: number;
+        }[];
+      };
+      list_checkin_report_events: {
+        Args: { p_from_date: string; p_to_date: string };
+        Returns: {
+          event_id: string;
+          event_name: string;
+          starts_at: string;
+          checked_in_count: number;
+          checked_out_count: number;
+          exception_count: number;
+          visitor_count: number;
+          visitor_checked_out_count: number;
+        }[];
+      };
+      create_attendance_session: {
+        Args: {
+          p_event_id: string;
+          p_session_date: string;
+          p_class_name: string;
+          p_starts_at: string | null;
+          p_ends_at: string | null;
+        };
+        Returns: string;
+      };
+      list_attendance_roster: {
+        Args: { p_session_id: string; p_search?: string | null };
+        Returns: {
+          student_id: string;
+          display_name: string;
+          household_name: string;
+          grade: string;
+          student_status: StudentStatus;
+          attendance_record_id: string | null;
+          attendance_status: AttendanceStatus;
+          notes: string | null;
+          corrected_at: string | null;
+        }[];
+      };
+      save_attendance_record: {
+        Args: {
+          p_session_id: string;
+          p_student_id: string;
+          p_status: AttendanceStatus;
+          p_notes: string | null;
+        };
+        Returns: string;
+      };
+      finalize_attendance_session: {
+        Args: { p_session_id: string };
+        Returns: undefined;
+      };
+      list_checkin_events: {
+        Args: Record<never, never>;
+        Returns: {
+          event_id: string;
+          event_name: string;
+          starts_at: string;
+          ends_at: string;
+          timezone: string;
+        }[];
+      };
+      search_checkin_households: {
+        Args: { p_event_id: string; p_search: string };
+        Returns: {
+          household_id: string;
+          household_name: string;
+          student_count: number;
+        }[];
+      };
+      get_checkin_household: {
+        Args: { p_event_id: string; p_household_id: string };
+        Returns: Json;
+      };
+      check_in_student: {
+        Args: { p_event_id: string; p_student_id: string };
+        Returns: string;
+      };
+      check_out_student: {
+        Args: {
+          p_event_id: string;
+          p_student_id: string;
+          p_pickup_person_id: string | null;
+          p_override_reason: string | null;
+        };
+        Returns: undefined;
+      };
+      correct_student_check_in: {
+        Args: {
+          p_event_id: string;
+          p_student_id: string;
+          p_reason: string;
+        };
+        Returns: undefined;
+      };
+      list_emergency_roster: {
+        Args: { p_event_id: string };
+        Returns: {
+          check_in_id: string;
+          student_id: string;
+          display_name: string;
+          household_name: string;
+          checked_in_at: string;
+          has_care_alert: boolean;
+          emergency_contact: string | null;
+        }[];
+      };
+      check_in_visitor: {
+        Args: {
+          p_event_id: string;
+          p_first_name: string;
+          p_last_name: string;
+          p_grade: string | null;
+          p_guardian_name: string;
+          p_guardian_contact: string;
+        };
+        Returns: string;
+      };
+      check_out_visitor: {
+        Args: { p_visitor_id: string };
+        Returns: undefined;
+      };
+      list_checked_in_visitors: {
+        Args: { p_event_id: string };
+        Returns: {
+          visitor_id: string;
+          display_name: string;
+          grade: string | null;
+          guardian_name: string;
+          guardian_contact: string;
+          checked_in_at: string;
+        }[];
+      };
+      issue_family_checkin_token: {
+        Args: { p_household_id: string };
+        Returns: string;
+      };
+      resolve_family_checkin_token: {
+        Args: { p_event_id: string; p_token: string };
+        Returns: string;
+      };
       set_child_tags: {
         Args: {
           p_student_id: string;
@@ -646,6 +872,29 @@ export type Database = {
         };
         Returns: undefined;
       };
+      list_available_child_relationship_adults: {
+        Args: { p_student_id: string };
+        Returns: {
+          person_id: string;
+          display_name: string;
+          household_relationship: string;
+        }[];
+      };
+      add_child_relationship: {
+        Args: {
+          p_student_id: string;
+          p_person_id: string;
+          p_relationship_type: string;
+          p_is_legal_guardian: boolean;
+          p_is_emergency_contact: boolean;
+          p_is_authorized_pickup: boolean;
+          p_may_sign_permission_forms: boolean;
+          p_may_view_student_information: boolean;
+          p_receive_email: boolean;
+          p_receive_sms: boolean;
+        };
+        Returns: undefined;
+      };
     };
     Enums: {
       account_role: AccountRole;
@@ -658,6 +907,9 @@ export type Database = {
       background_check_status: BackgroundCheckStatus;
       volunteer_certification_status: VolunteerCertificationStatus;
       volunteer_skill_level: VolunteerSkillLevel;
+      attendance_status: AttendanceStatus;
+      check_in_status: CheckInStatus;
+      visitor_check_in_status: VisitorCheckInStatus;
       audit_result: AuditResult;
       audit_source: AuditSource;
     };

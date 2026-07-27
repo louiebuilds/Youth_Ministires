@@ -11,6 +11,7 @@ import {
 } from "@/features/members/schemas/child-management-schema";
 import {
   createChild,
+  addChildRelationship,
   createMemberTag,
   setChildTags,
   updateChildDetails,
@@ -68,6 +69,33 @@ export async function updateChildRelationshipAction(
   }
   revalidatePath(`/students/${parsed.data.studentId}`);
   return { success: true, message: "Relationship permissions updated and audited." };
+}
+
+export async function addChildRelationshipAction(
+  _state: FamilyManagementState,
+  formData: FormData,
+): Promise<FamilyManagementState> {
+  const parsed = childRelationshipSchema.safeParse({
+    studentId: formData.get("studentId"),
+    personId: formData.get("personId"),
+    relationshipType: formData.get("relationshipType"),
+    isLegalGuardian: checked(formData, "isLegalGuardian"),
+    isEmergencyContact: checked(formData, "isEmergencyContact"),
+    isAuthorizedPickup: checked(formData, "isAuthorizedPickup"),
+    maySignPermissionForms: checked(formData, "maySignPermissionForms"),
+    mayViewStudentInformation: checked(formData, "mayViewStudentInformation"),
+    receiveEmail: checked(formData, "receiveEmail"),
+    receiveSms: checked(formData, "receiveSms"),
+  });
+  if (!parsed.success) {
+    return { success: false, message: "Review the new relationship." };
+  }
+  const result = await addChildRelationship(parsed.data);
+  if (!result.success) {
+    return { success: false, message: "This relationship could not be added." };
+  }
+  revalidatePath(`/students/${parsed.data.studentId}`);
+  return { success: true, message: "Relationship added and audited." };
 }
 
 export async function createChildAction(

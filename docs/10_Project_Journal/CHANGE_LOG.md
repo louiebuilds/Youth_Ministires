@@ -1,5 +1,14 @@
 # Project Journal Change Log
 
+## v0.9.0 — 2026-07-27
+
+### Added
+
+- Added the Milestone 8 Attendance journal.
+- Recorded attendance, check-in, visitor, QR-pass, correction, reporting, and
+  two-account acceptance outcomes.
+- Confirmed Milestone 9 remains not started.
+
 ## v0.8.0 — 2026-07-26
 
 ### Added

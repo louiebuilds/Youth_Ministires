@@ -5,11 +5,15 @@ import { z } from "zod";
 
 import { requireCapability } from "@/features/auth/services/authorization-service";
 import {
+  AddChildRelationshipForm,
   ChildDetailsForm,
   ChildRelationshipForm,
 } from "@/features/members/components/child-management-forms";
 import { ChildTagForms } from "@/features/members/components/child-tag-forms";
-import { getChildWorkspace } from "@/features/members/services/child-workspace-service";
+import {
+  getChildWorkspace,
+  listAvailableChildRelationshipAdults,
+} from "@/features/members/services/child-workspace-service";
 import { listMemberTags } from "@/features/members/services/member-directory-service";
 
 export const metadata: Metadata = { title: "Child workspace" };
@@ -34,6 +38,9 @@ export default async function ChildWorkspacePage({
 
   const { child } = result;
   const allTags = child.canManage ? await listMemberTags() : [];
+  const availableAdults = child.canManage
+    ? await listAvailableChildRelationshipAdults(child.id)
+    : [];
   return (
     <div className="space-y-8">
       <section>
@@ -95,6 +102,10 @@ export default async function ChildWorkspacePage({
             {child.relationships.map((relationship) => (
               <ChildRelationshipForm key={relationship.personId} relationship={relationship} studentId={child.id} />
             ))}
+            <AddChildRelationshipForm
+              adults={availableAdults}
+              studentId={child.id}
+            />
           </div>
           <ChildTagForms
             allTags={allTags}

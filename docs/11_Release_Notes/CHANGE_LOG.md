@@ -1,5 +1,13 @@
 # Release Notes Change Log
 
+## v0.9.0 — 2026-07-27
+
+### Added
+
+- Published Milestone 8 Attendance release notes.
+- Documented attendance, custody, QR pass, visitor, reporting, correction,
+  relationship-permission, security, and acceptance outcomes.
+
 ## v0.8.0 — 2026-07-26
 
 ### Added

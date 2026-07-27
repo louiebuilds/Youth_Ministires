@@ -5,6 +5,7 @@ records for the Youth Ministries Platform.
 
 ## Test Reports
 
+- [Milestone 8 Attendance Test Report](2026-07-27_Milestone8_Attendance_Test_Report.md)
 - [Milestone 7 Volunteer Management Test Report](2026-07-26_Milestone7_Volunteer_Management_Test_Report.md)
 - [Milestone 6 Member Management Test Report](2026-07-24_Milestone6_Member_Management_Test_Report.md)
 - [Milestone 3 User Management Reconciliation Test Report](2026-07-24_Milestone3_User_Management_Reconciliation_Test_Report.md)
@@ -16,5 +17,5 @@ records for the Youth Ministries Platform.
 
 ## Current Status
 
-Milestone 7 automated verification, connected Supabase checks, production
+Milestone 8 automated verification, connected Supabase checks, production
 build, and two-account Product Owner acceptance testing passed.

@@ -23,11 +23,12 @@ planning, status reporting, and future scope must reference this roadmap.
 | 5 | Ministry Dashboard | Complete |
 | 6 | Member Management | Complete |
 | 7 | Volunteer Management | Complete |
-| 8–20 | Later approved roadmap | Not started |
+| 8 | Attendance | Complete |
+| 9–20 | Later approved roadmap | Not started |
 
-Milestones 3, 5, 6, and 7 were accepted by the Product Owner using separate
-administrative and family accounts. Milestone 7 acceptance passed on
-2026-07-26. Milestone 8 has not started.
+Milestones 3, 5, 6, 7, and 8 were accepted by the Product Owner using separate
+administrative and family accounts. Milestone 8 acceptance passed on
+2026-07-27.
 
 ## Historical Numbering Reconciliation
 
@@ -196,12 +197,21 @@ family-denial contexts.
 
 ## Milestone 8 — Attendance
 
+**Status:** Complete
+
 - Check-in
 - QR-code check-in
 - Manual attendance
 - Class attendance
 - Visitor tracking
 - Reports
+
+The completed implementation includes manual and class attendance sessions,
+audited corrections and finalization, event custody check-in and check-out,
+short-lived one-use family QR passes, explicit authorized-pickup confirmation,
+temporary visitor tracking, emergency rosters, and date-filtered operational
+reports. Mobile camera scanning remains Milestone 19, event creation remains
+Milestone 9, and cross-ministry analytics remain Milestone 16.
 
 ## Milestone 9 — Events
 
@@ -320,4 +330,4 @@ family-denial contexts.
 - A milestone is complete only after implementation, automated verification,
   Product Owner acceptance, documentation, and a milestone commit.
 - Synthetic data is required for development and testing.
-- Milestone 8 must not begin until the Product Owner explicitly starts it.
+- Milestone 9 must not begin until the Product Owner explicitly starts it.
