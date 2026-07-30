@@ -1,5 +1,13 @@
 # Testing Change Log
 
+## v0.10.0 — 2026-07-30
+
+### Added
+
+- Added the Milestone 9 Events test report.
+- Recorded full migration-chain verification, regressions, production build,
+  connected Supabase checks, and administrator/family acceptance.
+
 ## v0.9.0 — 2026-07-27
 
 ### Added

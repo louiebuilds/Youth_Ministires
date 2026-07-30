@@ -1,5 +1,14 @@
 # Project Journal Change Log
 
+## v0.10.0 — 2026-07-30
+
+### Added
+
+- Added the Milestone 9 Events journal.
+- Recorded event lifecycle, registration, capacity, waitlist, volunteer,
+  reminder, checklist, security, and two-account acceptance outcomes.
+- Confirmed Milestone 10 remains not started.
+
 ## v0.9.0 — 2026-07-27
 
 ### Added

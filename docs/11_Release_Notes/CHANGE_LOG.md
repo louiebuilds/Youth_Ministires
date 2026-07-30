@@ -1,5 +1,13 @@
 # Release Notes Change Log
 
+## v0.10.0 — 2026-07-30
+
+### Added
+
+- Published Milestone 9 Events release notes.
+- Documented event lifecycle, registration and capacity, volunteer
+  assignments, reminders, checklists, security, verification, and acceptance.
+
 ## v0.9.0 — 2026-07-27
 
 ### Added

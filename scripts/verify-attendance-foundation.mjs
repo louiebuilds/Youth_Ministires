@@ -19,6 +19,15 @@ const migrationPaths = [
   "supabase/migrations/202607260007_checkin_correction_repair.sql",
   "supabase/migrations/202607260008_checkin_reentry_after_correction.sql",
   "supabase/migrations/202607270001_attendance_reports.sql",
+  "supabase/migrations/202607270002_event_management_foundation.sql",
+  "supabase/migrations/202607300001_event_registration_foundation.sql",
+  "supabase/migrations/202607300002_event_registration_settings.sql",
+  "supabase/migrations/202607300003_family_event_registration_options.sql",
+  "supabase/migrations/202607300004_family_event_registration.sql",
+  "supabase/migrations/202607300005_family_event_registration_cancellation.sql",
+  "supabase/migrations/202607300006_event_registration_management.sql",
+  "supabase/migrations/202607300007_event_volunteer_workspace.sql",
+  "supabase/migrations/202607300008_event_planning_tools.sql",
 ];
 
 const ids = {
@@ -595,6 +604,148 @@ try {
   assert.equal(reenteredRecord.rows[0].exception_reason, null);
   assert.equal(reenteredRecord.rows[0].override_by_profile_id, null);
 
+  const parentEvents = await asAuthenticated(ids.parent, () =>
+    db.query(
+      `
+        select * from public.list_event_calendar(
+          '2099-09-01', '2099-09-30', null, null
+        )
+      `,
+    ),
+  );
+  assert.equal(
+    parentEvents.rows.some((event) => event.event_id === ids.event),
+    true,
+    "Parent calendar includes published events",
+  );
+  const createdEvent = await asAuthenticated(ids.admin, () =>
+    db.query(
+      `
+        select public.create_event(
+          'Synthetic Managed Event', 'Synthetic Test', 'draft', null,
+          '2099-09-05 18:00', '2099-09-05 20:00', 'America/Chicago',
+          25, 'Synthetic Campus', null, null, null, null
+        ) as event_id
+      `,
+    ),
+  );
+  const managedEventId = createdEvent.rows[0].event_id;
+  const managerCalendar = await asAuthenticated(ids.admin, () =>
+    db.query(
+      `
+        select * from public.list_event_calendar(
+          '2099-09-01', '2099-09-30', 'Managed', 'draft'
+        )
+      `,
+    ),
+  );
+  assert.equal(managerCalendar.rows[0].event_id, managedEventId);
+  const parentDraftCalendar = await asAuthenticated(ids.parent, () =>
+    db.query(
+      `
+        select * from public.list_event_calendar(
+          '2099-09-01', '2099-09-30', 'Managed', null
+        )
+      `,
+    ),
+  );
+  assert.equal(
+    parentDraftCalendar.rows.length,
+    0,
+    "Parents cannot discover draft events",
+  );
+  await asAuthenticated(ids.admin, () =>
+    db.query("select public.archive_event($1)", [managedEventId]),
+  );
+  const archivedEvent = await db.query(
+    "select status, archived_at from public.events where id = $1",
+    [managedEventId],
+  );
+  assert.equal(archivedEvent.rows[0].status, "archived");
+  assert.ok(archivedEvent.rows[0].archived_at);
+
+  await asAuthenticated(ids.admin, () =>
+    db.query(
+      `
+        select public.update_event_registration_settings(
+          $1, 1, 1, null, null
+        )
+      `,
+      [ids.event],
+    ),
+  );
+  const familyOptions = await asAuthenticated(ids.parent, () =>
+    db.query(
+      "select * from public.list_my_event_registration_options($1)",
+      [ids.event],
+    ),
+  );
+  assert.equal(familyOptions.rows[0].student_id, ids.student);
+  const registration = await asAuthenticated(ids.parent, () =>
+    db.query(
+      "select public.register_my_student_for_event($1, $2) as status",
+      [ids.event, ids.student],
+    ),
+  );
+  assert.equal(registration.rows[0].status, "registered");
+  const registrationId = (
+    await db.query(
+      `
+        select id from public.event_registrations
+        where event_id = $1 and student_id = $2
+      `,
+      [ids.event, ids.student],
+    )
+  ).rows[0].id;
+  await asAuthenticated(ids.parent, () =>
+    db.query("select public.cancel_my_event_registration($1)", [
+      registrationId,
+    ]),
+  );
+  const reminderId = (
+    await asAuthenticated(ids.admin, () =>
+      db.query(
+        `
+          select public.create_event_reminder(
+            $1, 'Synthetic reminder', '2099-09-01 12:00', null
+          ) as id
+        `,
+        [ids.event],
+      ),
+    )
+  ).rows[0].id;
+  await asAuthenticated(ids.admin, () =>
+    db.query(
+      "select public.set_event_reminder_status($1, 'completed')",
+      [reminderId],
+    ),
+  );
+  const checklistId = (
+    await asAuthenticated(ids.admin, () =>
+      db.query(
+        `
+          select public.create_event_checklist_item(
+            $1, 'Synthetic checklist item', null, null
+          ) as id
+        `,
+        [ids.event],
+      ),
+    )
+  ).rows[0].id;
+  await asAuthenticated(ids.admin, () =>
+    db.query(
+      "select public.set_event_checklist_item_completed($1, true)",
+      [checklistId],
+    ),
+  );
+  const eventAssignments = await asAuthenticated(ids.admin, () =>
+    db.query(
+      "select * from public.list_event_volunteer_assignments($1)",
+      [ids.event],
+    ),
+  );
+  assert.equal(eventAssignments.rows[0].assignment_id, ids.assignment);
+
   await expectDatabaseError(
     () =>
       asAuthenticated(ids.assignedVolunteer, () =>
@@ -620,7 +771,7 @@ try {
     "Unassigned volunteer cannot check in a visitor",
   );
 
-  console.log("Attendance foundation verification passed.");
+  console.log("Attendance and event management verification passed.");
 } finally {
   await db.close();
 }

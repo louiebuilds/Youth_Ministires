@@ -1,5 +1,14 @@
 # Roadmap Change Log
 
+## v0.10.0 — 2026-07-30
+
+### Completed
+
+- Marked Milestone 9 — Events complete.
+- Recorded verified event lifecycle, registration, capacity, waitlist,
+  volunteer-assignment, reminder, and checklist workflows.
+- Confirmed Milestone 10 remains not started.
+
 ## v0.9.0 — 2026-07-27
 
 ### Completed

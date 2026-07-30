@@ -38,6 +38,8 @@ export type EventStatus =
   | "completed"
   | "archived";
 
+export type EventReminderStatus = "scheduled" | "completed" | "cancelled";
+
 export type CheckInStatus =
   | "expected"
   | "checked_in"
@@ -176,6 +178,12 @@ export type EventRow = {
   ends_at: string;
   timezone: string;
   capacity: number | null;
+  description: string | null;
+  campus: string | null;
+  building: string | null;
+  room: string | null;
+  address: string | null;
+  meeting_instructions: string | null;
   archived_at: string | null;
   created_at: string;
   updated_at: string;
@@ -367,6 +375,218 @@ export type Database = {
     };
     Views: Record<never, never>;
     Functions: {
+      list_event_calendar: {
+        Args: {
+          p_from_date: string;
+          p_to_date: string;
+          p_search?: string | null;
+          p_status?: EventStatus | null;
+        };
+        Returns: {
+          event_id: string;
+          event_name: string;
+          event_type: string;
+          event_status: EventStatus;
+          starts_at: string;
+          ends_at: string;
+          timezone: string;
+          capacity: number | null;
+          campus: string | null;
+          building: string | null;
+          room: string | null;
+          can_manage: boolean;
+        }[];
+      };
+      get_event_workspace: {
+        Args: { p_event_id: string };
+        Returns: Json;
+      };
+      get_event_registration_settings: {
+        Args: { p_event_id: string };
+        Returns: Json;
+      };
+      list_my_event_registration_options: {
+        Args: { p_event_id: string };
+        Returns: {
+          student_id: string;
+          student_name: string;
+          household_id: string;
+          household_name: string;
+          registration_id: string | null;
+          registration_status:
+            | "draft"
+            | "registered"
+            | "waitlisted"
+            | "confirmed"
+            | "cancelled"
+            | "completed"
+            | null;
+        }[];
+      };
+      register_my_student_for_event: {
+        Args: {
+          p_event_id: string;
+          p_student_id: string;
+        };
+        Returns:
+          | "draft"
+          | "registered"
+          | "waitlisted"
+          | "confirmed"
+          | "cancelled"
+          | "completed";
+      };
+      cancel_my_event_registration: {
+        Args: { p_registration_id: string };
+        Returns: undefined;
+      };
+      list_event_registrations: {
+        Args: { p_event_id: string };
+        Returns: {
+          registration_id: string;
+          student_id: string;
+          student_name: string;
+          household_name: string;
+          registration_status:
+            | "draft"
+            | "registered"
+            | "waitlisted"
+            | "confirmed"
+            | "cancelled"
+            | "completed";
+          waitlist_position: number | null;
+          created_at: string;
+        }[];
+      };
+      promote_waitlisted_registration: {
+        Args: { p_registration_id: string };
+        Returns: undefined;
+      };
+      list_event_volunteer_assignments: {
+        Args: { p_event_id: string };
+        Returns: {
+          assignment_id: string;
+          profile_id: string;
+          display_name: string;
+          assignment_role: string;
+          assignment_status: VolunteerAssignmentStatus;
+          assignment_starts_at: string | null;
+          assignment_ends_at: string | null;
+        }[];
+      };
+      list_event_volunteer_candidates: {
+        Args: { p_event_id: string };
+        Returns: {
+          profile_id: string;
+          display_name: string;
+          ministry_title: string | null;
+          background_check_status: BackgroundCheckStatus;
+        }[];
+      };
+      list_event_reminders: {
+        Args: { p_event_id: string };
+        Returns: {
+          reminder_id: string;
+          title: string;
+          remind_at: string;
+          reminder_status: EventReminderStatus;
+          notes: string | null;
+        }[];
+      };
+      create_event_reminder: {
+        Args: {
+          p_event_id: string;
+          p_title: string;
+          p_remind_at: string;
+          p_notes: string | null;
+        };
+        Returns: string;
+      };
+      set_event_reminder_status: {
+        Args: {
+          p_reminder_id: string;
+          p_status: EventReminderStatus;
+        };
+        Returns: undefined;
+      };
+      list_event_checklist_items: {
+        Args: { p_event_id: string };
+        Returns: {
+          checklist_item_id: string;
+          title: string;
+          notes: string | null;
+          due_at: string | null;
+          sort_order: number;
+          is_completed: boolean;
+        }[];
+      };
+      create_event_checklist_item: {
+        Args: {
+          p_event_id: string;
+          p_title: string;
+          p_notes: string | null;
+          p_due_at: string | null;
+        };
+        Returns: string;
+      };
+      set_event_checklist_item_completed: {
+        Args: {
+          p_checklist_item_id: string;
+          p_is_completed: boolean;
+        };
+        Returns: undefined;
+      };
+      update_event_registration_settings: {
+        Args: {
+          p_event_id: string;
+          p_capacity: number | null;
+          p_waitlist_capacity: number | null;
+          p_registration_opens_at: string | null;
+          p_registration_closes_at: string | null;
+        };
+        Returns: undefined;
+      };
+      create_event: {
+        Args: {
+          p_name: string;
+          p_event_type: string;
+          p_status: EventStatus;
+          p_description: string | null;
+          p_starts_at: string;
+          p_ends_at: string;
+          p_timezone: string;
+          p_capacity: number | null;
+          p_campus: string | null;
+          p_building: string | null;
+          p_room: string | null;
+          p_address: string | null;
+          p_meeting_instructions: string | null;
+        };
+        Returns: string;
+      };
+      update_event: {
+        Args: {
+          p_event_id: string;
+          p_name: string;
+          p_event_type: string;
+          p_status: EventStatus;
+          p_description: string | null;
+          p_starts_at: string;
+          p_ends_at: string;
+          p_timezone: string;
+          p_capacity: number | null;
+          p_campus: string | null;
+          p_building: string | null;
+          p_room: string | null;
+          p_address: string | null;
+          p_meeting_instructions: string | null;
+        };
+        Returns: undefined;
+      };
+      archive_event: {
+        Args: { p_event_id: string };
+        Returns: undefined;
+      };
       add_family_adult: {
         Args: {
           p_email: string | null;
@@ -903,6 +1123,7 @@ export type Database = {
       household_status: HouseholdStatus;
       student_status: StudentStatus;
       event_status: EventStatus;
+      event_reminder_status: EventReminderStatus;
       volunteer_assignment_status: VolunteerAssignmentStatus;
       background_check_status: BackgroundCheckStatus;
       volunteer_certification_status: VolunteerCertificationStatus;

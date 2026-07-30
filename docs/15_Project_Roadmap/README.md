@@ -24,11 +24,12 @@ planning, status reporting, and future scope must reference this roadmap.
 | 6 | Member Management | Complete |
 | 7 | Volunteer Management | Complete |
 | 8 | Attendance | Complete |
-| 9–20 | Later approved roadmap | Not started |
+| 9 | Events | Complete |
+| 10–20 | Later approved roadmap | Not started |
 
-Milestones 3, 5, 6, 7, and 8 were accepted by the Product Owner using separate
-administrative and family accounts. Milestone 8 acceptance passed on
-2026-07-27.
+Milestones 3, 5, 6, 7, 8, and 9 were accepted by the Product Owner using
+separate administrative and family accounts. Milestone 9 acceptance passed on
+2026-07-30.
 
 ## Historical Numbering Reconciliation
 
@@ -215,12 +216,22 @@ Milestone 9, and cross-ministry analytics remain Milestone 16.
 
 ## Milestone 9 — Events
 
+**Status:** Complete
+
 - Event calendar
 - Registration
 - Capacity management
 - Volunteer assignments
 - Reminders
 - Checklists
+
+The completed implementation includes event creation, editing, publishing,
+archiving, calendar discovery, family registration and cancellation,
+capacity-aware waitlisting, guarded manual promotion, event-centered volunteer
+assignments, in-app reminders, and auditable checklists. Email and SMS delivery
+remain Milestone 11, permission-form workflows remain Milestone 15, recurring
+rotations and calendar integration remain Milestone 14, and mobile camera
+features remain Milestone 19.
 
 ## Milestone 10 — Curriculum & Lessons
 
@@ -330,4 +341,4 @@ Milestone 9, and cross-ministry analytics remain Milestone 16.
 - A milestone is complete only after implementation, automated verification,
   Product Owner acceptance, documentation, and a milestone commit.
 - Synthetic data is required for development and testing.
-- Milestone 9 must not begin until the Product Owner explicitly starts it.
+- Milestone 10 must not begin until the Product Owner explicitly starts it.

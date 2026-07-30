@@ -1,6 +1,6 @@
 # Youth Ministries Platform Documentation
 
-> **Version:** v0.9.0
+> **Version:** v0.10.0
 > **Status:** Active Development  
 > **Project Owner:** Louie  
 > **Technical Lead & Solution Architect:** ChatGPT
@@ -95,7 +95,7 @@ All documentation should:
 
 # Current Project Status
 
-**Current Version:** v0.9.0
+**Current Version:** v0.10.0
 
 **Completed Milestones**
 
@@ -111,13 +111,14 @@ All documentation should:
 - ✅ Milestone 6 — Member Management
 - ✅ Milestone 7 — Volunteer Management
 - ✅ Milestone 8 — Attendance
+- ✅ Milestone 9 — Events
 
 **Current Status**
 
-- Milestone 8 is complete.
+- Milestone 9 is complete.
 - The [original approved roadmap](15_Project_Roadmap/README.md) is the
   authoritative milestone sequence.
-- Milestone 9 has not started.
+- Milestone 10 has not started.
 
 ---
 
