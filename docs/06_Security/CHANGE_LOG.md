@@ -1,5 +1,14 @@
 # Security Change Log
 
+## v0.11.0 — 2026-07-30
+
+### Added
+
+- Added ministry-only curriculum capabilities and database authorization.
+- Added volunteer read-only published-content access and family denial.
+- Added private storage policies, validated uploads, short-lived downloads,
+  and download-authorization auditing.
+
 ## v0.8.0 — 2026-07-26
 
 ### Added

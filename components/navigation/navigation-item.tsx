@@ -2,6 +2,7 @@
 
 import {
   BarChart3,
+  BookOpen,
   CalendarDays,
   ClipboardCheck,
   FileCheck2,
@@ -23,6 +24,7 @@ const navigationIcons: Record<NavigationItemConfig["icon"], LucideIcon> = {
   attendance: ClipboardCheck,
   "check-in": ScanLine,
   communications: MessageSquare,
+  curriculum: BookOpen,
   dashboard: LayoutDashboard,
   events: CalendarDays,
   families: House,

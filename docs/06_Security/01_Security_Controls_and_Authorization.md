@@ -113,6 +113,8 @@ The database enforces the current core-schema subset of the capability model.
 | Student relationships | Manage | Manage | Manage | Deny | Read relationships for permitted students |
 | Events | Manage | Manage | Manage | Read assigned events | Read published or active events |
 | Event assignments | Manage | Manage | Manage | Read own assignments | Read own assignments |
+| Curriculum | Manage | Manage | Manage | Read published content | Deny |
+| Curriculum files | Manage | Manage | Manage | Download published resources | Deny |
 | Audit events | Read only | Read only | Deny | Deny | Deny |
 
 `Manage` means database `select`, `insert`, `update`, and `delete` are available

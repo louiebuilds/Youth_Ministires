@@ -1,5 +1,13 @@
 # Release Notes Change Log
 
+## v0.11.0 — 2026-07-30
+
+### Added
+
+- Published Milestone 10 Curriculum & Lessons release notes.
+- Documented lessons, plans, teaching resources, private storage, security,
+  verification, and acceptance.
+
 ## v0.10.0 — 2026-07-30
 
 ### Added

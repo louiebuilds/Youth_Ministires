@@ -1,5 +1,13 @@
 # Testing Change Log
 
+## v0.11.0 — 2026-07-30
+
+### Added
+
+- Added the Milestone 10 Curriculum & Lessons test report.
+- Recorded synthetic curriculum, private-storage, full regression, production
+  build, and administrator/family acceptance results.
+
 ## v0.10.0 — 2026-07-30
 
 ### Added

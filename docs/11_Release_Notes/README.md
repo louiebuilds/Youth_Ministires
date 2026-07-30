@@ -5,6 +5,7 @@ Platform.
 
 ## Releases
 
+- [v0.11.0 — Milestone 10 Curriculum & Lessons](v0.11.0_Milestone10_Curriculum_and_Lessons.md)
 - [v0.10.0 — Milestone 9 Events](v0.10.0_Milestone9_Events.md)
 - [v0.9.0 — Milestone 8 Attendance](v0.9.0_Milestone8_Attendance.md)
 - [v0.8.0 — Milestone 7 Volunteer Management](v0.8.0_Milestone7_Volunteer_Management.md)

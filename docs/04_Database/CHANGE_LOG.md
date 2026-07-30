@@ -1,5 +1,14 @@
 # Database Change Log
 
+## v0.11.0 — 2026-07-30
+
+### Added
+
+- Added curriculum plans, lessons, ordered plan lessons, and teaching-resource
+  metadata.
+- Added private curriculum storage policies and validated file workflows.
+- Added audited, role-scoped curriculum functions and synthetic verification.
+
 ## v0.8.0 — 2026-07-26
 
 ### Added

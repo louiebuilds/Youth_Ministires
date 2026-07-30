@@ -1,10 +1,11 @@
 {
   "name": "youth-ministries-platform-app",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "curriculum-management:test": "node scripts/verify-curriculum-foundation.mjs",
     "attendance-management:test": "node scripts/verify-attendance-foundation.mjs",
     "event-management:test": "node scripts/verify-attendance-foundation.mjs",
     "dashboard:test": "node scripts/verify-ministry-dashboard.mjs",

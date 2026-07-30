@@ -1,5 +1,14 @@
 # Roadmap Change Log
 
+## v0.11.0 — 2026-07-30
+
+### Completed
+
+- Marked Milestone 10 — Curriculum & Lessons complete.
+- Recorded verified lesson, plan, discussion-guide, teaching-link, private
+  upload, and protected-download workflows.
+- Confirmed Milestone 11 remains not started.
+
 ## v0.10.0 — 2026-07-30
 
 ### Completed

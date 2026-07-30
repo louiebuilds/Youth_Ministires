@@ -11,3 +11,4 @@ These documents are the primary reference for implementation throughout the proj
 ## Implemented Feature Documents
 
 - [Volunteer Management](13_Volunteer_Management.md) — Milestone 7
+- [Curriculum and Lessons](14_Curriculum_and_Lessons.md) — Milestone 10

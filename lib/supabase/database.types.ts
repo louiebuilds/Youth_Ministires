@@ -39,6 +39,18 @@ export type EventStatus =
   | "archived";
 
 export type EventReminderStatus = "scheduled" | "completed" | "cancelled";
+export type CurriculumStatus =
+  | "draft"
+  | "published"
+  | "completed"
+  | "archived";
+export type LessonStatus = "draft" | "published" | "archived";
+export type TeachingResourceType =
+  | "document"
+  | "pdf"
+  | "video"
+  | "link"
+  | "other";
 
 export type CheckInStatus =
   | "expected"
@@ -375,6 +387,176 @@ export type Database = {
     };
     Views: Record<never, never>;
     Functions: {
+      list_lesson_library: {
+        Args: {
+          p_search?: string | null;
+          p_status?: LessonStatus | null;
+        };
+        Returns: {
+          lesson_id: string;
+          title: string;
+          summary: string | null;
+          scripture_references: string | null;
+          audience: string | null;
+          lesson_status: LessonStatus;
+          updated_at: string;
+          can_manage: boolean;
+        }[];
+      };
+      get_lesson_workspace: {
+        Args: { p_lesson_id: string };
+        Returns: Json;
+      };
+      create_lesson: {
+        Args: {
+          p_title: string;
+          p_summary: string | null;
+          p_teaching_objective: string | null;
+          p_scripture_references: string | null;
+          p_lesson_body: string | null;
+          p_discussion_guide: string | null;
+          p_preparation_notes: string | null;
+          p_audience: string | null;
+          p_status: LessonStatus;
+        };
+        Returns: string;
+      };
+      update_lesson: {
+        Args: {
+          p_lesson_id: string;
+          p_title: string;
+          p_summary: string | null;
+          p_teaching_objective: string | null;
+          p_scripture_references: string | null;
+          p_lesson_body: string | null;
+          p_discussion_guide: string | null;
+          p_preparation_notes: string | null;
+          p_audience: string | null;
+          p_status: LessonStatus;
+        };
+        Returns: undefined;
+      };
+      archive_lesson: {
+        Args: { p_lesson_id: string };
+        Returns: undefined;
+      };
+      list_curriculum_plans: {
+        Args: {
+          p_search?: string | null;
+          p_status?: CurriculumStatus | null;
+        };
+        Returns: {
+          curriculum_plan_id: string;
+          title: string;
+          summary: string | null;
+          audience: string | null;
+          curriculum_status: CurriculumStatus;
+          starts_on: string | null;
+          ends_on: string | null;
+          lesson_count: number;
+          can_manage: boolean;
+        }[];
+      };
+      get_curriculum_plan_workspace: {
+        Args: { p_curriculum_plan_id: string };
+        Returns: Json;
+      };
+      list_curriculum_plan_lessons: {
+        Args: { p_curriculum_plan_id: string };
+        Returns: {
+          plan_lesson_id: string;
+          lesson_id: string;
+          lesson_title: string;
+          lesson_status: LessonStatus;
+          scripture_references: string | null;
+          audience: string | null;
+          sequence_number: number;
+        }[];
+      };
+      create_curriculum_plan: {
+        Args: {
+          p_title: string;
+          p_summary: string | null;
+          p_audience: string | null;
+          p_status: CurriculumStatus;
+          p_starts_on: string | null;
+          p_ends_on: string | null;
+        };
+        Returns: string;
+      };
+      update_curriculum_plan: {
+        Args: {
+          p_curriculum_plan_id: string;
+          p_title: string;
+          p_summary: string | null;
+          p_audience: string | null;
+          p_status: CurriculumStatus;
+          p_starts_on: string | null;
+          p_ends_on: string | null;
+        };
+        Returns: undefined;
+      };
+      archive_curriculum_plan: {
+        Args: { p_curriculum_plan_id: string };
+        Returns: undefined;
+      };
+      add_lesson_to_curriculum_plan: {
+        Args: {
+          p_curriculum_plan_id: string;
+          p_lesson_id: string;
+        };
+        Returns: string;
+      };
+      remove_lesson_from_curriculum_plan: {
+        Args: { p_plan_lesson_id: string };
+        Returns: undefined;
+      };
+      list_lesson_teaching_resources: {
+        Args: { p_lesson_id: string };
+        Returns: {
+          teaching_resource_id: string;
+          title: string;
+          resource_type: TeachingResourceType;
+          description: string | null;
+          external_url: string | null;
+          original_file_name: string | null;
+          content_type: string | null;
+          file_size_bytes: number | null;
+          has_file: boolean;
+        }[];
+      };
+      create_teaching_resource_link: {
+        Args: {
+          p_lesson_id: string;
+          p_title: string;
+          p_resource_type: TeachingResourceType;
+          p_description: string | null;
+          p_external_url: string;
+        };
+        Returns: string;
+      };
+      archive_teaching_resource: {
+        Args: { p_teaching_resource_id: string };
+        Returns: undefined;
+      };
+      create_teaching_resource_file: {
+        Args: {
+          p_teaching_resource_id: string;
+          p_lesson_id: string;
+          p_title: string;
+          p_resource_type: TeachingResourceType;
+          p_description: string | null;
+          p_storage_object_path: string;
+          p_original_file_name: string;
+          p_content_type: string;
+          p_file_size_bytes: number;
+        };
+        Returns: string;
+      };
+      authorize_curriculum_resource_download: {
+        Args: { p_teaching_resource_id: string };
+        Returns: Json;
+      };
       list_event_calendar: {
         Args: {
           p_from_date: string;
@@ -1117,6 +1299,9 @@ export type Database = {
       };
     };
     Enums: {
+      curriculum_status: CurriculumStatus;
+      lesson_status: LessonStatus;
+      teaching_resource_type: TeachingResourceType;
       account_role: AccountRole;
       account_status: AccountStatus;
       person_status: PersonStatus;

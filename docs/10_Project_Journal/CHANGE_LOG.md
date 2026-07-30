@@ -1,5 +1,14 @@
 # Project Journal Change Log
 
+## v0.11.0 — 2026-07-30
+
+### Added
+
+- Added the Milestone 10 Curriculum & Lessons journal.
+- Recorded ministry-only access, lessons, plans, discussion guides, teaching
+  links, private files, verification, and acceptance.
+- Confirmed Milestone 11 remains not started.
+
 ## v0.10.0 — 2026-07-30
 
 ### Added

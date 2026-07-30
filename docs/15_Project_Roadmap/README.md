@@ -25,10 +25,11 @@ planning, status reporting, and future scope must reference this roadmap.
 | 7 | Volunteer Management | Complete |
 | 8 | Attendance | Complete |
 | 9 | Events | Complete |
-| 10–20 | Later approved roadmap | Not started |
+| 10 | Curriculum & Lessons | Complete |
+| 11–20 | Later approved roadmap | Not started |
 
-Milestones 3, 5, 6, 7, 8, and 9 were accepted by the Product Owner using
-separate administrative and family accounts. Milestone 9 acceptance passed on
+Milestones 3, 5, 6, 7, 8, 9, and 10 were accepted by the Product Owner using
+separate administrative and family accounts. Milestone 10 acceptance passed on
 2026-07-30.
 
 ## Historical Numbering Reconciliation
@@ -235,6 +236,8 @@ features remain Milestone 19.
 
 ## Milestone 10 — Curriculum & Lessons
 
+**Status:** Complete
+
 - Lesson library
 - Curriculum plans
 - Teaching resources
@@ -242,6 +245,14 @@ features remain Milestone 19.
 - Videos
 - PDFs
 - Discussion guides
+
+The completed ministry-only implementation includes searchable lessons,
+discussion guides, ordered curriculum plans, external HTTPS teaching links,
+and validated private PDF, document, and MP4 storage with short-lived audited
+downloads. Ministry managers maintain content, volunteers receive read-only
+published content, and family accounts are denied. General resource-library
+version history remains Milestone 13 and AI curriculum features remain
+Milestone 18.
 
 ## Milestone 11 — Communication Center
 
@@ -341,4 +352,4 @@ features remain Milestone 19.
 - A milestone is complete only after implementation, automated verification,
   Product Owner acceptance, documentation, and a milestone commit.
 - Synthetic data is required for development and testing.
-- Milestone 10 must not begin until the Product Owner explicitly starts it.
+- Milestone 11 must not begin until the Product Owner explicitly starts it.
