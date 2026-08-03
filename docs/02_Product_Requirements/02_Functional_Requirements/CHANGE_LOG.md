@@ -1,4 +1,23 @@
-﻿# Change Log — Functional Requirements
+# Change Log — Functional Requirements
+
+## Version 1.4.0
+
+### Changed
+
+- Marked Milestone 11 Communication implementation and acceptance complete.
+- Reconciled the approved synthetic-delivery scope and explicitly deferred
+  scheduling, real providers, and event-triggered automation.
+
+## Version 1.3.0
+
+### Changed
+
+- Approved the Communication requirements for Milestone 11.
+- Defined roadmap push notifications as secure in-app notifications for this
+  milestone, with native browser or mobile push delivery deferred to Milestone
+  19.
+- Required synthetic recipients and provider-safe test delivery during
+  development and acceptance.
 
 ## Version 1.2.0
 

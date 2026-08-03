@@ -1,5 +1,14 @@
 # Testing Change Log
 
+## v0.12.0 — 2026-08-03
+
+### Added
+
+- Added the Milestone 11 Communication Center test report.
+- Recorded synthetic communication, authorization, regression, lint, build,
+  and completed two-account acceptance results.
+- Recorded successful family notification read-state acceptance.
+
 ## v0.11.0 — 2026-07-30
 
 ### Added

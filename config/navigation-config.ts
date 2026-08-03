@@ -75,7 +75,7 @@ export const primaryNavigation: readonly NavigationItem[] = [
     label: "Curriculum",
   },
   {
-    capability: "communications.manage",
+    capability: "communications.view",
     href: "/communications",
     icon: "communications",
     label: "Communications",

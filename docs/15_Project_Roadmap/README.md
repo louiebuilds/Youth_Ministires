@@ -26,7 +26,9 @@ planning, status reporting, and future scope must reference this roadmap.
 | 8 | Attendance | Complete |
 | 9 | Events | Complete |
 | 10 | Curriculum & Lessons | Complete |
-| 11–20 | Later approved roadmap | Not started |
+| 11 | Communication Center | Complete |
+| 12 | Prayer & Care | Database foundation under review; not started |
+| 13–20 | Later approved roadmap | Not started |
 
 Milestones 3, 5, 6, 7, 8, 9, and 10 were accepted by the Product Owner using
 separate administrative and family accounts. Milestone 10 acceptance passed on
@@ -256,14 +258,25 @@ Milestone 18.
 
 ## Milestone 11 — Communication Center
 
+**Status:** Complete
+
 - Announcements
 - Email
 - SMS integration
-- Push notifications
+- Push notifications through secure in-app notifications; native browser or
+  mobile push delivery remains deferred to Milestone 19
 - Parent messaging
 - Volunteer messaging
 
+The implementation includes audience-scoped announcements, reusable templates,
+recipient previews, synthetic provider-safe email/SMS, communication history,
+and personal in-app notification read state. Real providers, scheduling, and
+event-triggered automation are deferred. The Product Owner accepted the
+administrator and family workflows, including notification read-state controls.
+
 ## Milestone 12 — Prayer & Care
+
+**Status:** Not started; database foundation under security review
 
 - Prayer requests
 - Care notes
@@ -352,4 +365,5 @@ Milestone 18.
 - A milestone is complete only after implementation, automated verification,
   Product Owner acceptance, documentation, and a milestone commit.
 - Synthetic data is required for development and testing.
-- Milestone 11 must not begin until the Product Owner explicitly starts it.
+- Milestone 12 feature implementation must not begin until Milestone 11 is
+  accepted, documented, and committed.

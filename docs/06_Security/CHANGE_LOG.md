@@ -1,5 +1,15 @@
 # Security Change Log
 
+## v0.12.0 — 2026-08-03
+
+### Added
+
+- Added manager-only communication composition and template controls.
+- Added audience-filtered announcements and account-owned in-app notification
+  access for volunteers and families.
+- Added masked destinations, preference suppression, synthetic-delivery safety,
+  audit history, and cross-account notification-update denial.
+
 ## v0.11.0 — 2026-07-30
 
 ### Added

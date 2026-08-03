@@ -1,5 +1,25 @@
 # Roadmap Change Log
 
+## v0.12.0 — 2026-08-03
+
+### Changed
+
+- Marked Milestone 11 Communication Center complete after implementation,
+  verification, documentation, and Product Owner acceptance.
+- Recorded the Milestone 12 database foundation as under review and outside
+  Milestone 11.
+- Preserved Milestones 13–20 as not started.
+
+## v0.11.1 — 2026-07-30
+
+### Changed
+
+- Approved the Milestone 11 boundary.
+- Clarified that its push-notification scope is secure in-app notification;
+  native browser or mobile push delivery remains deferred to Milestone 19.
+- Required synthetic, provider-safe email and SMS delivery during development
+  and acceptance.
+
 ## v0.11.0 — 2026-07-30
 
 ### Completed

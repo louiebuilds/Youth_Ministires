@@ -67,7 +67,7 @@ export async function listEmergencyRoster(
     displayName: entry.display_name,
     householdName: entry.household_name,
     checkedInAt: entry.checked_in_at,
-    hasCareAlert: entry.has_care_alert,
+    hasCareAlert: entry.medical_alert,
     emergencyContact: entry.emergency_contact,
   }));
 }

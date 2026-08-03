@@ -6,4 +6,5 @@ Additional documents will be added as development progresses.
 
 ## Guides
 
+- [Communication Center](Communication_Center.md)
 - [Curriculum and Lessons](Curriculum_and_Lessons.md)

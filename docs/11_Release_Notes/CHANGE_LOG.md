@@ -1,5 +1,13 @@
 # Release Notes Change Log
 
+## v0.12.0 — 2026-08-03
+
+### Added
+
+- Published Milestone 11 Communication Center release notes.
+- Documented announcements, templates, synthetic delivery, notifications,
+  security boundaries, verification, and deferred provider integrations.
+
 ## v0.11.0 — 2026-07-30
 
 ### Added

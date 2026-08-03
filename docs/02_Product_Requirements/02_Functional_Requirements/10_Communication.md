@@ -1,14 +1,14 @@
-﻿# Functional Requirements
+# Functional Requirements
 
 # Communication
 
 **Document ID:** FR-COMMUNICATION
 
-**Document Version:** 1.0
+**Document Version:** 1.2
 
-**Status:** Draft
+**Status:** Complete
 
-**Milestone:** 0 – Foundation
+**Milestone:** 11 — Communication Center
 
 ---
 
@@ -19,9 +19,9 @@
 | Owner | Product Owner |
 | Related Requirements | FR-HOUSEHOLD, FR-STUDENT, FR-EVENT, FR-REGISTRATION, FR-PERMISSION |
 | Related Architecture | ARCH-001 (Core Domain Model) |
-| Related Database | DB-COMMUNICATIONS *(Future)* |
-| Related APIs | API-COMMUNICATIONS *(Future)* |
-| Related Testing | TEST-COMMUNICATIONS *(Future)* |
+| Related Database | DB-COMMUNICATIONS *(Milestone 11)* |
+| Related APIs | API-COMMUNICATIONS *(Milestone 11)* |
+| Related Testing | TEST-COMMUNICATIONS *(Milestone 11)* |
 
 ---
 
@@ -39,16 +39,29 @@ This document includes:
 
 - Email
 - SMS/Text Messages
-- Parent Portal Notifications
-- Staff Notifications
+- In-App Notifications
 - Volunteer Notifications
+- Parent Messaging
+- Volunteer Messaging
 - Message Templates
-- Automated Communications
+- Manual Synthetic Communications
 - Communication History
 - Delivery Status
 - Audience Targeting
 
 Social media posting and external marketing campaigns are outside the Version 1 scope.
+
+Native browser or mobile push delivery is deferred to Milestone 19. The
+Milestone 11 roadmap item "Push notifications" is fulfilled through secure
+in-app notifications.
+
+Development and acceptance testing shall use synthetic recipients and
+provider-safe test delivery only. Real email or SMS delivery requires a
+separately approved provider configuration and production-readiness review.
+
+Scheduled delivery and event-triggered automation are not part of the approved
+Milestone 11 implementation. They require a later roadmap decision after real
+provider configuration, retry handling, and production monitoring are approved.
 
 ---
 
@@ -183,8 +196,7 @@ Version 1 shall support:
 
 - Email
 - SMS/Text
-- Parent Portal Notification
-- Staff Portal Notification
+- In-App Notification for parents, volunteers, and ministry staff
 
 Additional channels may be added in future versions.
 
@@ -206,9 +218,9 @@ Examples include:
 
 ---
 
-## FR-COMMUNICATION-005 — Automated Communications
+## FR-COMMUNICATION-005 — Automated Communications (Deferred)
 
-The system shall support automated messages triggered by business events including:
+Potential future automation may be triggered by approved business events including:
 
 - Event Registration
 - Registration Cancellation
@@ -217,6 +229,8 @@ The system shall support automated messages triggered by business events includi
 - Permission Form Reminder
 - Waitlist Promotion
 - Event Cancellation
+
+These triggers are not implemented in Milestone 11.
 
 ---
 
@@ -263,11 +277,13 @@ The platform shall honor communication preferences stored on Household relations
 
 Authorized users shall view:
 
-- Messages Sent Today
-- Scheduled Messages
-- Failed Deliveries
-- Pending Messages
-- Recent Communications
+- Recent synthetic communications
+- Delivered recipient count
+- Suppressed recipient count
+- Delivery channel and audience
+
+Scheduled, pending, and provider-failure dashboards remain deferred with live
+provider integration.
 
 ---
 
@@ -292,7 +308,7 @@ A standard communication workflow shall be:
 2. Select Template or Compose Message.
 3. Validate Recipients.
 4. Preview Message.
-5. Send or Schedule.
+5. Complete synthetic delivery.
 6. Monitor Delivery Status.
 7. Review Communication History.
 
@@ -361,7 +377,7 @@ This feature depends on:
 | AC-COMMUNICATION-002 | Multiple communication channels are supported. |
 | AC-COMMUNICATION-003 | Audience targeting functions correctly. |
 | AC-COMMUNICATION-004 | Templates are reusable. |
-| AC-COMMUNICATION-005 | Automated communications are triggered by business events. |
+| AC-COMMUNICATION-005 | Automated business-event delivery is explicitly deferred. |
 | AC-COMMUNICATION-006 | Delivery status is tracked. |
 | AC-COMMUNICATION-007 | Communication history is maintained. |
 
@@ -371,7 +387,7 @@ This feature depends on:
 
 Future versions may include:
 
-- Push notifications
+- Native browser and mobile push delivery
 - Mobile app messaging
 - Two-way messaging
 - Read receipts
@@ -389,4 +405,6 @@ These enhancements are outside the approved Version 1 scope.
 
 | Version | Date | Description |
 |----------|------|-------------|
+| 1.2 | 2026-08-03 | Recorded the implemented synthetic-delivery boundary and deferred scheduling, live providers, and event-triggered automation. |
+| 1.1 | 2026-07-30 | Approved for Milestone 11; defined in-app notification, synthetic delivery, and native-push boundaries. |
 | 1.0 | Initial | Initial Communication functional requirements. |

@@ -88,6 +88,7 @@ capabilities rather than comparing role strings directly.
 | `check_in.manage` | Allow | Allow | Allow | Assigned workflow only | Deny |
 | `permission_forms.manage` | Allow | Allow | Allow | Deny | Related submissions only |
 | `communications.manage` | Allow | Allow | Allow | Deny | Deny |
+| `communications.view` | Allow | Allow | Allow | Own messages | Own messages |
 | `reports.view` | Allow | Allow | Allow | Deny | Deny |
 | `settings.manage` | Allow | Allow | Deny | Deny | Deny |
 | `accounts.manage` | Allow | Deny | Deny | Deny | Deny |

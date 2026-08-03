@@ -1,5 +1,13 @@
 # Project Journal Change Log
 
+## v0.12.0 — 2026-08-03
+
+### Added
+
+- Added the Milestone 11 Communication Center journal.
+- Recorded implementation, verification, documentation, and completed Product
+  Owner acceptance.
+
 ## v0.11.0 — 2026-07-30
 
 ### Added

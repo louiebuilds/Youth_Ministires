@@ -1,5 +1,14 @@
 # Database Change Log
 
+## v0.12.0 — 2026-08-03
+
+### Added
+
+- Documented Communication Center tables, protected RPC workflows, synthetic
+  delivery history, and personal notification lifecycle.
+- Recorded that Milestone 12 Prayer & Care is an installed foundation under
+  review and is not part of the Milestone 11 release.
+
 ## v0.11.0 — 2026-07-30
 
 ### Added
