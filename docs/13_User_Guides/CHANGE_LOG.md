@@ -1,5 +1,12 @@
 # User Guides Change Log
 
+## v0.13.0 — 2026-08-04
+
+### Added
+
+- Added administrator, youth-pastor, family, and volunteer guidance for Prayer
+  & Care privacy and lifecycle workflows.
+
 ## v0.12.0 — 2026-08-03
 
 ### Added

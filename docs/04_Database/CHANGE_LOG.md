@@ -1,5 +1,14 @@
 # Database Change Log
 
+## v0.13.0 — 2026-08-04
+
+### Added
+
+- Added Prayer & Care tables, protected RPC workflows, person and caregiver
+  pickers, and synthetic verification.
+- Added assignment-scoped access, audit-helper protection, proper volunteer
+  names, and answered-prayer history retention.
+
 ## v0.12.0 — 2026-08-03
 
 ### Added

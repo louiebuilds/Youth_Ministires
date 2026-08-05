@@ -1,6 +1,6 @@
 # Youth Ministries Platform Documentation
 
-> **Version:** v0.12.0
+> **Version:** v0.13.0
 > **Status:** Active Development  
 > **Project Owner:** Louie  
 > **Technical Lead & Solution Architect:** ChatGPT
@@ -95,7 +95,7 @@ All documentation should:
 
 # Current Project Status
 
-**Current Version:** v0.12.0
+**Current Version:** v0.13.0
 
 **Completed Milestones**
 
@@ -114,14 +114,14 @@ All documentation should:
 - ✅ Milestone 9 — Events
 - ✅ Milestone 10 — Curriculum & Lessons
 - ✅ Milestone 11 — Communication Center
+- ✅ Milestone 12 — Prayer & Care
 
 **Current Status**
 
-- Milestone 11 — Communication Center is complete.
+- Milestone 12 — Prayer & Care is complete.
 - The [original approved roadmap](15_Project_Roadmap/README.md) is the
   authoritative milestone sequence.
-- Milestone 12 feature implementation has not started. Its existing database
-  foundation is under separate security review and is not part of Milestone 11.
+- Milestone 13 — Resource Library has not started.
 
 ---
 

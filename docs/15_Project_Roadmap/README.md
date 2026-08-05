@@ -27,12 +27,12 @@ planning, status reporting, and future scope must reference this roadmap.
 | 9 | Events | Complete |
 | 10 | Curriculum & Lessons | Complete |
 | 11 | Communication Center | Complete |
-| 12 | Prayer & Care | Database foundation under review; not started |
+| 12 | Prayer & Care | Complete |
 | 13–20 | Later approved roadmap | Not started |
 
-Milestones 3, 5, 6, 7, 8, 9, and 10 were accepted by the Product Owner using
-separate administrative and family accounts. Milestone 10 acceptance passed on
-2026-07-30.
+Milestones 3 and 5–12 were accepted by the Product Owner using separate
+administrative and family accounts. Milestone 12 acceptance passed on
+2026-08-04.
 
 ## Historical Numbering Reconciliation
 
@@ -276,13 +276,20 @@ administrator and family workflows, including notification read-state controls.
 
 ## Milestone 12 — Prayer & Care
 
-**Status:** Not started; database foundation under security review
+**Status:** Complete
 
 - Prayer requests
 - Care notes
 - Follow-up
 - Hospital visits
 - Confidential notes
+
+The completed implementation includes sanitized public prayer summaries,
+role- and assignment-scoped leadership/private requests, answered and archived
+history, confidential notes and hospital visits, assigned follow-ups,
+completion and cancellation history, care-note archival, auditing, and strict
+direct-access denial. The Product Owner accepted administrator and family
+workflows using synthetic data.
 
 ## Milestone 13 — Resource Library
 
@@ -365,5 +372,5 @@ administrator and family workflows, including notification read-state controls.
 - A milestone is complete only after implementation, automated verification,
   Product Owner acceptance, documentation, and a milestone commit.
 - Synthetic data is required for development and testing.
-- Milestone 12 feature implementation must not begin until Milestone 11 is
-  accepted, documented, and committed.
+- Milestone 13 must not begin until Milestone 12 is accepted, documented, and
+  committed.

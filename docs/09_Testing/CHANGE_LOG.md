@@ -1,5 +1,13 @@
 # Testing Change Log
 
+## v0.13.0 — 2026-08-04
+
+### Added
+
+- Added the Milestone 12 Prayer & Care test report.
+- Recorded synthetic security, lifecycle, history-retention, full regression,
+  build, and two-account acceptance results.
+
 ## v0.12.0 — 2026-08-03
 
 ### Added

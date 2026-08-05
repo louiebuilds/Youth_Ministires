@@ -13,3 +13,4 @@ These documents are the primary reference for implementation throughout the proj
 - [Volunteer Management](13_Volunteer_Management.md) — Milestone 7
 - [Curriculum and Lessons](14_Curriculum_and_Lessons.md) — Milestone 10
 - [Communication](10_Communication.md) — Milestone 11, complete
+- [Prayer & Care](15_Prayer_and_Care.md) — Milestone 12, complete

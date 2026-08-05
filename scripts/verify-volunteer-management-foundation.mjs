@@ -11,6 +11,7 @@ const migrationPaths = [
   "supabase/migrations/202607240003_volunteer_management_foundation.sql",
   "supabase/migrations/202607240004_volunteer_management_workflows.sql",
   "supabase/migrations/202607260001_volunteer_scheduling.sql",
+  "supabase/migrations/202608030004_volunteer_proper_display_names.sql",
 ];
 
 const ids = {
@@ -23,6 +24,7 @@ const ids = {
   skillAssignment: "30000000-0000-4000-8000-000000000007",
   availability: "30000000-0000-4000-8000-000000000008",
   event: "30000000-0000-4000-8000-000000000009",
+  volunteerPerson: "30000000-0000-4000-8000-000000000010",
 };
 
 const db = new PGlite();
@@ -111,6 +113,14 @@ try {
       where id in ($1, $2, $3, $4)
     `,
     [ids.admin, ids.volunteer, ids.otherVolunteer, ids.parent],
+  );
+  await db.query(
+    "insert into public.people (id, first_name, last_name) values ($1, 'Proper', 'Volunteer')",
+    [ids.volunteerPerson],
+  );
+  await db.query(
+    "update public.profiles set person_id = $1 where id = $2",
+    [ids.volunteerPerson, ids.volunteer],
   );
 
   await db.query(
@@ -232,6 +242,10 @@ try {
     2,
     "Admin can use the protected volunteer directory projection",
   );
+  assert.equal(
+    directoryRows.rows.find((row) => row.profile_id === ids.volunteer)?.display_name,
+    "Proper Volunteer",
+  );
 
   await asAuthenticated(ids.admin, () =>
     db.query(
@@ -255,6 +269,7 @@ try {
     "Updated Synthetic Leader",
     "Volunteer can load their protected self workspace",
   );
+  assert.equal(workspaceRows.rows[0].workspace.displayName, "Proper Volunteer");
   assert.equal(
     workspaceRows.rows[0].workspace.backgroundCheckReference,
     null,

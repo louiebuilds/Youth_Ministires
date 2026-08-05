@@ -1,5 +1,14 @@
 # Project Journal Change Log
 
+## v0.13.0 — 2026-08-04
+
+### Added
+
+- Added the Milestone 12 Prayer & Care journal.
+- Recorded implementation, security repairs, verification, Product Owner
+  acceptance, and the deferred moderated-community proposal.
+- Confirmed Milestone 13 remains not started.
+
 ## v0.12.0 — 2026-08-03
 
 ### Added

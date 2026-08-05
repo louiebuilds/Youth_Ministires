@@ -6,5 +6,6 @@ Additional documents will be added as development progresses.
 
 ## Guides
 
+- [Prayer & Care](Prayer_and_Care.md)
 - [Communication Center](Communication_Center.md)
 - [Curriculum and Lessons](Curriculum_and_Lessons.md)

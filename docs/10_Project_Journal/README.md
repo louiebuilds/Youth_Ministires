@@ -4,6 +4,7 @@ This section preserves milestone outcomes and implementation history.
 
 ## Entries
 
+- [Milestone 12 — Prayer & Care](2026-08-04_Milestone12_Prayer_and_Care.md)
 - [Milestone 11 — Communication Center](2026-07-30_Milestone_11_Communication_Center.md)
 - [Milestone 10 — Curriculum & Lessons](2026-07-30_Milestone10_Curriculum_and_Lessons.md)
 - [Milestone 9 — Events](2026-07-30_Milestone9_Events.md)

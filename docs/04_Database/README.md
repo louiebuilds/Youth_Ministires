@@ -14,7 +14,7 @@ database verification records for the Youth Ministries Platform.
 
 ## Current Status
 
-Milestone 11 Communication Center database implementation is complete. It adds
-announcements, templates, synthetic
-deliveries, recipient preference enforcement, in-app notifications, history,
-and notification read state.
+Milestone 12 Prayer & Care database implementation is complete. It adds
+visibility-scoped prayer requests, confidential care notes and hospital visits,
+assigned follow-ups, retained lifecycle history, protected projections, audit
+evidence, and direct-access denial.

@@ -1,5 +1,15 @@
 # Security Change Log
 
+## v0.13.0 — 2026-08-04
+
+### Added
+
+- Added sanitized public prayer projections and role-, submitter-, and
+  assignment-scoped confidential access.
+- Protected care audit helpers and denied direct care-table access.
+- Verified family, volunteer, staff, inactive-account, and cross-assignment
+  denial boundaries.
+
 ## v0.12.0 — 2026-08-03
 
 ### Added

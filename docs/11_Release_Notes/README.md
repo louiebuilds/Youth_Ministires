@@ -5,6 +5,7 @@ Platform.
 
 ## Releases
 
+- [v0.13.0 — Milestone 12 Prayer & Care](v0.13.0_Milestone12_Prayer_and_Care.md)
 - [v0.12.0 — Milestone 11 Communication Center](v0.12.0_Milestone11_Communication_Center.md)
 - [v0.11.0 — Milestone 10 Curriculum & Lessons](v0.11.0_Milestone10_Curriculum_and_Lessons.md)
 - [v0.10.0 — Milestone 9 Events](v0.10.0_Milestone9_Events.md)

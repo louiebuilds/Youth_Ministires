@@ -1,5 +1,13 @@
 # Release Notes Change Log
 
+## v0.13.0 — 2026-08-04
+
+### Added
+
+- Published Milestone 12 Prayer & Care release notes.
+- Documented prayer visibility, confidential care, follow-ups, history,
+  security boundaries, verification, and acceptance.
+
 ## v0.12.0 — 2026-08-03
 
 ### Added

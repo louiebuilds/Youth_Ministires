@@ -11,10 +11,12 @@ Ministries Platform.
 
 ## Current Status
 
-The security foundation through Milestone 7 is implemented and verified.
+The security foundation through Milestone 12 is implemented and verified.
 
 The implemented boundary includes active-account authorization, centralized
 application capabilities, role-aware navigation and routes, relationship-aware
 RLS, volunteer self-only workspaces and schedules, family-account denial,
 protected compliance references, immutable audit controls, threat and
-incident-response standards, and PII-minimized student display names.
+incident-response standards, PII-minimized student display names, sanitized
+prayer summaries, assignment-scoped pastoral care, confidential-content
+separation, and protected care auditing.

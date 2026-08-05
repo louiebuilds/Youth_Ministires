@@ -1,5 +1,21 @@
 # Change Log — Functional Requirements
 
+## Version 1.6.0
+
+### Changed
+
+- Marked Milestone 12 Prayer & Care implementation and Product Owner
+  acceptance complete.
+- Preserved Milestone 13 and the moderated-community proposal as future work.
+
+## Version 1.5.0
+
+### Added
+
+- Approved the Milestone 12 Prayer & Care access model.
+- Defined sanitized public prayer summaries, leadership and private visibility,
+  confidential-note restrictions, assigned follow-ups, and security boundaries.
+
 ## Version 1.4.0
 
 ### Changed

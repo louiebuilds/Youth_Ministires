@@ -26,7 +26,7 @@ export const getAuthenticatedAccount = cache(
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("display_name, primary_role, status")
+      .select("display_name, person_id, primary_role, status")
       .eq("id", id)
       .eq("status", "active")
       .single();
@@ -35,8 +35,22 @@ export const getAuthenticatedAccount = cache(
       return null;
     }
 
+    let displayName = profile.display_name;
+    if (profile.person_id) {
+      const { data: person } = await supabase
+        .from("people")
+        .select("first_name, preferred_name, last_name")
+        .eq("id", profile.person_id)
+        .maybeSingle();
+      if (person) {
+        displayName = [person.preferred_name || person.first_name, person.last_name]
+          .filter(Boolean)
+          .join(" ");
+      }
+    }
+
     return {
-      displayName: profile.display_name,
+      displayName,
       email,
       id,
       role: profile.primary_role,

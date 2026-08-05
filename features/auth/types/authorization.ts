@@ -12,6 +12,7 @@ export type PlatformCapability =
   | "families.view"
   | "members.manage"
   | "permission_forms.manage"
+  | "prayer_care.view"
   | "reports.view"
   | "settings.manage"
   | "students.view"
@@ -25,6 +26,7 @@ const roleCapabilities = {
     "events.view",
     "communications.view",
     "permission_forms.manage",
+    "prayer_care.view",
   ],
   platform_administrator: [
     "accounts.manage",
@@ -36,6 +38,7 @@ const roleCapabilities = {
     "attendance.manage",
     "check_in.manage",
     "permission_forms.manage",
+    "prayer_care.view",
     "events.view",
     "communications.manage",
     "communications.view",
@@ -52,9 +55,11 @@ const roleCapabilities = {
     "attendance.manage",
     "check_in.manage",
     "permission_forms.manage",
+    "prayer_care.view",
     "events.view",
     "communications.manage",
     "communications.view",
+    "prayer_care.view",
     "curriculum.view",
     "reports.view",
   ],
@@ -77,6 +82,7 @@ const roleCapabilities = {
     "attendance.manage",
     "check_in.manage",
     "permission_forms.manage",
+    "prayer_care.view",
     "events.view",
     "communications.manage",
     "communications.view",

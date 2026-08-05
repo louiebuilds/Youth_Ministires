@@ -1,5 +1,14 @@
 # Roadmap Change Log
 
+## v0.13.0 — 2026-08-04
+
+### Completed
+
+- Marked Milestone 12 Prayer & Care complete after implementation,
+  verification, documentation, and Product Owner acceptance.
+- Recorded the moderated parent/youth community idea as a future proposal only.
+- Preserved Milestones 13–20 as not started.
+
 ## v0.12.0 — 2026-08-03
 
 ### Changed
