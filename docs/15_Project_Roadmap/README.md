@@ -28,7 +28,8 @@ planning, status reporting, and future scope must reference this roadmap.
 | 10 | Curriculum & Lessons | Complete |
 | 11 | Communication Center | Complete |
 | 12 | Prayer & Care | Complete |
-| 13–20 | Later approved roadmap | Not started |
+| 13 | Resource Library | In progress |
+| 14–20 | Later approved roadmap | Not started |
 
 Milestones 3 and 5–12 were accepted by the Product Owner using separate
 administrative and family accounts. Milestone 12 acceptance passed on
@@ -292,6 +293,8 @@ direct-access denial. The Product Owner accepted administrator and family
 workflows using synthetic data.
 
 ## Milestone 13 — Resource Library
+
+**Status:** In progress
 
 - Documents
 - Images

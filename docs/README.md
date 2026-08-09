@@ -121,7 +121,8 @@ All documentation should:
 - Milestone 12 — Prayer & Care is complete.
 - The [original approved roadmap](15_Project_Roadmap/README.md) is the
   authoritative milestone sequence.
-- Milestone 13 — Resource Library has not started.
+- Milestone 13 — Resource Library is in progress.
+- Milestones 14–20 have not started.
 
 ---
 

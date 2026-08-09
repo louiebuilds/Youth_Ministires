@@ -1,5 +1,13 @@
 # Roadmap Change Log
 
+## v0.13.1 — 2026-08-05
+
+### Changed
+
+- Marked Milestone 13 Resource Library in progress after Product Owner
+  authorization.
+- Preserved Milestones 14–20 as not started.
+
 ## v0.13.0 — 2026-08-04
 
 ### Completed

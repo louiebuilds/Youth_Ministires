@@ -14,3 +14,7 @@ These documents are the primary reference for implementation throughout the proj
 - [Curriculum and Lessons](14_Curriculum_and_Lessons.md) — Milestone 10
 - [Communication](10_Communication.md) — Milestone 11, complete
 - [Prayer & Care](15_Prayer_and_Care.md) — Milestone 12, complete
+
+## Approved Feature Documents
+
+- [Resource Library](16_Resource_Library.md) — Milestone 13, in progress

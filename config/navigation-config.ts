@@ -9,6 +9,7 @@ export type NavigationIcon =
   | "permission-forms"
   | "prayer-care"
   | "reports"
+  | "resources"
   | "settings"
   | "students"
   | "volunteers";
@@ -86,6 +87,12 @@ export const primaryNavigation: readonly NavigationItem[] = [
     href: "/prayer-care",
     icon: "prayer-care",
     label: "Prayer & Care",
+  },
+  {
+    capability: "resource_library.view",
+    href: "/resources",
+    icon: "resources",
+    label: "Resources",
   },
   {
     capability: "reports.view",

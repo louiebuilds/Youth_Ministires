@@ -1,5 +1,14 @@
 # Change Log — Functional Requirements
 
+## Version 1.7.0
+
+### Added
+
+- Approved the Milestone 13 Resource Library access model and implementation
+  boundary.
+- Defined private documents, images, videos, search, categories, immutable file
+  versions, protected downloads, and audience-scoped access.
+
 ## Version 1.6.0
 
 ### Changed

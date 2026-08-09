@@ -13,7 +13,7 @@ export function UserMenu({ email, roleLabel }: UserMenuProps) {
   const initial = email.charAt(0).toUpperCase();
 
   return (
-    <details className="group relative">
+    <details className="group relative" suppressHydrationWarning>
       <summary className="flex cursor-pointer list-none items-center gap-3 rounded-lg px-2 py-1.5 text-left hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700 [&::-webkit-details-marker]:hidden">
         <span
           aria-hidden="true"
