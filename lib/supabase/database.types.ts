@@ -3773,6 +3773,16 @@ export type VolunteerCertificationStatus =
 export type VolunteerSkillLevel =
   Database["public"]["Enums"]["volunteer_skill_level"]
 
+// Milestone 14 scheduling domain. These aliases mirror the versioned
+// scheduling migrations and remain usable until the next Supabase CLI
+// regeneration incorporates the new enums into Database.
+export type MinistryScheduleStatus =
+  | "draft" | "published" | "cancelled" | "completed"
+export type ScheduleAssignmentStatus =
+  | "assigned" | "confirmed" | "declined" | "cancelled"
+export type ScheduleRotationStatus = "active" | "paused" | "ended"
+export type ScheduleRecurrencePattern = "weekly" | "biweekly" | "monthly"
+
 type NullableRpcArguments<T> = T extends { Args: infer Args }
   ? Omit<T, "Args"> & {
       Args: { [Key in keyof Args]: Args[Key] | null }

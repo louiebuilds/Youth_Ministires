@@ -10,6 +10,7 @@ export type NavigationIcon =
   | "prayer-care"
   | "reports"
   | "resources"
+  | "scheduling"
   | "settings"
   | "students"
   | "volunteers";
@@ -93,6 +94,12 @@ export const primaryNavigation: readonly NavigationItem[] = [
     href: "/resources",
     icon: "resources",
     label: "Resources",
+  },
+  {
+    capability: "scheduling.view",
+    href: "/scheduling",
+    icon: "scheduling",
+    label: "Scheduling",
   },
   {
     capability: "reports.view",

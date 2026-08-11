@@ -34,6 +34,7 @@ const navigationIcons: Record<NavigationItemConfig["icon"], LucideIcon> = {
   "prayer-care": HeartHandshake,
   reports: BarChart3,
   resources: FolderOpen,
+  scheduling: CalendarDays,
   settings: Settings,
   students: UsersRound,
   volunteers: UserRoundCheck,

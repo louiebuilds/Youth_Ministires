@@ -434,6 +434,27 @@ Deferral does not grant access. Every absent capability remains denied.
 
 | Version | Date | Description |
 |---|---|---|
+| v0.15.0 | 2026-08-11 | Added Milestone 14 manager-only Scheduling workflows, volunteer self-scope, direct-access denial, and audited conflict overrides. |
 | v0.7.0 | 2026-07-24 | Added relationship-scoped Member Management projections, medical boundaries, audited mutations, and direct-mutation denial. |
 | v0.6.1 | 2026-07-24 | Recorded audited Milestone 3 profile and existing-account administration controls. |
 | v0.5.0 | 2026-07-23 | Defined and implemented the Milestone 4 security control model. |
+## Milestone 14 Scheduling Authorization
+
+Scheduling management is restricted to active Platform Administrators, Youth
+Pastors, and Staff Members. Volunteers may read only their own assignments on
+published schedules. Parents and anonymous users are denied Scheduling access.
+
+Scheduling tables enable and force row-level security and provide no direct
+client policies. Protected security-definer RPC workflows perform server-side
+active-account and role checks. The application service is server-only and does
+not query Scheduling tables directly.
+
+Conflict overrides require an explicit reason. Assignments retain detected
+conflict codes and override reasons, and the existing audit stream records the
+override. Cancelled assignments and generated schedules remain historical.
+Rotation lifecycle changes are prospective and do not rewrite prior
+occurrences.
+
+Existing event references remain optional. The internal Scheduling/calendar
+foundation stores operational dates and IANA timezones without binding the
+security model to an external calendar provider.

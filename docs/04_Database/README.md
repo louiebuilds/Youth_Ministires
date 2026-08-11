@@ -10,11 +10,11 @@ database verification records for the Youth Ministries Platform.
 - [Volunteer Management Database](03_Volunteer_Management_Database.md)
 - [Curriculum and Lessons Database](04_Curriculum_and_Lessons_Database.md)
 - [Communication Center Database](05_Communication_Database.md)
+- [Scheduling Database](06_Scheduling_Database.md)
 - [Change Log](CHANGE_LOG.md)
 
 ## Current Status
 
-Milestone 12 Prayer & Care database implementation is complete. It adds
-visibility-scoped prayer requests, confidential care notes and hospital visits,
-assigned follow-ups, retained lifecycle history, protected projections, audit
-evidence, and direct-access denial.
+Milestone 14 Scheduling database implementation is complete. It adds schedules,
+locations, positions, assignments, and rotations through protected workflows,
+with deny-by-default tables, conflict evidence, and retained history.

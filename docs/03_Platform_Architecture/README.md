@@ -61,6 +61,7 @@ Implementation-specific details such as database schemas, API contracts, and use
 | **06_Security_Architecture.md** | Defines authentication, authorization, and security principles. |
 | **07_Deployment_Architecture.md** | Documents deployment environments and release strategy. |
 | **08_Integration_Architecture.md** | Describes integrations with external systems and services. |
+| **09_Scheduling_Architecture.md** | Defines protected Scheduling services, rotations, and calendar boundaries. |
 | **09_Architecture_Principles.md** | Defines the architectural standards and guiding principles for development. |
 
 ---
