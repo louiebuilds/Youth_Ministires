@@ -62,6 +62,7 @@ Implementation-specific details such as database schemas, API contracts, and use
 | **07_Deployment_Architecture.md** | Documents deployment environments and release strategy. |
 | **08_Integration_Architecture.md** | Describes integrations with external systems and services. |
 | **09_Scheduling_Architecture.md** | Defines protected Scheduling services, rotations, and calendar boundaries. |
+| **10_Reporting_Architecture.md** | Defines live aggregate Reporting, saved configurations, exports, and Dashboard reuse. |
 | **09_Architecture_Principles.md** | Defines the architectural standards and guiding principles for development. |
 
 ---

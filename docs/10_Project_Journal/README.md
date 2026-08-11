@@ -4,6 +4,7 @@ This section preserves milestone outcomes and implementation history.
 
 ## Entries
 
+- [Milestone 16 — Reporting & Analytics](2026-08-11_Milestone16_Reporting_and_Analytics.md)
 - [Milestone 14 — Scheduling](2026-08-11_Milestone14_Scheduling.md)
 - [Milestone 13 — Resource Library](2026-08-09_Milestone13_Resource_Library.md)
 - [Milestone 12 — Prayer & Care](2026-08-04_Milestone12_Prayer_and_Care.md)

@@ -30,7 +30,9 @@ planning, status reporting, and future scope must reference this roadmap.
 | 12 | Prayer & Care | Complete |
 | 13 | Resource Library | Complete |
 | 14 | Scheduling | Complete |
-| 15–20 | Later approved roadmap | Not started |
+| 15 | Forms & Registrations | Paused |
+| 16 | Reporting & Analytics | Complete |
+| 17–20 | Later approved roadmap | Not started |
 
 Milestones 3 and 5–12 were accepted by the Product Owner using separate
 administrative and family accounts. Milestone 12 acceptance passed on
@@ -295,7 +297,7 @@ workflows using synthetic data.
 
 ## Milestone 13 — Resource Library
 
-**Status:** In progress
+**Status:** Complete — Product Owner accepted August 11, 2026
 
 - Documents
 - Images
@@ -315,6 +317,8 @@ workflows using synthetic data.
 
 ## Milestone 15 — Forms & Registrations
 
+**Status:** Paused pending Product Owner consultation with ministry leadership
+
 - Visitor cards
 - Event registration
 - Medical-release forms
@@ -323,12 +327,19 @@ workflows using synthetic data.
 
 ## Milestone 16 — Reporting & Analytics
 
+**Status:** In progress
+
 - Attendance trends
 - Volunteer reports
 - Event reports
-- Giving statistics (optional)
+- Giving statistics excluded from Version 1
 - Growth metrics
 - Ministry health dashboard
+
+The completed implementation provides the unified `/reports` workspace,
+consistent validated date ranges, protected live aggregate projections, private
+saved-report configurations, exports, print output, and transparent metrics
+without a composite score.
 
 ## Milestone 17 — Administration
 

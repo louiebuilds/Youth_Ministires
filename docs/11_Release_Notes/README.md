@@ -5,6 +5,7 @@ Platform.
 
 ## Releases
 
+- [v0.16.0 — Milestone 16 Reporting & Analytics](v0.16.0_Milestone16_Reporting_and_Analytics.md)
 - [v0.15.0 — Milestone 14 Scheduling](v0.15.0_Milestone14_Scheduling.md)
 - [v0.14.0 — Milestone 13 Resource Library](v0.14.0_Milestone13_Resource_Library.md)
 - [v0.13.0 — Milestone 12 Prayer & Care](v0.13.0_Milestone12_Prayer_and_Care.md)

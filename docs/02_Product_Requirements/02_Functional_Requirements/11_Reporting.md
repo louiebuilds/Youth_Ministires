@@ -1,257 +1,155 @@
-﻿# Functional Requirements
-
-# Reporting
+# Reporting & Analytics
 
 **Document ID:** FR-REPORTING
 
-**Document Version:** 1.0
+**Document Version:** 2.1
 
-**Status:** Draft
+**Status:** Implemented and accepted
 
-**Milestone:** 0 – Foundation
+**Milestone:** 16 — Reporting & Analytics
 
----
+**Date:** 2026-08-11
 
-# Document Metadata
+## Purpose
 
-| Property | Value |
-|----------|-------|
-| Owner | Product Owner |
-| Related Requirements | All Functional Modules |
-| Related Architecture | ARCH-001 (Core Domain Model) |
-| Related Database | DB-REPORTS *(Future)* |
-| Related APIs | API-REPORTS *(Future)* |
-| Related Testing | TEST-REPORTS *(Future)* |
+Provide authorized ministry managers with live, transparent operational and
+historical reporting while preserving domain authorization and aggregate-first
+privacy boundaries.
 
----
+## Access Model
 
-# 1. Purpose
+Full Reporting access requires `reports.view` and an active account with one of
+these roles:
 
-The Reporting module provides leaders, volunteers, administrators, and pastors with meaningful operational and historical insights into ministry activities.
+- Platform Administrator
+- Youth Pastor
+- Staff Member
 
-Reports shall help support ministry planning, student engagement, volunteer management, and organizational decision making.
+Parents and volunteers receive no ministry-wide analytics. Application route
+visibility is not sufficient authorization; protected RPCs enforce the same
+boundary server-side. Reporting tables remain deny-by-default.
 
----
+## Workspace
 
-# 2. Scope
+The unified `/reports` workspace includes:
 
-This document includes:
-
-- Dashboard Reporting
-- Attendance Reports
-- Event Reports
-- Registration Reports
-- Household Reports
-- Student Reports
-- Volunteer Reports
-- Communication Reports
-- Permission Form Reports
-- Export Capabilities
-
----
-
-# 3. Business Objectives
-
-The Reporting module shall:
-
-- Provide accurate ministry statistics.
-- Improve ministry planning.
-- Support leadership decision making.
-- Reduce manual reporting.
-- Maintain historical trends.
-
----
-
-# 4. Business Rules
-
-## BR-REPORT-001
-
-Reports shall only display information the requesting user is authorized to access.
-
----
-
-## BR-REPORT-002
-
-Reports shall always use live application data unless explicitly generated as historical snapshots.
-
----
-
-## BR-REPORT-003
-
-Generated reports shall include generation date and requesting user.
-
----
-
-## BR-REPORT-004
-
-Reports shall support filtering.
-
----
-
-# 5. Functional Requirements
-
-## FR-REPORT-001 — Dashboard Reporting
-
-Provide operational dashboards.
-
----
-
-## FR-REPORT-002 — Attendance Reports
-
-Support:
-
-- Weekly Attendance
-- Monthly Attendance
-- Attendance Trends
-- First-Time Visitors
-- Returning Visitors
-
----
-
-## FR-REPORT-003 — Event Reports
-
-Display:
-
-- Registration Count
+- Overview
 - Attendance
-- Capacity Utilization
-- Volunteer Assignments
-- Outstanding Requirements
+- Events
+- Volunteers
+- Growth
+- Ministry Health
+- Saved Reports
+- CSV, Excel, and print-friendly exports
 
----
+Supported ranges are Last 30 days, Last 90 days, Year to date, Last 12 months,
+and a custom range. Server-side validation limits every request to 366 days.
 
-## FR-REPORT-004 — Household Reports
+## Canonical Metrics
 
-Display:
+### Attendance
 
-- Active Households
-- New Households
-- Inactive Households
-- Communication Preferences
+Finalized Attendance records with status `present` are authoritative.
 
----
+- Trend counts include finalized present records only.
+- A youth counts once per reporting day for unique-attendee measures.
+- Session reports retain session-specific totals.
+- Check-in activity remains separately labeled and is not merged into
+  Attendance.
+- First-time participants are youth whose earliest finalized present Attendance
+  date occurs in the selected range.
+- Visitor activity counts visitor check-in records. Returning-visitor continuity
+  is not claimed because the visitor domain has no durable identity.
 
-## FR-REPORT-005 — Student Reports
+### Events
 
-Display:
+Event reports show registration status totals, finalized Attendance, Event
+capacity utilization, volunteer staffing, participation, and upcoming Events.
+Registration and Attendance remain distinct. Capacity uses the existing Event
+Registration workflow's authoritative `events.capacity` field.
 
-- Active Students
-- Attendance History
-- Event Participation
-- Missing Forms
+### Volunteers and Scheduling
 
----
+Reports show service history, upcoming and historical assignment activity, and
+required/filled/unfilled position coverage. Scheduling is authoritative where
+an Event has Scheduling records. Legacy Event assignments support historical
+Events without Scheduling and must not be added to Scheduling assignments.
+Cancelled schedules and assignments are excluded from current coverage while
+remaining eligible for clearly labeled historical activity.
 
-## FR-REPORT-006 — Volunteer Reports
+### Growth
 
-Display:
+- Active youth and households use existing Member Management `active` states.
+- New youth and households are records created in the selected range.
+- First-time participants use earliest finalized present Attendance.
+- Event participation is based on Attendance and remains distinct from Event
+  registrations.
+- Visitor activity does not imply returning-visitor identity.
 
-- Assigned Events
-- Service History
-- Upcoming Assignments
+### Ministry Health
 
----
+Ministry Health groups transparent individual metrics for Participation,
+Growth, Events, and Volunteer Operations. It must not calculate a composite or
+artificial score. Prayer & Care data is excluded.
 
-## FR-REPORT-007 — Communication Reports
+## Saved Reports
 
-Display:
+Saved reports are private to their creator. They store only validated report
+type, range, filters, and configuration—not results or export files. Names are
+case-insensitively unique per creator. Protected workflows support create,
+list, rename, load/run, and retained archive/delete. Running a saved report
+always queries current authorized data.
 
-- Messages Sent
-- Delivery Status
-- Failed Deliveries
-- Scheduled Communications
+## Exports
 
----
+CSV and Excel exports are generated server-side from the same validated
+projections shown on screen. Exports:
 
-## FR-REPORT-008 — Permission Reports
+- Allow at most 10,000 rows and a 366-day range.
+- Neutralize values beginning with `=`, `+`, `-`, or `@`.
+- Exclude hidden and sensitive fields.
+- Are never stored by the platform.
+- Produce a safe audit event with requester, type, format, range, and row count.
 
-Display:
+Print-friendly browser output is supported. Generated PDF is deferred.
 
-- Missing Forms
-- Expiring Forms
-- Approved Forms
-- Rejected Forms
+## Security and Privacy
 
----
+General Reporting must not expose medical, allergy, dietary, custody, Prayer &
+Care, background-check, certification-reference, credential, or paused
+Milestone 15 data. Aggregate results are the default. Identifiable operational
+activity may link only to existing authorized domain workspaces; Reporting does
+not create a generalized people browser.
 
-## FR-REPORT-009 — Export Reports
+## Deferred and Excluded
 
-Support exporting reports to:
+- Permission Reports, medical releases, custom-form analytics, and visitor-card
+  identity are deferred with paused Milestone 15.
+- Returning-visitor analytics are deferred until durable visitor identity is
+  separately approved.
+- Giving and financial analytics are excluded from Version 1.
+- Generated PDF, AI insights, predictive analytics, scheduled reports, email
+  delivery, shared reports, and organization-wide saved reports are deferred.
 
-- PDF
-- Excel (.xlsx)
-- CSV
+## Acceptance Criteria
 
----
+Milestone acceptance requires protected manager reporting, preserved Attendance
+reports, approved aggregate metrics, role denial, private saved reports, safe
+exports, print output, dashboard manager-summary reconciliation, automated
+verification, Product Owner acceptance, and closure documentation.
 
-## FR-REPORT-010 — Saved Reports
+Product Owner acceptance passed, including the corrected custom-range workflow,
+all report domains, private saved-report lifecycle, exports, print output, and
+family-account authorization boundaries.
 
-Authorized users may save report configurations for future use.
+When a schedule contains no required positions, coverage currently displays
+100%. This was not an acceptance blocker; a future UX refinement may display
+`N/A` or “No positions required.”
 
----
-
-# 6. Validation Rules
-
-Reports shall validate:
-
-- Date Range
-- User Permissions
-- Filter Values
-
----
-
-# 7. Privacy & Security
-
-Reports shall respect role-based permissions.
-
-Personally identifiable information shall only appear when authorized.
-
----
-
-# 8. Error Handling
-
-Gracefully handle:
-
-- Invalid filters
-- Large datasets
-- Export failures
-- Unauthorized access
-
----
-
-# 9. Dependencies
-
-- Authentication
-- Authorization
-- All Functional Modules
-
----
-
-# 10. Acceptance Criteria
-
-| ID | Requirement |
-|----|-------------|
-| AC-REPORT-001 | Reports generate successfully. |
-| AC-REPORT-002 | Filters operate correctly. |
-| AC-REPORT-003 | Exports function correctly. |
-| AC-REPORT-004 | User permissions are enforced. |
-
----
-
-# 11. Future Considerations
-
-Future enhancements may include:
-
-- Scheduled reports
-- Email delivery
-- Executive dashboards
-- Predictive analytics
-- AI-generated ministry insights
-
----
-
-# Revision History
+## Revision History
 
 | Version | Date | Description |
-|----------|------|-------------|
+|---|---|---|
+| 2.1 | 2026-08-11 | Recorded completed implementation, Product Owner acceptance, corrected custom-range behavior, and deferred zero-position coverage label refinement. |
+| 2.0 | 2026-08-11 | Reconciled the Foundation draft with approved Milestone 16 scope, metric definitions, authorization, saved reports, exports, and deferrals. |
 | 1.0 | Initial | Initial Reporting requirements. |

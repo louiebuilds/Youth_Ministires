@@ -5,6 +5,7 @@ records for the Youth Ministries Platform.
 
 ## Test Reports
 
+- [Milestone 16 Reporting & Analytics Test Report](2026-08-11_Milestone16_Reporting_and_Analytics_Test_Report.md)
 - [Milestone 14 Scheduling Test Report](2026-08-11_Milestone14_Scheduling_Test_Report.md)
 - [Milestone 13 Resource Library Test Report](2026-08-09_Milestone13_Resource_Library_Test_Report.md)
 - [Milestone 12 Prayer & Care Test Report](2026-08-04_Milestone12_Prayer_and_Care_Test_Report.md)
@@ -23,5 +24,5 @@ records for the Youth Ministries Platform.
 
 ## Current Status
 
-Milestone 14 automated verification, production build, security review, and all
-23 Product Owner acceptance checks passed.
+Milestone 16 automated verification, production build, authorization review,
+date-range regression, and Product Owner live acceptance passed.

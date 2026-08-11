@@ -434,6 +434,7 @@ Deferral does not grant access. Every absent capability remains denied.
 
 | Version | Date | Description |
 |---|---|---|
+| v0.16.0 | 2026-08-11 | Added protected aggregate Reporting, creator-private saved reports, safe audited exports, and volunteer/parent denial. |
 | v0.15.0 | 2026-08-11 | Added Milestone 14 manager-only Scheduling workflows, volunteer self-scope, direct-access denial, and audited conflict overrides. |
 | v0.7.0 | 2026-07-24 | Added relationship-scoped Member Management projections, medical boundaries, audited mutations, and direct-mutation denial. |
 | v0.6.1 | 2026-07-24 | Recorded audited Milestone 3 profile and existing-account administration controls. |
@@ -458,3 +459,19 @@ occurrences.
 Existing event references remain optional. The internal Scheduling/calendar
 foundation stores operational dates and IANA timezones without binding the
 security model to an external calendar provider.
+
+## Milestone 16 Reporting Authorization
+
+Ministry-wide Reporting requires an active Platform Administrator, Youth
+Pastor, or Staff Member account. Parents and volunteers are denied by both the
+`reports.view` application capability and protected database workflows.
+
+Reporting is aggregate by default. Saved configurations force RLS, deny direct
+client access, and enforce creator ownership through protected RPCs. Export
+generation is server-only, limited to 366 days and 10,000 rows, neutralizes
+spreadsheet formulas, excludes restricted fields, produces safe audit metadata,
+and does not persist generated files.
+
+General Reporting excludes medical, allergy, dietary, custody, Prayer & Care,
+background-check, certification-reference, credential, Giving, and paused
+Milestone 15 data.

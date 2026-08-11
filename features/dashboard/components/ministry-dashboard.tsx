@@ -75,12 +75,12 @@ export function MinistryDashboard({ data }: MinistryDashboardProps) {
             />
             <div>
               <p className="text-sm font-semibold text-amber-100">
-                Synthetic preview data
+                {data.dataSource === "hybrid" ? "Live summary metrics" : "Synthetic preview data"}
               </p>
               <p className="mt-1 text-xs leading-5 text-amber-50/80">
-                Every value and name on this dashboard is fictional. Live
-                connections will replace these previews in their approved
-                feature milestones.
+                {data.dataSource === "hybrid"
+                  ? "Summary metrics and volunteer coverage are live and authorized. Upcoming events, announcements, birthdays, and Prayer & Care cards remain clearly separated preview content."
+                  : "Every value and name on this dashboard is fictional. Live connections will replace these previews in their approved feature milestones."}
               </p>
             </div>
           </div>
@@ -100,7 +100,7 @@ export function MinistryDashboard({ data }: MinistryDashboardProps) {
             </p>
           </div>
           <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-800">
-            Sample overview
+            {data.dataSource === "hybrid" ? "Live overview" : "Sample overview"}
           </span>
         </div>
 

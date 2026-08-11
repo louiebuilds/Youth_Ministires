@@ -4,71 +4,63 @@
 
 ## Current Version
 
-**v0.15.0**
+**v0.16.0**
 
 ## Last Completed Milestone
 
-**Milestone 14 — Scheduling**
+**Milestone 16 — Reporting & Analytics**
 
 **Completed:** August 11, 2026
 
-**Status:** Complete; Product Owner acceptance passed
+**Status:** Complete; Product Owner live acceptance passed
 
-Milestone 14 delivered protected internal scheduling: draft and published
-schedules, locations, required positions, availability-aware volunteer
-assignments, explicit audited conflict overrides, retained cancellation
-history, recurring rotations, duplicate-safe occurrence generation, and a
-volunteer My Schedule view.
+Milestone 16 delivered unified, live, authorized reporting for Overview,
+Attendance, check-in, Events, Volunteers/Scheduling, Growth, and transparent
+Ministry Health; creator-private saved reports; CSV and Excel exports; and
+print-friendly output.
 
-## Verification
+## Acceptance and Verification
 
-- `npm run scheduling:test` — Passed
+- Product Owner live acceptance — Passed
+- Custom date filtering — Passed after correction and retest
+- August 3–9 regression excluded July 26 Attendance, check-in, and Event data
+- Saved-report ownership and lifecycle — Passed
+- Volunteer and parent reporting authorization boundaries — Passed
+- `npm run reporting:test` — Passed
 - `npm run lint` — Passed
 - `npm run build` — Passed, including TypeScript
 - `git diff --check` — Passed
-- Product Owner live acceptance — All 23 checks passed
 
-The first sandboxed build attempt was unable to fetch the configured Google
-Fonts. The approved network-enabled rerun passed.
+## Acceptance Correction
 
-## Acceptance Corrections
+The unified page initially honored explicit `from` and `to` only with
+`preset=custom`, while the form submitted `preset=30`. A centralized validated
+resolver now gives explicit dates precedence, rejects invalid ranges visibly,
+drives every projection and export, and clamps trend labels to the selected
+window. Product Owner retesting passed.
 
-- Corrected successful PostgreSQL `void` RPC handling.
-- Corrected assignment projection and listing.
-- Applied established proper-name display with profile fallback.
-- Added protected listing for newly created unattached schedule locations.
-- Confirmed malformed synthetic timestamps were test input, not an application
-  defect.
+## Deferred Follow-up
 
-## Security and Architecture
+- Zero-required-position schedules display 100% coverage. Consider `N/A` or
+  “No positions required” as a future UX refinement.
+- Production dependency audit: seven advisories (five high, two moderate),
+  primarily existing Next.js/PostCSS/Sharp dependencies; ExcelJS includes a
+  moderate advisory through `uuid`. Forced or breaking upgrades belong to
+  Production Readiness and were not made during Milestone 16.
 
-- Scheduling managers: `platform_administrator`, `youth_pastor`, and
-  `staff_member`.
-- Volunteers: self-scoped published assignments only.
-- Parents and anonymous users: denied.
-- Scheduling tables: forced RLS and deny-by-default direct client access.
-- Protected RPCs: server-side authorization and audit enforcement.
-- Overrides: explicit reasons with retained conflict and audit evidence.
-- Rotations: prospective changes; historical generated schedules unchanged.
-- Events: optional references to the existing event domain.
-- Calendar foundation: internal and provider-independent.
+## Milestone 15
 
-## Documentation
+**Paused** pending Product Owner consultation with ministry leadership regarding
+paper versus electronic permission and medical documentation. Do not resume it
+without explicit approval.
 
-- `docs/09_Testing/2026-08-11_Milestone14_Scheduling_Test_Report.md`
-- `docs/10_Project_Journal/2026-08-11_Milestone14_Scheduling.md`
-- `docs/11_Release_Notes/v0.15.0_Milestone14_Scheduling.md`
-- `docs/03_Platform_Architecture/09_Scheduling_Architecture.md`
-- `docs/04_Database/06_Scheduling_Database.md`
-- Scheduling requirements, security controls, roadmap, and section indexes
+## Current Active Milestone
 
-## Current Milestone
+**None.**
 
-**None active.** Milestone 14 is complete. Milestone 15 has not begun.
+## Next Milestone
 
-## Next Step
-
-Stop and wait for Technical Lead and Product Owner approval. Do not begin
-Milestone 15 until it is separately planned and approved.
+Do not automatically begin Milestone 17. Wait for Technical Lead and Product
+Owner approval.
 
 _Last updated: August 11, 2026_

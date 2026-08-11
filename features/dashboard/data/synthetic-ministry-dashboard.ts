@@ -2,6 +2,7 @@ import type { MinistryDashboardData } from "@/features/dashboard/types/ministry-
 
 export const syntheticMinistryDashboard: MinistryDashboardData = {
   audience: "ministry",
+  dataSource: "synthetic",
   announcements: [
     {
       audience: "All ministry families",
@@ -122,6 +123,7 @@ export const syntheticMinistryDashboard: MinistryDashboardData = {
 
 export const syntheticFamilyDashboard: MinistryDashboardData = {
   audience: "family",
+  dataSource: "synthetic",
   announcements: [
     {
       audience: "All ministry families",

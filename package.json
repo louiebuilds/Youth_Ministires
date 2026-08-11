@@ -1,6 +1,6 @@
 {
   "name": "youth-ministries-platform-app",
-  "version": "0.13.0",
+  "version": "0.16.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,6 +8,7 @@
     "communication-management:test": "node scripts/verify-communication-foundation.mjs",
     "prayer-care:test": "node scripts/verify-prayer-care-foundation.mjs",
     "resource-library:test": "node scripts/verify-resource-library-foundation.mjs",
+    "reporting:test": "node scripts/verify-reporting-foundation.mjs",
     "scheduling:test": "node scripts/verify-scheduling-foundation.mjs",
     "curriculum-management:test": "node scripts/verify-curriculum-foundation.mjs",
     "attendance-management:test": "node scripts/verify-attendance-foundation.mjs",
@@ -25,6 +26,7 @@
   "dependencies": {
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.110.8",
+    "exceljs": "^4.4.0",
     "lucide-react": "^1.25.0",
     "next": "16.2.11",
     "qrcode": "^1.5.4",
