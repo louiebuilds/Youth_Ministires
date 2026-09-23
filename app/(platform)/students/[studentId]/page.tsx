@@ -15,6 +15,7 @@ import {
   listAvailableChildRelationshipAdults,
 } from "@/features/members/services/child-workspace-service";
 import { listMemberTags } from "@/features/members/services/member-directory-service";
+import { getStudentCurrentMedicalFormStatus } from "@/features/forms/services/medical-permission-service";
 
 export const metadata: Metadata = { title: "Child workspace" };
 const studentIdSchema = z.string().uuid();
@@ -22,7 +23,7 @@ const studentIdSchema = z.string().uuid();
 export default async function ChildWorkspacePage({
   params,
 }: Readonly<{ params: Promise<{ studentId: string }> }>) {
-  await requireCapability("students.view");
+  const account = await requireCapability("students.view");
   const parsedId = studentIdSchema.safeParse((await params).studentId);
   if (!parsedId.success) notFound();
 
@@ -37,6 +38,8 @@ export default async function ChildWorkspacePage({
   }
 
   const { child } = result;
+  const medicalManager=account.role==="platform_administrator"||account.role==="youth_pastor";
+  const medicalFormStatus=medicalManager?await getStudentCurrentMedicalFormStatus(child.id):null;
   const allTags = child.canManage ? await listMemberTags() : [];
   const availableAdults = child.canManage
     ? await listAvailableChildRelationshipAdults(child.id)
@@ -90,6 +93,7 @@ export default async function ChildWorkspacePage({
         </section>
       </div>
 
+      {medicalFormStatus ? <section className="rounded-xl border border-amber-200 bg-amber-50 p-5"><p className="text-sm font-semibold text-amber-800">Protected medical-form status</p><h2 className="mt-1 text-xl font-bold">Current school-year Medical Form</h2><p className="mt-2 text-sm">{medicalFormStatus.ready ? "Current and ready" : "Action needed"}</p><p className="mt-1 text-xs text-slate-600">The completed medical document is available only in the protected Forms workspace.</p></section> : null}
       {child.canManage ? (
         <section className="space-y-6 rounded-xl border border-sky-200 bg-sky-50/50 p-5 shadow-sm">
           <div>

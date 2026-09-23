@@ -88,3 +88,11 @@ The complete evidence is recorded in:
 Milestone 4 Security is approved and complete.
 
 No Milestone 5 work was started.
+
+---
+
+## Full Platform Acceptance Follow-up — Cross-Account Session Isolation
+
+On September 20, 2026, Communications acceptance exposed a shared authentication-transition weakness: after several role changes in one browser, a fresh Administrator layout could be combined with a Volunteer-rendered child route restored from the Next.js Router Cache. The database identity, profile role, capabilities, and protected RPC authorization were correct, but the mixed route payload created both functional inconsistency and a reverse-transition disclosure risk.
+
+Successful sign-in and sign-out now preserve server-side Supabase mutation and root-layout invalidation, return sanitized action states, and force a full browser document replacement from the shared client boundary. This discards Router Cache, prefetched RSC payloads, preserved layouts, and client component state from the previous identity. Failed authentication mutations do not navigate and expose no raw authentication details. The correction is platform-wide and required no database, migration, RLS, role, capability, or live-data change. Live multi-account acceptance remains pending.

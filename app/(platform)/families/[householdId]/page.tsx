@@ -9,7 +9,11 @@ import {
   FamilyAdultForm,
   FamilyDetailsForm,
 } from "@/features/members/components/family-management-forms";
-import { getFamilyWorkspace } from "@/features/members/services/family-directory-service";
+import { ParentAccountLinkForm } from "@/features/members/components/parent-account-link-form";
+import {
+  getFamilyWorkspace,
+  listParentAccountLinkCandidates,
+} from "@/features/members/services/family-directory-service";
 
 export const metadata: Metadata = {
   title: "Family workspace",
@@ -44,6 +48,15 @@ export default async function FamilyWorkspacePage({
   }
 
   const { family } = result;
+  const canLinkAccounts = account.role === "platform_administrator" || account.role === "youth_pastor";
+  const accountCandidates = canLinkAccounts
+    ? new Map(await Promise.all(
+        family.adults.filter((adult) => adult.isResponsibleAdult).map(async (adult) => [
+          adult.id,
+          await listParentAccountLinkCandidates(adult.id),
+        ] as const),
+      ))
+    : new Map();
   const address = [
     family.addressLine1,
     family.addressLine2,
@@ -195,11 +208,16 @@ export default async function FamilyWorkspacePage({
           <FamilyDetailsForm family={family} />
           <div className="space-y-4">
             {family.adults.map((adult) => (
-              <FamilyAdultForm
-                adult={adult}
-                householdId={family.id}
-                key={adult.id}
-              />
+              <div className="space-y-3" key={adult.id}>
+                <FamilyAdultForm adult={adult} householdId={family.id} />
+                {canLinkAccounts && adult.isResponsibleAdult ? (
+                  <ParentAccountLinkForm
+                    adult={adult}
+                    candidates={accountCandidates.get(adult.id) ?? []}
+                    householdId={family.id}
+                  />
+                ) : null}
+              </div>
             ))}
             <AddFamilyAdultForm householdId={family.id} />
           </div>

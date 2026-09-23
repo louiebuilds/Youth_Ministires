@@ -52,7 +52,7 @@ export default async function FamiliesPage({
         </div>
       ) : null}
 
-      {familyContext ? (
+      {familyContext && result.success && result.families.length > 0 ? (
         <div>
           <Link
             className="inline-flex min-h-11 items-center rounded-lg bg-sky-700 px-5 py-2 text-sm font-semibold text-white hover:bg-sky-800"

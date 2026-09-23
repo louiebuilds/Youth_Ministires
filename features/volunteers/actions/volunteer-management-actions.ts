@@ -41,7 +41,14 @@ export async function saveVolunteerProfileAction(
     isActive: formData.get("isActive") === "on",
   });
   if (!parsed.success) return { success: false, message: "Review the profile details." };
-  if (!await saveVolunteerProfile(parsed.data)) {
+  const result = await saveVolunteerProfile(parsed.data);
+  if (!result.success) {
+    if (result.category === "unavailable") {
+      return {
+        success: false,
+        message: "Volunteer profile service is temporarily unavailable. Please try again.",
+      };
+    }
     return { success: false, message: "This profile change was not allowed." };
   }
   finish(parsed.data.profileId);
@@ -74,7 +81,7 @@ export async function createSkillAction(
   if (!await createSkill(parsed.data)) {
     return { success: false, message: "This skill could not be created." };
   }
-  finish(parsed.data.profileId);
+  revalidatePath("/volunteers");
   return { success: true, message: "Skill created and audited." };
 }
 

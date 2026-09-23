@@ -15,6 +15,7 @@ import {
   createEventChecklistItem,
   createEventReminder,
   createEvent,
+  createEventParticipationOverride,
   promoteWaitlistedRegistration,
   registerMyStudentForEvent,
   setEventChecklistItemCompleted,
@@ -113,6 +114,13 @@ const registrationCancellationSchema = z.object({
 const waitlistPromotionSchema = z.object({
   eventId: z.string().uuid(),
   registrationId: z.string().uuid(),
+});
+
+const participationOverrideSchema = z.object({
+  eventId: z.string().uuid(),
+  registrationId: z.string().uuid(),
+  requirementIds: z.array(z.string().uuid()).min(1),
+  reason: z.string().trim().min(5).max(2000),
 });
 
 const eventVolunteerScheduleSchema = z.object({
@@ -215,6 +223,19 @@ export async function cancelMyEventRegistrationAction(
   };
 }
 
+export async function manageEventRegistrationAction(
+  state: EventActionState,
+  formData: FormData,
+): Promise<EventActionState> {
+  const intent = formData.get("intent");
+  if (intent === "register") {
+    return registerMyStudentForEventAction(state, formData);
+  }
+  if (intent === "cancel") {
+    return cancelMyEventRegistrationAction(state, formData);
+  }
+  return { success: false, message: "Registration action is invalid." };
+}
 export async function promoteWaitlistedRegistrationAction(
   _state: EventActionState,
   formData: FormData,
@@ -233,6 +254,24 @@ export async function promoteWaitlistedRegistrationAction(
   }
   revalidatePath(`/events/${parsed.data.eventId}`);
   return { success: true, message: "Student promoted from the waitlist." };
+}
+
+export async function createParticipationOverrideAction(
+  _state: EventActionState,
+  formData: FormData,
+): Promise<EventActionState> {
+  const parsed = participationOverrideSchema.safeParse({
+    eventId: formData.get("eventId"),
+    registrationId: formData.get("registrationId"),
+    requirementIds: formData.getAll("requirementId"),
+    reason: formData.get("reason"),
+  });
+  if (!parsed.success) return { success: false, message: "An explicit override reason is required." };
+  const result = await createEventParticipationOverride(parsed.data);
+  if (!result.success) return { success: false, message: result.message };
+  revalidatePath(`/events/${parsed.data.eventId}`);
+  revalidatePath("/check-in");
+  return { success: true, message: "Participation override approved and audited." };
 }
 
 export async function scheduleEventVolunteerAction(

@@ -3,8 +3,6 @@ import "server-only";
 import { eventWorkspaceSchema } from "@/features/events/schemas/event-workspace-schema";
 import { createClient } from "@/lib/supabase/server";
 
-
-
 import type {
   EventCalendarEntry,
   EventChecklistItem,
@@ -15,9 +13,13 @@ import type {
   EventVolunteerCandidate,
   EventWorkspace,
   ManagedEventRegistration,
+  EventRegistrationReadiness,
 } from "@/features/events/types/event-management";
 import type { EventStatus } from "@/lib/supabase/database.types";
 
+export type EventCalendarResult =
+  | { success: true; events: EventCalendarEntry[] }
+  | { success: false };
 
 type EventInput = {
   name: string;
@@ -56,7 +58,7 @@ export async function listEventCalendar(input: {
   toDate: string;
   search: string | null;
   status: EventStatus | null;
-}): Promise<EventCalendarEntry[]> {
+}): Promise<EventCalendarResult> {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("list_event_calendar", {
     p_from_date: input.fromDate,
@@ -64,21 +66,31 @@ export async function listEventCalendar(input: {
     p_search: input.search,
     p_status: input.status,
   });
-  if (error) return [];
-  return (data ?? []).map((event) => ({
-    eventId: event.event_id,
-    eventName: event.event_name,
-    eventType: event.event_type,
-    eventStatus: event.event_status,
-    startsAt: event.starts_at,
-    endsAt: event.ends_at,
-    timezone: event.timezone,
-    capacity: event.capacity,
-    campus: event.campus,
-    building: event.building,
-    room: event.room,
-    canManage: event.can_manage,
-  }));
+
+  if (error) {
+    console.error("list_event_calendar failed", {
+      code: error.code || "unknown",
+    });
+    return { success: false };
+  }
+
+  return {
+    success: true,
+    events: (data ?? []).map((event) => ({
+      eventId: event.event_id,
+      eventName: event.event_name,
+      eventType: event.event_type,
+      eventStatus: event.event_status,
+      startsAt: event.starts_at,
+      endsAt: event.ends_at,
+      timezone: event.timezone,
+      capacity: event.capacity,
+      campus: event.campus,
+      building: event.building,
+      room: event.room,
+      canManage: event.can_manage,
+    })),
+  };
 }
 
 export async function getEventWorkspace(
@@ -88,7 +100,9 @@ export async function getEventWorkspace(
   const { data, error } = await supabase.rpc("get_event_workspace", {
     p_event_id: eventId,
   });
+
   if (error) return null;
+
   const parsed = eventWorkspaceSchema.safeParse(data);
   return parsed.success ? parsed.data : null;
 }
@@ -101,11 +115,14 @@ export async function getEventRegistrationSettings(
     "get_event_registration_settings",
     { p_event_id: eventId },
   );
+
   if (error || !data || typeof data !== "object" || Array.isArray(data)) {
     return null;
   }
+
   const value = data as Record<string, unknown>;
   if (typeof value.eventId !== "string") return null;
+
   return value as EventRegistrationSettings;
 }
 
@@ -127,12 +144,17 @@ export async function updateEventRegistrationSettings(input: {
       p_registration_closes_at: input.registrationClosesAt,
     },
   );
+
   return !error;
 }
 
 export async function createEvent(input: EventInput) {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("create_event", rpcInput(input));
+  const { data, error } = await supabase.rpc(
+    "create_event",
+    rpcInput(input),
+  );
+
   return error || !data
     ? { success: false as const }
     : { success: true as const, eventId: data };
@@ -144,6 +166,7 @@ export async function updateEvent(eventId: string, input: EventInput) {
     p_event_id: eventId,
     ...rpcInput(input),
   });
+
   return !error;
 }
 
@@ -152,8 +175,10 @@ export async function archiveEvent(eventId: string) {
   const { error } = await supabase.rpc("archive_event", {
     p_event_id: eventId,
   });
+
   return !error;
 }
+
 export async function listMyEventRegistrationOptions(
   eventId: string,
 ): Promise<EventRegistrationOption[]> {
@@ -209,10 +234,15 @@ export async function listEventRegistrations(
   eventId: string,
 ): Promise<ManagedEventRegistration[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("list_event_registrations", {
-    p_event_id: eventId,
-  });
+  const { data, error } = await supabase.rpc(
+    "list_event_registrations",
+    {
+      p_event_id: eventId,
+    },
+  );
+
   if (error) return [];
+
   return (data ?? []).map((registration) => ({
     registrationId: registration.registration_id,
     studentId: registration.student_id,
@@ -224,13 +254,67 @@ export async function listEventRegistrations(
   }));
 }
 
+export async function listEventRegistrationReadiness(
+  eventId: string,
+): Promise<EventRegistrationReadiness[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.rpc(
+    "list_event_registration_document_readiness",
+    {
+      p_event_id: eventId,
+    },
+  );
+
+  if (error) return [];
+
+  return (data ?? []).map((row) => ({
+    registrationId: String(row.registration_id),
+    studentId: String(row.student_id),
+    documentationReady: Boolean(row.documentation_ready),
+    requirements: Array.isArray(row.requirements)
+      ? row.requirements as EventRegistrationReadiness["requirements"]
+      : [],
+    participationOverrideId:
+      typeof row.participation_override_id === "string"
+        ? row.participation_override_id
+        : null,
+  }));
+}
+
+export async function createEventParticipationOverride(input: {
+  registrationId: string;
+  requirementIds: string[];
+  reason: string;
+}) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.rpc(
+    "create_event_participation_override",
+    {
+      p_registration_id: input.registrationId,
+      p_unmet_requirement_ids: input.requirementIds,
+      p_reason: input.reason,
+      p_expires_at: null,
+    },
+  );
+
+  return error
+    ? { success: false as const, message: error.message }
+    : { success: true as const };
+}
+
 export async function promoteWaitlistedRegistration(
   registrationId: string,
 ) {
   const supabase = await createClient();
-  const { error } = await supabase.rpc("promote_waitlisted_registration", {
-    p_registration_id: registrationId,
-  });
+  const { error } = await supabase.rpc(
+    "promote_waitlisted_registration",
+    {
+      p_registration_id: registrationId,
+    },
+  );
+
   return error
     ? { success: false as const, message: error.message }
     : { success: true as const };
@@ -244,7 +328,9 @@ export async function listEventVolunteerAssignments(
     "list_event_volunteer_assignments",
     { p_event_id: eventId },
   );
+
   if (error) return [];
+
   return (data ?? []).map((assignment) => ({
     assignmentId: assignment.assignment_id,
     profileId: assignment.profile_id,
@@ -264,7 +350,9 @@ export async function listEventVolunteerCandidates(
     "list_event_volunteer_candidates",
     { p_event_id: eventId },
   );
+
   if (error) return [];
+
   return (data ?? []).map((candidate) => ({
     profileId: candidate.profile_id,
     displayName: candidate.display_name,
@@ -277,10 +365,15 @@ export async function listEventReminders(
   eventId: string,
 ): Promise<EventReminder[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("list_event_reminders", {
-    p_event_id: eventId,
-  });
+  const { data, error } = await supabase.rpc(
+    "list_event_reminders",
+    {
+      p_event_id: eventId,
+    },
+  );
+
   if (error) return [];
+
   return (data ?? []).map((reminder) => ({
     reminderId: reminder.reminder_id,
     title: reminder.title,
@@ -297,12 +390,16 @@ export async function createEventReminder(input: {
   notes: string | null;
 }) {
   const supabase = await createClient();
-  const { error } = await supabase.rpc("create_event_reminder", {
-    p_event_id: input.eventId,
-    p_title: input.title,
-    p_remind_at: input.remindAt,
-    p_notes: input.notes,
-  });
+  const { error } = await supabase.rpc(
+    "create_event_reminder",
+    {
+      p_event_id: input.eventId,
+      p_title: input.title,
+      p_remind_at: input.remindAt,
+      p_notes: input.notes,
+    },
+  );
+
   return error
     ? { success: false as const, message: error.message }
     : { success: true as const };
@@ -313,10 +410,14 @@ export async function setEventReminderStatus(
   status: "scheduled" | "completed" | "cancelled",
 ) {
   const supabase = await createClient();
-  const { error } = await supabase.rpc("set_event_reminder_status", {
-    p_reminder_id: reminderId,
-    p_status: status,
-  });
+  const { error } = await supabase.rpc(
+    "set_event_reminder_status",
+    {
+      p_reminder_id: reminderId,
+      p_status: status,
+    },
+  );
+
   return !error;
 }
 
@@ -324,10 +425,15 @@ export async function listEventChecklistItems(
   eventId: string,
 ): Promise<EventChecklistItem[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("list_event_checklist_items", {
-    p_event_id: eventId,
-  });
+  const { data, error } = await supabase.rpc(
+    "list_event_checklist_items",
+    {
+      p_event_id: eventId,
+    },
+  );
+
   if (error) return [];
+
   return (data ?? []).map((item) => ({
     checklistItemId: item.checklist_item_id,
     title: item.title,
@@ -345,12 +451,16 @@ export async function createEventChecklistItem(input: {
   dueAt: string | null;
 }) {
   const supabase = await createClient();
-  const { error } = await supabase.rpc("create_event_checklist_item", {
-    p_event_id: input.eventId,
-    p_title: input.title,
-    p_notes: input.notes,
-    p_due_at: input.dueAt,
-  });
+  const { error } = await supabase.rpc(
+    "create_event_checklist_item",
+    {
+      p_event_id: input.eventId,
+      p_title: input.title,
+      p_notes: input.notes,
+      p_due_at: input.dueAt,
+    },
+  );
+
   return error
     ? { success: false as const, message: error.message }
     : { success: true as const };
@@ -368,5 +478,6 @@ export async function setEventChecklistItemCompleted(
       p_is_completed: isCompleted,
     },
   );
+
   return !error;
 }

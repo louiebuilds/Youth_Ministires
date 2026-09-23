@@ -1,0 +1,12 @@
+export type CustomFormAssignmentType="event"|"student"|"household"|"volunteer"|"general_ministry";
+export type CustomFormFieldType="short_text"|"long_text"|"yes_no"|"single_choice"|"multiple_choice"|"date"|"acknowledgment";
+export type CustomFormTemplateRow={templateId:string;name:string;description:string|null;templateStatus:string;versionId:string|null;versionNumber:number|null;versionTitle:string|null;versionStatus:string|null;fieldCount:number;assignmentCount:number};
+export type MyCustomForm={assignmentId:string;assignmentType:CustomFormAssignmentType;subjectStudentId:string|null;title:string;versionNumber:number;submissionId:string|null;submissionStatus:string|null;assignedAt:string};
+export type CustomFormField={fieldId:string;fieldKey:string;fieldType:CustomFormFieldType;label:string;helpText:string|null;required:boolean;displayOrder:number;choiceOptions:string[]|null;textValue:string|null;booleanValue:boolean|null;dateValue:string|null;choiceValue:string|null;multipleChoiceValue:string[]|null};
+export type CustomFormDraft={submissionId:string;assignmentId:string;versionId:string;title:string;instructions:string|null;status:"draft"|"submitted"|"archived";assignmentType:CustomFormAssignmentType;fields:CustomFormField[]};
+export type CustomFormActionState={success:boolean;message?:string};
+export type CustomFormSubmissionSummary={submissionId:string;templateId:string;versionId:string;versionNumber:number;title:string;assignmentType:CustomFormAssignmentType;submissionStatus:string;submittedAt:string|null;subjectStudentId:string|null;subjectHouseholdId:string|null;subjectVolunteerProfileId:string|null};
+export type CustomFormSubmissionDetail={submissionId:string;status:string;title:string;versionNumber:number;assignmentType:CustomFormAssignmentType;submittedAt:string|null;answers:Array<{fieldId:string;label:string;fieldType:CustomFormFieldType;textValue:string|null;booleanValue:boolean|null;dateValue:string|null;choiceValue:string|null;multipleChoiceValue:string[]|null}>};
+export type CustomFormAssignmentSummary={assignmentId:string;versionId:string;title:string;versionNumber:number;assignmentType:CustomFormAssignmentType;targetId:string|null;assignedAt:string};
+export type CustomFormAssignmentOption={id:string;label:string};
+export type CustomFormAssignmentTargets={events:CustomFormAssignmentOption[];students:CustomFormAssignmentOption[];households:CustomFormAssignmentOption[];volunteers:CustomFormAssignmentOption[]};

@@ -226,6 +226,23 @@ export async function removeLessonFromCurriculumPlan(planLessonId: string) {
   return !error;
 }
 
+export async function moveCurriculumPlanLesson(
+  planLessonId: string,
+  direction: "up" | "down",
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc(
+    "move_curriculum_plan_lesson" as never,
+    {
+      p_plan_lesson_id: planLessonId,
+      p_direction: direction,
+    } as never,
+  );
+  return error || typeof data !== "number"
+    ? { success: false as const }
+    : { success: true as const, sequenceNumber: data };
+}
+
 export async function listLessonTeachingResources(
   lessonId: string,
 ): Promise<TeachingResource[]> {
@@ -330,7 +347,21 @@ export async function finalizeTeachingResourceUpload(
     p_content_type: input.contentType,
     p_file_size_bytes: input.fileSizeBytes,
   });
-  return !error;
+  if (!error) return { success: true as const };
+  const code = typeof error.code === "string" && error.code
+    ? error.code
+    : "unknown";
+  const category = code === "42501"
+    ? "authorization"
+    : code === "22023" || code === "23514"
+    ? "validation"
+    : "unavailable";
+  console.error("Curriculum upload finalization failed", {
+    operation: "create_teaching_resource_file",
+    code,
+    category,
+  });
+  return { success: false as const, category };
 }
 
 export async function createTeachingResourceDownloadUrl(

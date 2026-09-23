@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -247,7 +247,7 @@ export type Database = {
         Row: {
           archived_at: string | null
           created_at: string
-          created_by_profile_id: string
+          created_by_profile_id: string | null
           description: string | null
           id: string
           is_active: boolean
@@ -258,7 +258,7 @@ export type Database = {
         Insert: {
           archived_at?: string | null
           created_at?: string
-          created_by_profile_id: string
+          created_by_profile_id?: string | null
           description?: string | null
           id?: string
           is_active?: boolean
@@ -269,7 +269,7 @@ export type Database = {
         Update: {
           archived_at?: string | null
           created_at?: string
-          created_by_profile_id?: string
+          created_by_profile_id?: string | null
           description?: string | null
           id?: string
           is_active?: boolean
@@ -409,6 +409,7 @@ export type Database = {
       care_notes: {
         Row: {
           archived_at: string | null
+          assigned_to_profile_id: string | null
           category_id: string | null
           created_at: string
           created_by_profile_id: string
@@ -421,6 +422,7 @@ export type Database = {
         }
         Insert: {
           archived_at?: string | null
+          assigned_to_profile_id?: string | null
           category_id?: string | null
           created_at?: string
           created_by_profile_id: string
@@ -433,6 +435,7 @@ export type Database = {
         }
         Update: {
           archived_at?: string | null
+          assigned_to_profile_id?: string | null
           category_id?: string | null
           created_at?: string
           created_by_profile_id?: string
@@ -444,6 +447,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "care_notes_assigned_to_profile_id_fkey"
+            columns: ["assigned_to_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "care_notes_category_id_fkey"
             columns: ["category_id"]
@@ -905,6 +915,648 @@ export type Database = {
           },
         ]
       }
+      custom_form_answers: {
+        Row: {
+          boolean_value: boolean | null
+          choice_value: string | null
+          created_at: string
+          date_value: string | null
+          field_id: string
+          id: string
+          multiple_choice_value: Json | null
+          submission_id: string
+          text_value: string | null
+        }
+        Insert: {
+          boolean_value?: boolean | null
+          choice_value?: string | null
+          created_at?: string
+          date_value?: string | null
+          field_id: string
+          id?: string
+          multiple_choice_value?: Json | null
+          submission_id: string
+          text_value?: string | null
+        }
+        Update: {
+          boolean_value?: boolean | null
+          choice_value?: string | null
+          created_at?: string
+          date_value?: string | null
+          field_id?: string
+          id?: string
+          multiple_choice_value?: Json | null
+          submission_id?: string
+          text_value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_form_answers_field_id_fkey"
+            columns: ["field_id"]
+            isOneToOne: false
+            referencedRelation: "custom_form_fields"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_form_answers_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "custom_form_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_form_assignments: {
+        Row: {
+          archived_at: string | null
+          archived_by_profile_id: string | null
+          assigned_at: string
+          assigned_by_profile_id: string
+          assignment_type: Database["public"]["Enums"]["custom_form_assignment_type"]
+          event_id: string | null
+          household_id: string | null
+          id: string
+          is_general_ministry: boolean
+          student_id: string | null
+          version_id: string
+          volunteer_profile_id: string | null
+        }
+        Insert: {
+          archived_at?: string | null
+          archived_by_profile_id?: string | null
+          assigned_at?: string
+          assigned_by_profile_id: string
+          assignment_type: Database["public"]["Enums"]["custom_form_assignment_type"]
+          event_id?: string | null
+          household_id?: string | null
+          id?: string
+          is_general_ministry?: boolean
+          student_id?: string | null
+          version_id: string
+          volunteer_profile_id?: string | null
+        }
+        Update: {
+          archived_at?: string | null
+          archived_by_profile_id?: string | null
+          assigned_at?: string
+          assigned_by_profile_id?: string
+          assignment_type?: Database["public"]["Enums"]["custom_form_assignment_type"]
+          event_id?: string | null
+          household_id?: string | null
+          id?: string
+          is_general_ministry?: boolean
+          student_id?: string | null
+          version_id?: string
+          volunteer_profile_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_form_assignments_archived_by_profile_id_fkey"
+            columns: ["archived_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_form_assignments_assigned_by_profile_id_fkey"
+            columns: ["assigned_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_form_assignments_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_form_assignments_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_form_assignments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_form_assignments_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "custom_form_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_form_assignments_volunteer_profile_id_fkey"
+            columns: ["volunteer_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_form_fields: {
+        Row: {
+          choice_options: Json | null
+          display_order: number
+          field_key: string
+          field_type: Database["public"]["Enums"]["custom_form_field_type"]
+          help_text: string | null
+          id: string
+          is_required: boolean
+          label: string
+          maximum_date: string | null
+          maximum_length: number | null
+          minimum_date: string | null
+          minimum_length: number | null
+          version_id: string
+        }
+        Insert: {
+          choice_options?: Json | null
+          display_order: number
+          field_key: string
+          field_type: Database["public"]["Enums"]["custom_form_field_type"]
+          help_text?: string | null
+          id?: string
+          is_required?: boolean
+          label: string
+          maximum_date?: string | null
+          maximum_length?: number | null
+          minimum_date?: string | null
+          minimum_length?: number | null
+          version_id: string
+        }
+        Update: {
+          choice_options?: Json | null
+          display_order?: number
+          field_key?: string
+          field_type?: Database["public"]["Enums"]["custom_form_field_type"]
+          help_text?: string | null
+          id?: string
+          is_required?: boolean
+          label?: string
+          maximum_date?: string | null
+          maximum_length?: number | null
+          minimum_date?: string | null
+          minimum_length?: number | null
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_form_fields_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "custom_form_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_form_submissions: {
+        Row: {
+          archived_at: string | null
+          archived_by_profile_id: string | null
+          assignment_id: string
+          id: string
+          status: Database["public"]["Enums"]["custom_form_submission_status"]
+          subject_household_id: string | null
+          subject_student_id: string | null
+          subject_volunteer_profile_id: string | null
+          submitted_at: string | null
+          submitted_by_profile_id: string
+          version_id: string
+        }
+        Insert: {
+          archived_at?: string | null
+          archived_by_profile_id?: string | null
+          assignment_id: string
+          id?: string
+          status?: Database["public"]["Enums"]["custom_form_submission_status"]
+          subject_household_id?: string | null
+          subject_student_id?: string | null
+          subject_volunteer_profile_id?: string | null
+          submitted_at?: string | null
+          submitted_by_profile_id: string
+          version_id: string
+        }
+        Update: {
+          archived_at?: string | null
+          archived_by_profile_id?: string | null
+          assignment_id?: string
+          id?: string
+          status?: Database["public"]["Enums"]["custom_form_submission_status"]
+          subject_household_id?: string | null
+          subject_student_id?: string | null
+          subject_volunteer_profile_id?: string | null
+          submitted_at?: string | null
+          submitted_by_profile_id?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_form_submissions_archived_by_profile_id_fkey"
+            columns: ["archived_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_form_submissions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "custom_form_assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_form_submissions_subject_household_id_fkey"
+            columns: ["subject_household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_form_submissions_subject_student_id_fkey"
+            columns: ["subject_student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_form_submissions_subject_volunteer_profile_id_fkey"
+            columns: ["subject_volunteer_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_form_submissions_submitted_by_profile_id_fkey"
+            columns: ["submitted_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_form_submissions_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "custom_form_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_form_templates: {
+        Row: {
+          archived_at: string | null
+          archived_by_profile_id: string | null
+          created_at: string
+          created_by_profile_id: string
+          description: string | null
+          id: string
+          name: string
+          status: Database["public"]["Enums"]["custom_form_status"]
+          updated_at: string
+        }
+        Insert: {
+          archived_at?: string | null
+          archived_by_profile_id?: string | null
+          created_at?: string
+          created_by_profile_id: string
+          description?: string | null
+          id?: string
+          name: string
+          status?: Database["public"]["Enums"]["custom_form_status"]
+          updated_at?: string
+        }
+        Update: {
+          archived_at?: string | null
+          archived_by_profile_id?: string | null
+          created_at?: string
+          created_by_profile_id?: string
+          description?: string | null
+          id?: string
+          name?: string
+          status?: Database["public"]["Enums"]["custom_form_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_form_templates_archived_by_profile_id_fkey"
+            columns: ["archived_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_form_templates_created_by_profile_id_fkey"
+            columns: ["created_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_form_versions: {
+        Row: {
+          created_at: string
+          created_by_profile_id: string
+          id: string
+          instructions: string | null
+          published_at: string | null
+          published_by_profile_id: string | null
+          status: Database["public"]["Enums"]["custom_form_version_status"]
+          template_id: string
+          title: string
+          version_number: number
+        }
+        Insert: {
+          created_at?: string
+          created_by_profile_id: string
+          id?: string
+          instructions?: string | null
+          published_at?: string | null
+          published_by_profile_id?: string | null
+          status?: Database["public"]["Enums"]["custom_form_version_status"]
+          template_id: string
+          title: string
+          version_number: number
+        }
+        Update: {
+          created_at?: string
+          created_by_profile_id?: string
+          id?: string
+          instructions?: string | null
+          published_at?: string | null
+          published_by_profile_id?: string | null
+          status?: Database["public"]["Enums"]["custom_form_version_status"]
+          template_id?: string
+          title?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_form_versions_created_by_profile_id_fkey"
+            columns: ["created_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_form_versions_published_by_profile_id_fkey"
+            columns: ["published_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_form_versions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "custom_form_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_paper_evidence_events: {
+        Row: {
+          action: Database["public"]["Enums"]["paper_evidence_action"]
+          actor_profile_id: string
+          id: string
+          occurred_at: string
+          reason: string | null
+          submission_id: string
+        }
+        Insert: {
+          action: Database["public"]["Enums"]["paper_evidence_action"]
+          actor_profile_id: string
+          id?: string
+          occurred_at?: string
+          reason?: string | null
+          submission_id: string
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["paper_evidence_action"]
+          actor_profile_id?: string
+          id?: string
+          occurred_at?: string
+          reason?: string | null
+          submission_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_paper_evidence_events_actor_profile_id_fkey"
+            columns: ["actor_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_paper_evidence_events_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "student_document_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_review_events: {
+        Row: {
+          action: Database["public"]["Enums"]["document_review_action"]
+          actor_profile_id: string
+          id: string
+          occurred_at: string
+          reason: string | null
+          submission_id: string
+        }
+        Insert: {
+          action: Database["public"]["Enums"]["document_review_action"]
+          actor_profile_id: string
+          id?: string
+          occurred_at?: string
+          reason?: string | null
+          submission_id: string
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["document_review_action"]
+          actor_profile_id?: string
+          id?: string
+          occurred_at?: string
+          reason?: string | null
+          submission_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_review_events_actor_profile_id_fkey"
+            columns: ["actor_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_review_events_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "student_document_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_template_versions: {
+        Row: {
+          blank_storage_bucket: string | null
+          blank_storage_object_path: string | null
+          checksum_sha256: string | null
+          content_type: string | null
+          created_at: string
+          created_by_profile_id: string
+          effective_from: string | null
+          effective_to: string | null
+          explicit_expires_on: string | null
+          file_size_bytes: number | null
+          id: string
+          original_file_name: string | null
+          published_at: string | null
+          published_by_profile_id: string | null
+          status: Database["public"]["Enums"]["document_template_version_status"]
+          supersedes_version_id: string | null
+          template_id: string
+          valid_for: string | null
+          validity_policy: Database["public"]["Enums"]["document_validity_policy"]
+          version_number: number
+        }
+        Insert: {
+          blank_storage_bucket?: string | null
+          blank_storage_object_path?: string | null
+          checksum_sha256?: string | null
+          content_type?: string | null
+          created_at?: string
+          created_by_profile_id: string
+          effective_from?: string | null
+          effective_to?: string | null
+          explicit_expires_on?: string | null
+          file_size_bytes?: number | null
+          id?: string
+          original_file_name?: string | null
+          published_at?: string | null
+          published_by_profile_id?: string | null
+          status?: Database["public"]["Enums"]["document_template_version_status"]
+          supersedes_version_id?: string | null
+          template_id: string
+          valid_for?: string | null
+          validity_policy: Database["public"]["Enums"]["document_validity_policy"]
+          version_number: number
+        }
+        Update: {
+          blank_storage_bucket?: string | null
+          blank_storage_object_path?: string | null
+          checksum_sha256?: string | null
+          content_type?: string | null
+          created_at?: string
+          created_by_profile_id?: string
+          effective_from?: string | null
+          effective_to?: string | null
+          explicit_expires_on?: string | null
+          file_size_bytes?: number | null
+          id?: string
+          original_file_name?: string | null
+          published_at?: string | null
+          published_by_profile_id?: string | null
+          status?: Database["public"]["Enums"]["document_template_version_status"]
+          supersedes_version_id?: string | null
+          template_id?: string
+          valid_for?: string | null
+          validity_policy?: Database["public"]["Enums"]["document_validity_policy"]
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_template_versions_created_by_profile_id_fkey"
+            columns: ["created_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_template_versions_published_by_profile_id_fkey"
+            columns: ["published_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_template_versions_supersedes_version_id_fkey"
+            columns: ["supersedes_version_id"]
+            isOneToOne: false
+            referencedRelation: "document_template_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_template_versions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "document_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_templates: {
+        Row: {
+          archived_at: string | null
+          archived_by_profile_id: string | null
+          created_at: string
+          created_by_profile_id: string
+          description: string | null
+          document_kind: Database["public"]["Enums"]["document_kind"]
+          id: string
+          name: string
+          status: Database["public"]["Enums"]["document_template_status"]
+          updated_at: string
+        }
+        Insert: {
+          archived_at?: string | null
+          archived_by_profile_id?: string | null
+          created_at?: string
+          created_by_profile_id: string
+          description?: string | null
+          document_kind: Database["public"]["Enums"]["document_kind"]
+          id?: string
+          name: string
+          status?: Database["public"]["Enums"]["document_template_status"]
+          updated_at?: string
+        }
+        Update: {
+          archived_at?: string | null
+          archived_by_profile_id?: string | null
+          created_at?: string
+          created_by_profile_id?: string
+          description?: string | null
+          document_kind?: Database["public"]["Enums"]["document_kind"]
+          id?: string
+          name?: string
+          status?: Database["public"]["Enums"]["document_template_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_templates_archived_by_profile_id_fkey"
+            columns: ["archived_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_templates_created_by_profile_id_fkey"
+            columns: ["created_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_checklist_items: {
         Row: {
           completed_at: string | null
@@ -968,6 +1620,165 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_document_requirements: {
+        Row: {
+          archived_at: string | null
+          archived_by_profile_id: string | null
+          blocks_participation: boolean
+          created_at: string
+          created_by_profile_id: string
+          event_id: string
+          id: string
+          required: boolean
+          template_id: string
+          template_version_id: string
+        }
+        Insert: {
+          archived_at?: string | null
+          archived_by_profile_id?: string | null
+          blocks_participation?: boolean
+          created_at?: string
+          created_by_profile_id: string
+          event_id: string
+          id?: string
+          required?: boolean
+          template_id: string
+          template_version_id: string
+        }
+        Update: {
+          archived_at?: string | null
+          archived_by_profile_id?: string | null
+          blocks_participation?: boolean
+          created_at?: string
+          created_by_profile_id?: string
+          event_id?: string
+          id?: string
+          required?: boolean
+          template_id?: string
+          template_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_document_requirements_archived_by_profile_id_fkey"
+            columns: ["archived_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_document_requirements_created_by_profile_id_fkey"
+            columns: ["created_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_document_requirements_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_document_requirements_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "document_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_document_requirements_template_version_id_template_i_fkey"
+            columns: ["template_version_id", "template_id"]
+            isOneToOne: false
+            referencedRelation: "document_template_versions"
+            referencedColumns: ["id", "template_id"]
+          },
+        ]
+      }
+      event_participation_overrides: {
+        Row: {
+          created_at: string
+          created_by_profile_id: string
+          event_id: string
+          evidence: Json
+          expires_at: string | null
+          id: string
+          reason: string
+          registration_id: string
+          revocation_reason: string | null
+          revoked_at: string | null
+          revoked_by_profile_id: string | null
+          student_id: string
+          unmet_requirement_ids: string[]
+        }
+        Insert: {
+          created_at?: string
+          created_by_profile_id: string
+          event_id: string
+          evidence?: Json
+          expires_at?: string | null
+          id?: string
+          reason: string
+          registration_id: string
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          revoked_by_profile_id?: string | null
+          student_id: string
+          unmet_requirement_ids: string[]
+        }
+        Update: {
+          created_at?: string
+          created_by_profile_id?: string
+          event_id?: string
+          evidence?: Json
+          expires_at?: string | null
+          id?: string
+          reason?: string
+          registration_id?: string
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          revoked_by_profile_id?: string | null
+          student_id?: string
+          unmet_requirement_ids?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_participation_overrides_created_by_profile_id_fkey"
+            columns: ["created_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_participation_overrides_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_participation_overrides_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "event_registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_participation_overrides_revoked_by_profile_id_fkey"
+            columns: ["revoked_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_participation_overrides_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
@@ -1501,6 +2312,136 @@ export type Database = {
           },
         ]
       }
+      library_resource_versions: {
+        Row: {
+          change_summary: string | null
+          checksum_sha256: string | null
+          content_type: string
+          created_at: string
+          created_by_profile_id: string
+          file_size_bytes: number
+          id: string
+          original_file_name: string
+          resource_id: string
+          storage_bucket: string
+          storage_object_path: string
+          version_number: number
+        }
+        Insert: {
+          change_summary?: string | null
+          checksum_sha256?: string | null
+          content_type: string
+          created_at?: string
+          created_by_profile_id: string
+          file_size_bytes: number
+          id?: string
+          original_file_name: string
+          resource_id: string
+          storage_bucket: string
+          storage_object_path: string
+          version_number: number
+        }
+        Update: {
+          change_summary?: string | null
+          checksum_sha256?: string | null
+          content_type?: string
+          created_at?: string
+          created_by_profile_id?: string
+          file_size_bytes?: number
+          id?: string
+          original_file_name?: string
+          resource_id?: string
+          storage_bucket?: string
+          storage_object_path?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "library_resource_versions_created_by_profile_id_fkey"
+            columns: ["created_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "library_resource_versions_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "library_resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      library_resources: {
+        Row: {
+          archived_at: string | null
+          audience: Database["public"]["Enums"]["library_resource_audience"]
+          category_id: string | null
+          created_at: string
+          created_by_profile_id: string
+          current_version_id: string | null
+          description: string | null
+          id: string
+          published_at: string | null
+          resource_type: Database["public"]["Enums"]["library_resource_type"]
+          status: Database["public"]["Enums"]["library_resource_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          archived_at?: string | null
+          audience?: Database["public"]["Enums"]["library_resource_audience"]
+          category_id?: string | null
+          created_at?: string
+          created_by_profile_id: string
+          current_version_id?: string | null
+          description?: string | null
+          id?: string
+          published_at?: string | null
+          resource_type: Database["public"]["Enums"]["library_resource_type"]
+          status?: Database["public"]["Enums"]["library_resource_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          archived_at?: string | null
+          audience?: Database["public"]["Enums"]["library_resource_audience"]
+          category_id?: string | null
+          created_at?: string
+          created_by_profile_id?: string
+          current_version_id?: string | null
+          description?: string | null
+          id?: string
+          published_at?: string | null
+          resource_type?: Database["public"]["Enums"]["library_resource_type"]
+          status?: Database["public"]["Enums"]["library_resource_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "library_resources_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "resource_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "library_resources_created_by_profile_id_fkey"
+            columns: ["created_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "library_resources_current_version_fkey"
+            columns: ["current_version_id"]
+            isOneToOne: false
+            referencedRelation: "library_resource_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       member_tag_assignments: {
         Row: {
           created_at: string
@@ -1560,6 +2501,91 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      ministry_schedules: {
+        Row: {
+          allow_unfilled_on_publish: boolean
+          cancelled_at: string | null
+          completed_at: string | null
+          created_at: string
+          created_by_profile_id: string
+          ends_at: string
+          event_id: string | null
+          id: string
+          ministry_context: string | null
+          name: string
+          notes: string | null
+          occurrence_date: string | null
+          published_at: string | null
+          rotation_id: string | null
+          starts_at: string
+          status: Database["public"]["Enums"]["ministry_schedule_status"]
+          timezone: string
+          updated_at: string
+        }
+        Insert: {
+          allow_unfilled_on_publish?: boolean
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by_profile_id: string
+          ends_at: string
+          event_id?: string | null
+          id?: string
+          ministry_context?: string | null
+          name: string
+          notes?: string | null
+          occurrence_date?: string | null
+          published_at?: string | null
+          rotation_id?: string | null
+          starts_at: string
+          status?: Database["public"]["Enums"]["ministry_schedule_status"]
+          timezone?: string
+          updated_at?: string
+        }
+        Update: {
+          allow_unfilled_on_publish?: boolean
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by_profile_id?: string
+          ends_at?: string
+          event_id?: string | null
+          id?: string
+          ministry_context?: string | null
+          name?: string
+          notes?: string | null
+          occurrence_date?: string | null
+          published_at?: string | null
+          rotation_id?: string | null
+          starts_at?: string
+          status?: Database["public"]["Enums"]["ministry_schedule_status"]
+          timezone?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ministry_schedule_rotation_fk"
+            columns: ["rotation_id"]
+            isOneToOne: false
+            referencedRelation: "schedule_rotations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ministry_schedules_created_by_profile_id_fkey"
+            columns: ["created_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ministry_schedules_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       people: {
         Row: {
@@ -1690,6 +2716,67 @@ export type Database = {
           },
         ]
       }
+      profile_capability_grants: {
+        Row: {
+          capability: Database["public"]["Enums"]["forms_capability"]
+          expires_at: string | null
+          grant_reason: string
+          granted_at: string
+          granted_by_profile_id: string
+          id: string
+          profile_id: string
+          revocation_reason: string | null
+          revoked_at: string | null
+          revoked_by_profile_id: string | null
+        }
+        Insert: {
+          capability: Database["public"]["Enums"]["forms_capability"]
+          expires_at?: string | null
+          grant_reason: string
+          granted_at?: string
+          granted_by_profile_id: string
+          id?: string
+          profile_id: string
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          revoked_by_profile_id?: string | null
+        }
+        Update: {
+          capability?: Database["public"]["Enums"]["forms_capability"]
+          expires_at?: string | null
+          grant_reason?: string
+          granted_at?: string
+          granted_by_profile_id?: string
+          id?: string
+          profile_id?: string
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          revoked_by_profile_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_capability_grants_granted_by_profile_id_fkey"
+            columns: ["granted_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_capability_grants_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_capability_grants_revoked_by_profile_id_fkey"
+            columns: ["revoked_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -1724,6 +2811,525 @@ export type Database = {
             columns: ["person_id"]
             isOneToOne: false
             referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      report_saved_configurations: {
+        Row: {
+          archived_at: string | null
+          configuration: Json
+          created_at: string
+          creator_profile_id: string
+          id: string
+          name: string
+          report_type: string
+          updated_at: string
+        }
+        Insert: {
+          archived_at?: string | null
+          configuration?: Json
+          created_at?: string
+          creator_profile_id: string
+          id?: string
+          name: string
+          report_type: string
+          updated_at?: string
+        }
+        Update: {
+          archived_at?: string | null
+          configuration?: Json
+          created_at?: string
+          creator_profile_id?: string
+          id?: string
+          name?: string
+          report_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_saved_configurations_creator_profile_id_fkey"
+            columns: ["creator_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resource_categories: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          created_by_profile_id: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          created_by_profile_id: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          created_by_profile_id?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_categories_created_by_profile_id_fkey"
+            columns: ["created_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedule_assignments: {
+        Row: {
+          assigned_by_profile_id: string
+          conflict_codes: string[]
+          conflict_overridden: boolean
+          created_at: string
+          ends_at: string
+          id: string
+          location_id: string | null
+          override_reason: string | null
+          position_id: string
+          profile_id: string
+          responsibility: string
+          rotation_id: string | null
+          schedule_id: string
+          starts_at: string
+          status: Database["public"]["Enums"]["schedule_assignment_status"]
+          updated_at: string
+        }
+        Insert: {
+          assigned_by_profile_id: string
+          conflict_codes?: string[]
+          conflict_overridden?: boolean
+          created_at?: string
+          ends_at: string
+          id?: string
+          location_id?: string | null
+          override_reason?: string | null
+          position_id: string
+          profile_id: string
+          responsibility: string
+          rotation_id?: string | null
+          schedule_id: string
+          starts_at: string
+          status?: Database["public"]["Enums"]["schedule_assignment_status"]
+          updated_at?: string
+        }
+        Update: {
+          assigned_by_profile_id?: string
+          conflict_codes?: string[]
+          conflict_overridden?: boolean
+          created_at?: string
+          ends_at?: string
+          id?: string
+          location_id?: string | null
+          override_reason?: string | null
+          position_id?: string
+          profile_id?: string
+          responsibility?: string
+          rotation_id?: string | null
+          schedule_id?: string
+          starts_at?: string
+          status?: Database["public"]["Enums"]["schedule_assignment_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_assignment_location_fk"
+            columns: ["location_id", "schedule_id"]
+            isOneToOne: false
+            referencedRelation: "schedule_locations"
+            referencedColumns: ["id", "schedule_id"]
+          },
+          {
+            foreignKeyName: "schedule_assignment_position_fk"
+            columns: ["position_id", "schedule_id"]
+            isOneToOne: false
+            referencedRelation: "schedule_positions"
+            referencedColumns: ["id", "schedule_id"]
+          },
+          {
+            foreignKeyName: "schedule_assignment_rotation_fk"
+            columns: ["rotation_id"]
+            isOneToOne: false
+            referencedRelation: "schedule_rotations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_assignments_assigned_by_profile_id_fkey"
+            columns: ["assigned_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_assignments_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "schedule_assignments_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "ministry_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedule_locations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          schedule_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          schedule_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          schedule_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_locations_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "ministry_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedule_positions: {
+        Row: {
+          created_at: string
+          ends_at: string | null
+          id: string
+          location_id: string | null
+          notes: string | null
+          required_count: number
+          responsibility: string
+          schedule_id: string
+          starts_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          location_id?: string | null
+          notes?: string | null
+          required_count?: number
+          responsibility: string
+          schedule_id: string
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          location_id?: string | null
+          notes?: string | null
+          required_count?: number
+          responsibility?: string
+          schedule_id?: string
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_position_location_fk"
+            columns: ["location_id", "schedule_id"]
+            isOneToOne: false
+            referencedRelation: "schedule_locations"
+            referencedColumns: ["id", "schedule_id"]
+          },
+          {
+            foreignKeyName: "schedule_positions_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "ministry_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedule_rotations: {
+        Row: {
+          created_at: string
+          created_by_profile_id: string
+          ends_at: string
+          ends_on: string | null
+          id: string
+          location_name: string | null
+          ministry_context: string | null
+          monthly_ordinal: number | null
+          name: string
+          profile_id: string | null
+          recurrence_pattern: Database["public"]["Enums"]["schedule_recurrence_pattern"]
+          responsibility: string
+          schedule_name: string
+          starts_at: string
+          starts_on: string
+          status: Database["public"]["Enums"]["schedule_rotation_status"]
+          timezone: string
+          updated_at: string
+          weekday: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by_profile_id: string
+          ends_at: string
+          ends_on?: string | null
+          id?: string
+          location_name?: string | null
+          ministry_context?: string | null
+          monthly_ordinal?: number | null
+          name: string
+          profile_id?: string | null
+          recurrence_pattern: Database["public"]["Enums"]["schedule_recurrence_pattern"]
+          responsibility: string
+          schedule_name: string
+          starts_at: string
+          starts_on: string
+          status?: Database["public"]["Enums"]["schedule_rotation_status"]
+          timezone?: string
+          updated_at?: string
+          weekday?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by_profile_id?: string
+          ends_at?: string
+          ends_on?: string | null
+          id?: string
+          location_name?: string | null
+          ministry_context?: string | null
+          monthly_ordinal?: number | null
+          name?: string
+          profile_id?: string | null
+          recurrence_pattern?: Database["public"]["Enums"]["schedule_recurrence_pattern"]
+          responsibility?: string
+          schedule_name?: string
+          starts_at?: string
+          starts_on?: string
+          status?: Database["public"]["Enums"]["schedule_rotation_status"]
+          timezone?: string
+          updated_at?: string
+          weekday?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_rotations_created_by_profile_id_fkey"
+            columns: ["created_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_rotations_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
+      school_year_medical_requirements: {
+        Row: {
+          archived_at: string | null
+          archived_by_profile_id: string | null
+          created_at: string
+          created_by_profile_id: string
+          id: string
+          school_year_end: string
+          school_year_start: string
+          template_version_id: string
+        }
+        Insert: {
+          archived_at?: string | null
+          archived_by_profile_id?: string | null
+          created_at?: string
+          created_by_profile_id: string
+          id?: string
+          school_year_end: string
+          school_year_start: string
+          template_version_id: string
+        }
+        Update: {
+          archived_at?: string | null
+          archived_by_profile_id?: string | null
+          created_at?: string
+          created_by_profile_id?: string
+          id?: string
+          school_year_end?: string
+          school_year_start?: string
+          template_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_year_medical_requirements_archived_by_profile_id_fkey"
+            columns: ["archived_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_year_medical_requirements_created_by_profile_id_fkey"
+            columns: ["created_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_year_medical_requirements_template_version_id_fkey"
+            columns: ["template_version_id"]
+            isOneToOne: false
+            referencedRelation: "document_template_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_document_submissions: {
+        Row: {
+          archived_at: string | null
+          archived_by_profile_id: string | null
+          checksum_sha256: string | null
+          content_type: string | null
+          created_at: string
+          digital_status: Database["public"]["Enums"]["document_digital_status"]
+          expires_on: string | null
+          file_size_bytes: number | null
+          household_id: string
+          id: string
+          lifecycle_status: Database["public"]["Enums"]["document_lifecycle_status"]
+          original_file_name: string | null
+          storage_bucket: string | null
+          storage_object_path: string | null
+          student_id: string
+          submitted_by_profile_id: string
+          superseded_at: string | null
+          supersedes_submission_id: string | null
+          template_version_id: string
+          upload_source: Database["public"]["Enums"]["document_upload_source"]
+          valid_from: string | null
+        }
+        Insert: {
+          archived_at?: string | null
+          archived_by_profile_id?: string | null
+          checksum_sha256?: string | null
+          content_type?: string | null
+          created_at?: string
+          digital_status?: Database["public"]["Enums"]["document_digital_status"]
+          expires_on?: string | null
+          file_size_bytes?: number | null
+          household_id: string
+          id?: string
+          lifecycle_status?: Database["public"]["Enums"]["document_lifecycle_status"]
+          original_file_name?: string | null
+          storage_bucket?: string | null
+          storage_object_path?: string | null
+          student_id: string
+          submitted_by_profile_id: string
+          superseded_at?: string | null
+          supersedes_submission_id?: string | null
+          template_version_id: string
+          upload_source: Database["public"]["Enums"]["document_upload_source"]
+          valid_from?: string | null
+        }
+        Update: {
+          archived_at?: string | null
+          archived_by_profile_id?: string | null
+          checksum_sha256?: string | null
+          content_type?: string | null
+          created_at?: string
+          digital_status?: Database["public"]["Enums"]["document_digital_status"]
+          expires_on?: string | null
+          file_size_bytes?: number | null
+          household_id?: string
+          id?: string
+          lifecycle_status?: Database["public"]["Enums"]["document_lifecycle_status"]
+          original_file_name?: string | null
+          storage_bucket?: string | null
+          storage_object_path?: string | null
+          student_id?: string
+          submitted_by_profile_id?: string
+          superseded_at?: string | null
+          supersedes_submission_id?: string | null
+          template_version_id?: string
+          upload_source?: Database["public"]["Enums"]["document_upload_source"]
+          valid_from?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_document_submissions_archived_by_profile_id_fkey"
+            columns: ["archived_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_document_submissions_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_document_submissions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_document_submissions_submitted_by_profile_id_fkey"
+            columns: ["submitted_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_document_submissions_supersedes_submission_id_fkey"
+            columns: ["supersedes_submission_id"]
+            isOneToOne: false
+            referencedRelation: "student_document_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_document_submissions_template_version_id_fkey"
+            columns: ["template_version_id"]
+            isOneToOne: false
+            referencedRelation: "document_template_versions"
             referencedColumns: ["id"]
           },
         ]
@@ -1916,6 +3522,241 @@ export type Database = {
             columns: ["lesson_id"]
             isOneToOne: false
             referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visitor_card_links: {
+        Row: {
+          household_id: string | null
+          id: string
+          link_reason: string
+          link_type: Database["public"]["Enums"]["visitor_card_link_type"]
+          linked_at: string
+          linked_by_profile_id: string
+          person_id: string | null
+          student_id: string | null
+          visitor_card_id: string
+        }
+        Insert: {
+          household_id?: string | null
+          id?: string
+          link_reason: string
+          link_type: Database["public"]["Enums"]["visitor_card_link_type"]
+          linked_at?: string
+          linked_by_profile_id: string
+          person_id?: string | null
+          student_id?: string | null
+          visitor_card_id: string
+        }
+        Update: {
+          household_id?: string | null
+          id?: string
+          link_reason?: string
+          link_type?: Database["public"]["Enums"]["visitor_card_link_type"]
+          linked_at?: string
+          linked_by_profile_id?: string
+          person_id?: string | null
+          student_id?: string | null
+          visitor_card_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visitor_card_links_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visitor_card_links_linked_by_profile_id_fkey"
+            columns: ["linked_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visitor_card_links_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visitor_card_links_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visitor_card_links_visitor_card_id_fkey"
+            columns: ["visitor_card_id"]
+            isOneToOne: false
+            referencedRelation: "visitor_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visitor_card_rate_limits: {
+        Row: {
+          expires_at: string
+          fingerprint_hash: string
+          request_count: number
+          window_started_at: string
+        }
+        Insert: {
+          expires_at: string
+          fingerprint_hash: string
+          request_count?: number
+          window_started_at: string
+        }
+        Update: {
+          expires_at?: string
+          fingerprint_hash?: string
+          request_count?: number
+          window_started_at?: string
+        }
+        Relationships: []
+      }
+      visitor_card_review_events: {
+        Row: {
+          action: Database["public"]["Enums"]["visitor_card_review_action"]
+          actor_profile_id: string
+          id: string
+          occurred_at: string
+          reason: string | null
+          visitor_card_id: string
+        }
+        Insert: {
+          action: Database["public"]["Enums"]["visitor_card_review_action"]
+          actor_profile_id: string
+          id?: string
+          occurred_at?: string
+          reason?: string | null
+          visitor_card_id: string
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["visitor_card_review_action"]
+          actor_profile_id?: string
+          id?: string
+          occurred_at?: string
+          reason?: string | null
+          visitor_card_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visitor_card_review_events_actor_profile_id_fkey"
+            columns: ["actor_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visitor_card_review_events_visitor_card_id_fkey"
+            columns: ["visitor_card_id"]
+            isOneToOne: false
+            referencedRelation: "visitor_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visitor_cards: {
+        Row: {
+          archived_at: string | null
+          archived_by_profile_id: string | null
+          created_at: string
+          email: string | null
+          event_id: string | null
+          follow_up_email: boolean
+          follow_up_notes: string | null
+          follow_up_phone: boolean
+          grade_or_age_group: string | null
+          guardian_name: string | null
+          how_heard: string | null
+          id: string
+          invited_by: string | null
+          phone: string | null
+          privacy_acknowledged_at: string | null
+          privacy_acknowledgment_version: string | null
+          source: Database["public"]["Enums"]["visitor_card_source"]
+          status: Database["public"]["Enums"]["visitor_card_status"]
+          submitted_by_profile_id: string | null
+          updated_at: string
+          visit_date: string
+          youth_first_name: string
+          youth_last_name: string
+        }
+        Insert: {
+          archived_at?: string | null
+          archived_by_profile_id?: string | null
+          created_at?: string
+          email?: string | null
+          event_id?: string | null
+          follow_up_email?: boolean
+          follow_up_notes?: string | null
+          follow_up_phone?: boolean
+          grade_or_age_group?: string | null
+          guardian_name?: string | null
+          how_heard?: string | null
+          id?: string
+          invited_by?: string | null
+          phone?: string | null
+          privacy_acknowledged_at?: string | null
+          privacy_acknowledgment_version?: string | null
+          source: Database["public"]["Enums"]["visitor_card_source"]
+          status?: Database["public"]["Enums"]["visitor_card_status"]
+          submitted_by_profile_id?: string | null
+          updated_at?: string
+          visit_date?: string
+          youth_first_name: string
+          youth_last_name: string
+        }
+        Update: {
+          archived_at?: string | null
+          archived_by_profile_id?: string | null
+          created_at?: string
+          email?: string | null
+          event_id?: string | null
+          follow_up_email?: boolean
+          follow_up_notes?: string | null
+          follow_up_phone?: boolean
+          grade_or_age_group?: string | null
+          guardian_name?: string | null
+          how_heard?: string | null
+          id?: string
+          invited_by?: string | null
+          phone?: string | null
+          privacy_acknowledged_at?: string | null
+          privacy_acknowledgment_version?: string | null
+          source?: Database["public"]["Enums"]["visitor_card_source"]
+          status?: Database["public"]["Enums"]["visitor_card_status"]
+          submitted_by_profile_id?: string | null
+          updated_at?: string
+          visit_date?: string
+          youth_first_name?: string
+          youth_last_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visitor_cards_archived_by_profile_id_fkey"
+            columns: ["archived_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visitor_cards_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visitor_cards_submitted_by_profile_id_fkey"
+            columns: ["submitted_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -2218,6 +4059,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_document_submission: {
+        Args: { p_reason?: string; p_submission_id: string }
+        Returns: undefined
+      }
       add_child_relationship: {
         Args: {
           p_is_authorized_pickup: boolean
@@ -2252,6 +4097,21 @@ export type Database = {
       }
       add_lesson_to_curriculum_plan: {
         Args: { p_curriculum_plan_id: string; p_lesson_id: string }
+        Returns: string
+      }
+      add_schedule_location: {
+        Args: { p_name: string; p_notes?: string; p_schedule_id: string }
+        Returns: string
+      }
+      add_schedule_position: {
+        Args: {
+          p_ends_at?: string
+          p_location_id: string
+          p_required_count: number
+          p_responsibility: string
+          p_schedule_id: string
+          p_starts_at?: string
+        }
         Returns: string
       }
       admin_update_account: {
@@ -2291,23 +4151,91 @@ export type Database = {
         Args: { p_curriculum_plan_id: string }
         Returns: undefined
       }
+      archive_custom_form_assignment: {
+        Args: { p_assignment_id: string }
+        Returns: undefined
+      }
+      archive_custom_form_submission: {
+        Args: { p_submission_id: string }
+        Returns: undefined
+      }
+      archive_custom_form_template: {
+        Args: { p_template_id: string }
+        Returns: undefined
+      }
+      archive_document_template: {
+        Args: { p_template_id: string }
+        Returns: undefined
+      }
       archive_event: { Args: { p_event_id: string }; Returns: undefined }
       archive_lesson: { Args: { p_lesson_id: string }; Returns: undefined }
+      archive_library_resource: {
+        Args: { p_resource_id: string }
+        Returns: undefined
+      }
       archive_prayer_request: {
         Args: { p_prayer_request_id: string }
         Returns: undefined
       }
+      archive_resource_category: {
+        Args: { p_category_id: string }
+        Returns: undefined
+      }
+      archive_saved_report: { Args: { p_id: string }; Returns: undefined }
       archive_teaching_resource: {
         Args: { p_teaching_resource_id: string }
+        Returns: undefined
+      }
+      archive_visitor_card: {
+        Args: { p_reason: string; p_visitor_card_id: string }
+        Returns: undefined
+      }
+      assign_care_note: {
+        Args: { p_assigned_to_profile_id: string; p_care_note_id: string }
         Returns: undefined
       }
       assign_prayer_request: {
         Args: { p_assigned_to_profile_id: string; p_prayer_request_id: string }
         Returns: undefined
       }
+      assign_schedule_position: {
+        Args: {
+          p_ends_at: string
+          p_override?: boolean
+          p_override_reason?: string
+          p_position_id: string
+          p_profile_id: string
+          p_starts_at: string
+        }
+        Returns: string
+      }
       authorize_curriculum_resource_download: {
         Args: { p_teaching_resource_id: string }
         Returns: Json
+      }
+      authorize_document_submission_download: {
+        Args: { p_submission_id: string }
+        Returns: Json
+      }
+      authorize_document_submission_finalization: {
+        Args: { p_submission_id: string }
+        Returns: Json
+      }
+      authorize_document_template_master_download: {
+        Args: { p_version_id: string }
+        Returns: Json
+      }
+      authorize_document_template_master_finalization: {
+        Args: { p_version_id: string }
+        Returns: Json
+      }
+      authorize_library_resource_download: {
+        Args: { p_resource_id: string; p_version_id?: string }
+        Returns: Json
+      }
+      begin_visitor_card_review: {
+        Args: { p_visitor_card_id: string }
+        Returns: undefined
       }
       cancel_care_follow_up: {
         Args: { p_cancellation_reason: string; p_care_follow_up_id: string }
@@ -2315,6 +4243,10 @@ export type Database = {
       }
       cancel_my_event_registration: {
         Args: { p_registration_id: string }
+        Returns: undefined
+      }
+      cancel_schedule_assignment: {
+        Args: { p_assignment_id: string }
         Returns: undefined
       }
       check_in_student: {
@@ -2342,8 +4274,24 @@ export type Database = {
         Returns: undefined
       }
       check_out_visitor: { Args: { p_visitor_id: string }; Returns: undefined }
+      clear_visitor_card_duplicate: {
+        Args: { p_reason: string; p_visitor_card_id: string }
+        Returns: undefined
+      }
+      close_visitor_card: {
+        Args: { p_reason: string; p_visitor_card_id: string }
+        Returns: undefined
+      }
       complete_care_follow_up: {
         Args: { p_care_follow_up_id: string; p_completion_notes?: string }
+        Returns: undefined
+      }
+      complete_visitor_card_conversion: {
+        Args: { p_visitor_card_id: string }
+        Returns: undefined
+      }
+      confirm_document_paper_copy: {
+        Args: { p_reason?: string; p_submission_id: string }
         Returns: undefined
       }
       correct_student_check_in: {
@@ -2353,7 +4301,7 @@ export type Database = {
       create_announcement: {
         Args: {
           p_audience_type: Database["public"]["Enums"]["communication_audience_type"]
-          p_expires_at?: string | null
+          p_expires_at?: string
           p_message_body: string
           p_title: string
         }
@@ -2362,10 +4310,10 @@ export type Database = {
       create_attendance_session: {
         Args: {
           p_class_name: string
-          p_ends_at: string | null
+          p_ends_at: string
           p_event_id: string
           p_session_date: string
-          p_starts_at: string | null
+          p_starts_at: string
         }
         Returns: string
       }
@@ -2417,33 +4365,75 @@ export type Database = {
           p_channel: Database["public"]["Enums"]["communication_channel"]
           p_message_body: string
           p_name: string
-          p_subject: string | null
+          p_subject: string
         }
         Returns: string
       }
       create_curriculum_plan: {
         Args: {
-          p_audience: string | null
-          p_ends_on: string | null
-          p_starts_on: string | null
+          p_audience: string
+          p_ends_on: string
+          p_starts_on: string
           p_status: Database["public"]["Enums"]["curriculum_status"]
-          p_summary: string | null
+          p_summary: string
           p_title: string
+        }
+        Returns: string
+      }
+      create_custom_form_assignment: {
+        Args: {
+          p_assignment_type: Database["public"]["Enums"]["custom_form_assignment_type"]
+          p_event_id?: string
+          p_household_id?: string
+          p_student_id?: string
+          p_version_id: string
+          p_volunteer_profile_id?: string
+        }
+        Returns: string
+      }
+      create_custom_form_template: {
+        Args: { p_description?: string; p_name: string }
+        Returns: string
+      }
+      create_custom_form_version: {
+        Args: {
+          p_instructions?: string
+          p_template_id: string
+          p_title: string
+        }
+        Returns: string
+      }
+      create_document_template: {
+        Args: {
+          p_description: string
+          p_document_kind: Database["public"]["Enums"]["document_kind"]
+          p_name: string
+        }
+        Returns: string
+      }
+      create_document_template_version: {
+        Args: {
+          p_effective_from?: string
+          p_effective_to?: string
+          p_explicit_expires_on?: string
+          p_template_id: string
+          p_valid_for?: string
+          p_validity_policy: Database["public"]["Enums"]["document_validity_policy"]
         }
         Returns: string
       }
       create_event: {
         Args: {
-          p_address: string | null
-          p_building: string | null
-          p_campus: string | null
-          p_capacity: number | null
-          p_description: string | null
+          p_address: string
+          p_building: string
+          p_campus: string
+          p_capacity: number
+          p_description: string
           p_ends_at: string
           p_event_type: string
-          p_meeting_instructions: string | null
+          p_meeting_instructions: string
           p_name: string
-          p_room: string | null
+          p_room: string
           p_starts_at: string
           p_status: Database["public"]["Enums"]["event_status"]
           p_timezone: string
@@ -2452,17 +4442,26 @@ export type Database = {
       }
       create_event_checklist_item: {
         Args: {
-          p_due_at: string | null
+          p_due_at: string
           p_event_id: string
-          p_notes: string | null
+          p_notes: string
           p_title: string
+        }
+        Returns: string
+      }
+      create_event_participation_override: {
+        Args: {
+          p_expires_at?: string
+          p_reason: string
+          p_registration_id: string
+          p_unmet_requirement_ids: string[]
         }
         Returns: string
       }
       create_event_reminder: {
         Args: {
           p_event_id: string
-          p_notes: string | null
+          p_notes: string
           p_remind_at: string
           p_title: string
         }
@@ -2492,20 +4491,55 @@ export type Database = {
       }
       create_lesson: {
         Args: {
-          p_audience: string | null
-          p_discussion_guide: string | null
-          p_lesson_body: string | null
-          p_preparation_notes: string | null
-          p_scripture_references: string | null
+          p_audience: string
+          p_discussion_guide: string
+          p_lesson_body: string
+          p_preparation_notes: string
+          p_scripture_references: string
           p_status: Database["public"]["Enums"]["lesson_status"]
-          p_summary: string | null
-          p_teaching_objective: string | null
+          p_summary: string
+          p_teaching_objective: string
           p_title: string
         }
         Returns: string
       }
+      create_library_resource: {
+        Args: {
+          p_audience: Database["public"]["Enums"]["library_resource_audience"]
+          p_category_id: string
+          p_description: string
+          p_resource_type: Database["public"]["Enums"]["library_resource_type"]
+          p_title: string
+        }
+        Returns: string
+      }
+      create_library_resource_version: {
+        Args: {
+          p_change_summary?: string
+          p_checksum_sha256?: string
+          p_content_type: string
+          p_file_size_bytes: number
+          p_original_file_name: string
+          p_resource_id: string
+          p_storage_object_path: string
+          p_version_id: string
+        }
+        Returns: number
+      }
       create_member_tag: {
         Args: { p_color: string; p_name: string }
+        Returns: string
+      }
+      create_ministry_schedule: {
+        Args: {
+          p_ends_at: string
+          p_event_id: string
+          p_ministry_context: string
+          p_name: string
+          p_notes: string
+          p_starts_at: string
+          p_timezone: string
+        }
         Returns: string
       }
       create_prayer_request: {
@@ -2519,10 +4553,55 @@ export type Database = {
         }
         Returns: string
       }
+      create_resource_category: {
+        Args: { p_description?: string; p_name: string }
+        Returns: string
+      }
+      create_saved_report: {
+        Args: { p_configuration: Json; p_name: string; p_report_type: string }
+        Returns: string
+      }
+      create_schedule_rotation: {
+        Args: {
+          p_ends_at: string
+          p_ends_on: string
+          p_location_name: string
+          p_ministry_context: string
+          p_monthly_ordinal: number
+          p_name: string
+          p_pattern: Database["public"]["Enums"]["schedule_recurrence_pattern"]
+          p_profile_id: string
+          p_responsibility: string
+          p_schedule_name: string
+          p_starts_at: string
+          p_starts_on: string
+          p_timezone: string
+          p_weekday: number
+        }
+        Returns: string
+      }
+      create_staff_visitor_card: {
+        Args: {
+          p_email: string
+          p_event_id: string
+          p_follow_up_email: boolean
+          p_follow_up_notes: string
+          p_follow_up_phone: boolean
+          p_grade_or_age_group: string
+          p_guardian_name: string
+          p_how_heard: string
+          p_invited_by: string
+          p_phone: string
+          p_visit_date: string
+          p_youth_first_name: string
+          p_youth_last_name: string
+        }
+        Returns: string
+      }
       create_teaching_resource_file: {
         Args: {
           p_content_type: string
-          p_description: string | null
+          p_description: string
           p_file_size_bytes: number
           p_lesson_id: string
           p_original_file_name: string
@@ -2535,7 +4614,7 @@ export type Database = {
       }
       create_teaching_resource_link: {
         Args: {
-          p_description: string | null
+          p_description: string
           p_external_url: string
           p_lesson_id: string
           p_resource_type: Database["public"]["Enums"]["teaching_resource_type"]
@@ -2547,9 +4626,47 @@ export type Database = {
         Args: { p_description: string; p_name: string }
         Returns: string
       }
+      delete_custom_form_field: {
+        Args: { p_field_id: string }
+        Returns: undefined
+      }
       finalize_attendance_session: {
         Args: { p_session_id: string }
         Returns: undefined
+      }
+      finalize_document_submission_upload: {
+        Args: {
+          p_actor_profile_id: string
+          p_checksum_sha256: string
+          p_content_type: string
+          p_file_size_bytes: number
+          p_original_file_name: string
+          p_submission_id: string
+        }
+        Returns: undefined
+      }
+      finalize_document_template_master_upload: {
+        Args: {
+          p_actor_profile_id: string
+          p_checksum_sha256: string
+          p_content_type: string
+          p_file_size_bytes: number
+          p_original_file_name: string
+          p_version_id: string
+        }
+        Returns: undefined
+      }
+      flag_visitor_card_possible_duplicate: {
+        Args: { p_reason: string; p_visitor_card_id: string }
+        Returns: undefined
+      }
+      generate_schedule_rotation: {
+        Args: { p_rotation_id: string; p_through: string }
+        Returns: number
+      }
+      get_attendance_visitor_summary: {
+        Args: { p_from: string; p_to: string }
+        Returns: Json
       }
       get_care_follow_up: {
         Args: { p_care_follow_up_id: string }
@@ -2565,25 +4682,80 @@ export type Database = {
         Args: { p_curriculum_plan_id: string }
         Returns: Json
       }
+      get_custom_form_submission: {
+        Args: { p_submission_id: string }
+        Returns: Json
+      }
+      get_event_permission_slip_requirement: {
+        Args: { p_event_id: string }
+        Returns: Json
+      }
+      get_event_registration_document_readiness: {
+        Args: { p_registration_id: string }
+        Returns: Json
+      }
       get_event_registration_settings: {
         Args: { p_event_id: string }
         Returns: Json
       }
       get_event_workspace: { Args: { p_event_id: string }; Returns: Json }
       get_family_workspace: { Args: { p_household_id: string }; Returns: Json }
+      get_growth_report_summary: {
+        Args: { p_from: string; p_to: string }
+        Returns: Json
+      }
       get_lesson_workspace: { Args: { p_lesson_id: string }; Returns: Json }
       get_my_unread_notification_count: { Args: never; Returns: number }
       get_prayer_request: {
         Args: { p_prayer_request_id: string }
         Returns: Json
       }
+      get_reporting_overview: {
+        Args: { p_from: string; p_to: string }
+        Returns: Json
+      }
+      get_student_current_medical_form_status: {
+        Args: { p_on?: string; p_student_id: string }
+        Returns: Json
+      }
+      get_visitor_card_detail: {
+        Args: { p_visitor_card_id: string }
+        Returns: Json
+      }
       get_volunteer_workspace: { Args: { p_profile_id: string }; Returns: Json }
+      grant_sensitive_forms_capability: {
+        Args: {
+          p_capability: Database["public"]["Enums"]["forms_capability"]
+          p_expires_at?: string
+          p_profile_id: string
+          p_reason: string
+        }
+        Returns: string
+      }
       issue_family_checkin_token: {
         Args: { p_household_id: string }
         Returns: string
       }
+      link_parent_account_to_person: {
+        Args: {
+          p_confirm_relink: boolean
+          p_person_id: string
+          p_profile_id: string
+          p_reason: string
+        }
+        Returns: undefined
+      }
+      link_visitor_card_existing: {
+        Args: {
+          p_link_type: Database["public"]["Enums"]["visitor_card_link_type"]
+          p_reason: string
+          p_target_id: string
+          p_visitor_card_id: string
+        }
+        Returns: string
+      }
       list_accessible_families: {
-        Args: { p_search?: string | null }
+        Args: { p_search?: string }
         Returns: {
           adult_count: number
           city: string
@@ -2595,15 +4767,30 @@ export type Database = {
         }[]
       }
       list_announcements: {
-        Args: { p_include_archived?: boolean; p_search?: string | null }
+        Args: { p_include_archived?: boolean; p_search?: string }
         Returns: {
           announcement_id: string
           archived_at: string
           audience_type: Database["public"]["Enums"]["communication_audience_type"]
           can_manage: boolean
+          created_at: string
           expires_at: string
           message_body: string
           published_at: string
+          title: string
+          updated_at: string
+        }[]
+      }
+      list_assigned_care_notes: {
+        Args: never
+        Returns: {
+          care_note_id: string
+          category_name: string
+          created_at: string
+          note_content: string
+          occurred_at: string
+          person_id: string
+          person_name: string
           title: string
         }[]
       }
@@ -2632,8 +4819,16 @@ export type Database = {
           session_id: string
         }[]
       }
+      list_attendance_report_trends: {
+        Args: { p_from: string; p_interval?: string; p_to: string }
+        Returns: {
+          attendance_count: number
+          bucket_start: string
+          unique_youth: number
+        }[]
+      }
       list_attendance_roster: {
-        Args: { p_search?: string | null; p_session_id: string }
+        Args: { p_search?: string; p_session_id: string }
         Returns: {
           attendance_record_id: string
           attendance_status: Database["public"]["Enums"]["attendance_status"]
@@ -2669,6 +4864,18 @@ export type Database = {
           display_name: string
           household_relationship: string
           person_id: string
+        }[]
+      }
+      list_available_document_versions: {
+        Args: never
+        Returns: {
+          document_kind: Database["public"]["Enums"]["document_kind"]
+          household_id: string
+          student_id: string
+          student_name: string
+          template_name: string
+          template_version_id: string
+          version_number: number
         }[]
       }
       list_care_categories: {
@@ -2779,7 +4986,7 @@ export type Database = {
         }[]
       }
       list_communication_history: {
-        Args: { p_search?: string | null }
+        Args: { p_search?: string }
         Returns: {
           audience_type: Database["public"]["Enums"]["communication_audience_type"]
           channel: Database["public"]["Enums"]["communication_channel"]
@@ -2793,7 +5000,7 @@ export type Database = {
         }[]
       }
       list_communication_templates: {
-        Args: { p_include_archived?: boolean; p_search?: string | null }
+        Args: { p_include_archived?: boolean; p_search?: string }
         Returns: {
           archived_at: string
           channel: Database["public"]["Enums"]["communication_channel"]
@@ -2802,6 +5009,20 @@ export type Database = {
           subject: string
           template_id: string
           updated_at: string
+        }[]
+      }
+      list_current_medical_form_status: {
+        Args: { p_on?: string }
+        Returns: {
+          household_id: string
+          ready: boolean
+          school_year_end: string
+          school_year_start: string
+          state: Json
+          student_id: string
+          student_name: string
+          submission_id: string
+          template_version_id: string
         }[]
       }
       list_curriculum_plan_lessons: {
@@ -2818,8 +5039,8 @@ export type Database = {
       }
       list_curriculum_plans: {
         Args: {
-          p_search?: string | null
-          p_status?: Database["public"]["Enums"]["curriculum_status"] | null
+          p_search?: string
+          p_status?: Database["public"]["Enums"]["curriculum_status"]
         }
         Returns: {
           audience: string
@@ -2831,6 +5052,105 @@ export type Database = {
           starts_on: string
           summary: string
           title: string
+        }[]
+      }
+      list_custom_form_assignments: {
+        Args: never
+        Returns: {
+          assigned_at: string
+          assignment_id: string
+          assignment_type: Database["public"]["Enums"]["custom_form_assignment_type"]
+          event_id: string
+          household_id: string
+          student_id: string
+          title: string
+          version_id: string
+          version_number: number
+          volunteer_profile_id: string
+        }[]
+      }
+      list_custom_form_submissions: {
+        Args: { p_template_id?: string }
+        Returns: {
+          assignment_type: Database["public"]["Enums"]["custom_form_assignment_type"]
+          subject_household_id: string
+          subject_student_id: string
+          subject_volunteer_profile_id: string
+          submission_id: string
+          submission_status: Database["public"]["Enums"]["custom_form_submission_status"]
+          submitted_at: string
+          submitted_by_profile_id: string
+          template_id: string
+          title: string
+          version_id: string
+          version_number: number
+        }[]
+      }
+      list_custom_form_templates: {
+        Args: never
+        Returns: {
+          assignment_count: number
+          description: string
+          field_count: number
+          name: string
+          template_id: string
+          template_status: Database["public"]["Enums"]["custom_form_status"]
+          version_id: string
+          version_number: number
+          version_status: Database["public"]["Enums"]["custom_form_version_status"]
+          version_title: string
+        }[]
+      }
+      list_document_submissions: {
+        Args: never
+        Returns: {
+          digital_status: Database["public"]["Enums"]["document_digital_status"]
+          document_kind: Database["public"]["Enums"]["document_kind"]
+          expires_on: string
+          household_id: string
+          is_superseded: boolean
+          lifecycle_status: Database["public"]["Enums"]["document_lifecycle_status"]
+          medical_verified: boolean
+          original_file_name: string
+          paper_copy_on_file: boolean
+          review_state: Database["public"]["Enums"]["document_review_action"]
+          student_id: string
+          student_name: string
+          submission_id: string
+          supersedes_submission_id: string
+          template_name: string
+          template_version_id: string
+          upload_source: Database["public"]["Enums"]["document_upload_source"]
+          version_number: number
+        }[]
+      }
+      list_document_template_versions: {
+        Args: { p_template_id: string }
+        Returns: {
+          effective_from: string
+          effective_to: string
+          explicit_expires_on: string
+          file_size_bytes: number
+          has_master: boolean
+          original_file_name: string
+          published_at: string
+          status: Database["public"]["Enums"]["document_template_version_status"]
+          valid_for: string
+          validity_policy: Database["public"]["Enums"]["document_validity_policy"]
+          version_id: string
+          version_number: number
+        }[]
+      }
+      list_document_templates: {
+        Args: never
+        Returns: {
+          description: string
+          document_kind: Database["public"]["Enums"]["document_kind"]
+          latest_version_number: number
+          name: string
+          status: Database["public"]["Enums"]["document_template_status"]
+          template_id: string
+          version_count: number
         }[]
       }
       list_emergency_roster: {
@@ -2848,8 +5168,8 @@ export type Database = {
       list_event_calendar: {
         Args: {
           p_from_date: string
-          p_search?: string | null
-          p_status?: Database["public"]["Enums"]["event_status"] | null
+          p_search?: string
+          p_status?: Database["public"]["Enums"]["event_status"]
           p_to_date: string
         }
         Returns: {
@@ -2878,6 +5198,26 @@ export type Database = {
           title: string
         }[]
       }
+      list_event_participation_trends: {
+        Args: { p_from: string; p_interval?: string; p_to: string }
+        Returns: {
+          attendance_count: number
+          bucket_start: string
+          registration_count: number
+        }[]
+      }
+      list_event_registration_document_readiness: {
+        Args: { p_event_id: string }
+        Returns: {
+          documentation_ready: boolean
+          event_id: string
+          participation_override_id: string
+          registration_id: string
+          registration_status: Database["public"]["Enums"]["event_registration_status"]
+          requirements: Json
+          student_id: string
+        }[]
+      }
       list_event_registrations: {
         Args: { p_event_id: string }
         Returns: {
@@ -2898,6 +5238,22 @@ export type Database = {
           reminder_id: string
           reminder_status: Database["public"]["Enums"]["event_reminder_status"]
           title: string
+        }[]
+      }
+      list_event_report_summary: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          attendance_count: number
+          cancelled_count: number
+          capacity: number
+          capacity_utilization: number
+          event_id: string
+          event_name: string
+          event_type: string
+          registered_count: number
+          starts_at: string
+          volunteer_staffing: number
+          waitlisted_count: number
         }[]
       }
       list_event_volunteer_assignments: {
@@ -2923,8 +5279,8 @@ export type Database = {
       }
       list_lesson_library: {
         Args: {
-          p_search?: string | null
-          p_status?: Database["public"]["Enums"]["lesson_status"] | null
+          p_search?: string
+          p_status?: Database["public"]["Enums"]["lesson_status"]
         }
         Returns: {
           audience: string
@@ -2951,8 +5307,52 @@ export type Database = {
           title: string
         }[]
       }
+      list_library_resource_versions: {
+        Args: { p_resource_id: string }
+        Returns: {
+          change_summary: string
+          checksum_sha256: string
+          content_type: string
+          created_at: string
+          created_by_profile_id: string
+          file_size_bytes: number
+          is_current: boolean
+          original_file_name: string
+          version_id: string
+          version_number: number
+        }[]
+      }
+      list_library_resources: {
+        Args: {
+          p_audience?: Database["public"]["Enums"]["library_resource_audience"]
+          p_category_id?: string
+          p_include_archived?: boolean
+          p_resource_type?: Database["public"]["Enums"]["library_resource_type"]
+          p_search?: string
+          p_status?: Database["public"]["Enums"]["library_resource_status"]
+        }
+        Returns: {
+          archived_at: string
+          audience: Database["public"]["Enums"]["library_resource_audience"]
+          category_id: string
+          category_name: string
+          content_type: string
+          created_at: string
+          current_version_id: string
+          current_version_number: number
+          description: string
+          file_size_bytes: number
+          original_file_name: string
+          published_at: string
+          resource_id: string
+          resource_status: Database["public"]["Enums"]["library_resource_status"]
+          resource_type: Database["public"]["Enums"]["library_resource_type"]
+          title: string
+          updated_at: string
+        }[]
+      }
       list_managed_accounts: {
-        Args: { p_search?: string | null }
+        Args: { p_search?: string }
         Returns: {
           created_at: string
           display_name: string
@@ -2980,6 +5380,60 @@ export type Database = {
           tags: Json
         }[]
       }
+      list_ministry_schedules: {
+        Args: { p_from: string; p_until: string }
+        Returns: {
+          assignment_ends_at: string
+          assignment_id: string
+          assignment_starts_at: string
+          assignment_status: Database["public"]["Enums"]["schedule_assignment_status"]
+          conflict_codes: string[]
+          conflict_overridden: boolean
+          ends_at: string
+          event_id: string
+          location_id: string
+          location_name: string
+          ministry_context: string
+          notes: string
+          position_id: string
+          profile_id: string
+          required_count: number
+          responsibility: string
+          schedule_id: string
+          schedule_name: string
+          schedule_status: Database["public"]["Enums"]["ministry_schedule_status"]
+          starts_at: string
+          timezone: string
+          volunteer_name: string
+        }[]
+      }
+      list_my_care_follow_ups: {
+        Args: never
+        Returns: {
+          care_follow_up_id: string
+          created_at: string
+          due_at: string
+          follow_up_status: Database["public"]["Enums"]["care_follow_up_status"]
+          instructions: string
+          person_id: string
+          person_name: string
+          priority: Database["public"]["Enums"]["care_follow_up_priority"]
+          title: string
+        }[]
+      }
+      list_my_custom_forms: {
+        Args: never
+        Returns: {
+          assigned_at: string
+          assignment_id: string
+          assignment_type: Database["public"]["Enums"]["custom_form_assignment_type"]
+          subject_student_id: string
+          submission_id: string
+          submission_status: Database["public"]["Enums"]["custom_form_submission_status"]
+          title: string
+          version_number: number
+        }[]
+      }
       list_my_event_registration_options: {
         Args: { p_event_id: string }
         Returns: {
@@ -2999,6 +5453,47 @@ export type Database = {
           notification_id: string
           read_at: string
           title: string
+        }[]
+      }
+      list_my_saved_reports: {
+        Args: never
+        Returns: {
+          configuration: Json
+          created_at: string
+          id: string
+          name: string
+          report_type: string
+          updated_at: string
+        }[]
+      }
+      list_parent_account_link_candidates: {
+        Args: { p_person_id: string }
+        Returns: {
+          account_email: string
+          account_role: Database["public"]["Enums"]["account_role"]
+          account_status: Database["public"]["Enums"]["account_status"]
+          display_name: string
+          email_matches: boolean
+          linked_households: string[]
+          linked_person_id: string
+          linked_person_name: string
+          matching_active_people_count: number
+          profile_id: string
+        }[]
+      }
+      list_prayer_care_assignees: {
+        Args: never
+        Returns: {
+          display_name: string
+          primary_role: Database["public"]["Enums"]["account_role"]
+          profile_id: string
+        }[]
+      }
+      list_prayer_care_people: {
+        Args: { p_search?: string }
+        Returns: {
+          display_name: string
+          person_id: string
         }[]
       }
       list_prayer_requests: {
@@ -3032,6 +5527,28 @@ export type Database = {
           visibility: Database["public"]["Enums"]["prayer_request_visibility"]
         }[]
       }
+      list_public_prayer_summaries: {
+        Args: never
+        Returns: {
+          answered_at: string
+          category_name: string
+          created_at: string
+          prayer_request_id: string
+          request_status: Database["public"]["Enums"]["prayer_request_status"]
+          title: string
+        }[]
+      }
+      list_resource_categories: {
+        Args: { p_include_archived?: boolean }
+        Returns: {
+          archived_at: string
+          category_description: string
+          category_id: string
+          category_name: string
+          created_at: string
+          updated_at: string
+        }[]
+      }
       list_schedulable_events: {
         Args: never
         Returns: {
@@ -3041,6 +5558,160 @@ export type Database = {
           event_status: Database["public"]["Enums"]["event_status"]
           starts_at: string
           timezone: string
+        }[]
+      }
+      list_schedule_assignment_conflict_history: {
+        Args: { p_schedule_id: string }
+        Returns: {
+          assignment_ends_at: string
+          assignment_id: string
+          assignment_starts_at: string
+          assignment_status: Database["public"]["Enums"]["schedule_assignment_status"]
+          conflict_codes: string[]
+          conflict_overridden: boolean
+          location_name: string
+          override_reason: string
+          position_id: string
+          responsibility: string
+          volunteer_name: string
+        }[]
+      }
+      list_schedule_locations: {
+        Args: { p_schedule_id: string }
+        Returns: {
+          location_id: string
+          location_name: string
+        }[]
+      }
+      list_schedule_rotations: {
+        Args: never
+        Returns: {
+          created_at: string
+          created_by_profile_id: string
+          ends_at: string
+          ends_on: string | null
+          id: string
+          location_name: string | null
+          ministry_context: string | null
+          monthly_ordinal: number | null
+          name: string
+          profile_id: string | null
+          recurrence_pattern: Database["public"]["Enums"]["schedule_recurrence_pattern"]
+          responsibility: string
+          schedule_name: string
+          starts_at: string
+          starts_on: string
+          status: Database["public"]["Enums"]["schedule_rotation_status"]
+          timezone: string
+          updated_at: string
+          weekday: number | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "schedule_rotations"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      list_scheduling_candidates: {
+        Args: never
+        Returns: {
+          display_name: string
+          profile_id: string
+        }[]
+      }
+      list_scheduling_coverage_report: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          coverage_percentage: number
+          filled_positions: number
+          required_positions: number
+          schedule_id: string
+          schedule_name: string
+          schedule_status: string
+          starts_at: string
+          unfilled_positions: number
+        }[]
+      }
+      list_sensitive_forms_capability_grants: {
+        Args: never
+        Returns: {
+          capability: Database["public"]["Enums"]["forms_capability"]
+          expires_at: string
+          grant_id: string
+          grant_reason: string
+          granted_at: string
+          granted_by_profile_id: string
+          profile_id: string
+          revocation_reason: string
+          revoked_at: string
+          revoked_by_profile_id: string
+        }[]
+      }
+      list_visible_prayer_requests: {
+        Args: { p_include_archived?: boolean }
+        Returns: {
+          answer_summary: string
+          assigned_to_profile_id: string
+          category_id: string
+          category_name: string
+          created_at: string
+          person_id: string
+          person_name: string
+          prayer_request_id: string
+          request_details: string
+          request_status: Database["public"]["Enums"]["prayer_request_status"]
+          submitted_by_profile_id: string
+          title: string
+          updated_at: string
+          visibility: Database["public"]["Enums"]["prayer_request_visibility"]
+        }[]
+      }
+      list_visitor_card_events: {
+        Args: never
+        Returns: {
+          event_id: string
+          event_name: string
+          starts_at: string
+        }[]
+      }
+      list_visitor_card_possible_matches: {
+        Args: { p_visitor_card_id: string }
+        Returns: {
+          display_name: string
+          household_id: string
+          match_signals: string[]
+          person_id: string
+          student_id: string
+        }[]
+      }
+      list_visitor_cards: {
+        Args: { p_status?: Database["public"]["Enums"]["visitor_card_status"] }
+        Returns: {
+          created_at: string
+          event_name: string
+          follow_up_email: boolean
+          follow_up_phone: boolean
+          has_email: boolean
+          has_phone: boolean
+          source: Database["public"]["Enums"]["visitor_card_source"]
+          status: Database["public"]["Enums"]["visitor_card_status"]
+          visit_date: string
+          visitor_card_id: string
+          visitor_name: string
+        }[]
+      }
+      list_volunteer_assignment_activity: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          assignment_id: string
+          assignment_status: string
+          event_name: string
+          profile_id: string
+          responsibility: string
+          source: string
+          starts_at: string
+          volunteer_name: string
         }[]
       }
       list_volunteer_assignments: {
@@ -3068,7 +5739,7 @@ export type Database = {
         }[]
       }
       list_volunteer_directory: {
-        Args: { p_search?: string | null }
+        Args: { p_search?: string }
         Returns: {
           background_check_expires_at: string
           background_check_status: Database["public"]["Enums"]["background_check_status"]
@@ -3084,6 +5755,24 @@ export type Database = {
       mark_my_notification_read: {
         Args: { p_notification_id: string }
         Returns: undefined
+      }
+      open_custom_form_assignment: {
+        Args: { p_assignment_id: string; p_subject_student_id?: string }
+        Returns: Json
+      }
+      prepare_document_submission_upload: {
+        Args: {
+          p_extension: string
+          p_object_id: string
+          p_student_id: string
+          p_supersedes_submission_id?: string
+          p_template_version_id: string
+        }
+        Returns: Json
+      }
+      prepare_document_template_master_upload: {
+        Args: { p_object_id: string; p_version_id: string }
+        Returns: Json
       }
       preview_communication_recipients: {
         Args: {
@@ -3106,24 +5795,130 @@ export type Database = {
         Args: { p_announcement_id: string }
         Returns: undefined
       }
+      publish_custom_form_version: {
+        Args: { p_version_id: string }
+        Returns: undefined
+      }
+      publish_document_template_version: {
+        Args: { p_version_id: string }
+        Returns: undefined
+      }
+      publish_library_resource: {
+        Args: { p_resource_id: string }
+        Returns: undefined
+      }
+      record_reporting_export: {
+        Args: {
+          p_format: string
+          p_from: string
+          p_report_type: string
+          p_row_count: number
+          p_to: string
+        }
+        Returns: undefined
+      }
+      record_visitor_card_conversion: {
+        Args: {
+          p_household_id: string
+          p_person_id: string
+          p_reason: string
+          p_student_id: string
+          p_visitor_card_id: string
+        }
+        Returns: string
+      }
       register_my_student_for_event: {
         Args: { p_event_id: string; p_student_id: string }
         Returns: Database["public"]["Enums"]["event_registration_status"]
       }
+      reject_document_submission: {
+        Args: { p_reason: string; p_submission_id: string }
+        Returns: undefined
+      }
+      move_curriculum_plan_lesson: {
+        Args: { p_direction: string; p_plan_lesson_id: string }
+        Returns: number
+      }
       remove_lesson_from_curriculum_plan: {
         Args: { p_plan_lesson_id: string }
+        Returns: undefined
+      }
+      rename_saved_report: {
+        Args: { p_id: string; p_name: string }
+        Returns: undefined
+      }
+      reopen_visitor_card: {
+        Args: { p_reason: string; p_visitor_card_id: string }
+        Returns: undefined
+      }
+      request_document_replacement: {
+        Args: { p_reason: string; p_submission_id: string }
         Returns: undefined
       }
       resolve_family_checkin_token: {
         Args: { p_event_id: string; p_token: string }
         Returns: string
       }
+      retire_custom_form_version: {
+        Args: { p_version_id: string }
+        Returns: undefined
+      }
+      retire_document_template_version: {
+        Args: { p_version_id: string }
+        Returns: undefined
+      }
+      revoke_document_paper_confirmation: {
+        Args: { p_reason: string; p_submission_id: string }
+        Returns: undefined
+      }
+      revoke_event_participation_override: {
+        Args: { p_override_id: string; p_reason: string }
+        Returns: undefined
+      }
+      revoke_medical_verification: {
+        Args: { p_reason: string; p_submission_id: string }
+        Returns: undefined
+      }
+      revoke_sensitive_forms_capability: {
+        Args: { p_grant_id: string; p_reason: string }
+        Returns: undefined
+      }
       save_attendance_record: {
         Args: {
-          p_notes: string | null
+          p_notes: string
           p_session_id: string
           p_status: Database["public"]["Enums"]["attendance_status"]
           p_student_id: string
+        }
+        Returns: string
+      }
+      save_custom_form_answer: {
+        Args: {
+          p_boolean_value: boolean
+          p_choice_value: string
+          p_date_value: string
+          p_field_id: string
+          p_multiple_choice_value: Json
+          p_submission_id: string
+          p_text_value: string
+        }
+        Returns: undefined
+      }
+      save_custom_form_field: {
+        Args: {
+          p_choice_options: Json
+          p_display_order: number
+          p_field_id: string
+          p_field_key: string
+          p_field_type: Database["public"]["Enums"]["custom_form_field_type"]
+          p_help_text: string
+          p_is_required: boolean
+          p_label: string
+          p_maximum_date: string
+          p_maximum_length: number
+          p_minimum_date: string
+          p_minimum_length: number
+          p_version_id: string
         }
         Returns: string
       }
@@ -3186,8 +5981,8 @@ export type Database = {
           p_audience_type: Database["public"]["Enums"]["communication_audience_type"]
           p_channel: Database["public"]["Enums"]["communication_channel"]
           p_message_body: string
-          p_subject: string | null
-          p_template_id?: string | null
+          p_subject: string
+          p_template_id?: string
           p_title: string
         }
         Returns: string
@@ -3200,12 +5995,39 @@ export type Database = {
         Args: { p_checklist_item_id: string; p_is_completed: boolean }
         Returns: undefined
       }
+      set_event_permission_slip_requirement: {
+        Args: {
+          p_event_id: string
+          p_required: boolean
+          p_template_version_id?: string
+        }
+        Returns: string
+      }
       set_event_reminder_status: {
         Args: {
           p_reminder_id: string
           p_status: Database["public"]["Enums"]["event_reminder_status"]
         }
         Returns: undefined
+      }
+      set_ministry_schedule_status: {
+        Args: {
+          p_allow_unfilled?: boolean
+          p_schedule_id: string
+          p_status: Database["public"]["Enums"]["ministry_schedule_status"]
+        }
+        Returns: undefined
+      }
+      set_schedule_rotation_status: {
+        Args: {
+          p_rotation_id: string
+          p_status: Database["public"]["Enums"]["schedule_rotation_status"]
+        }
+        Returns: undefined
+      }
+      set_school_year_medical_requirement: {
+        Args: { p_school_year_start: string; p_template_version_id: string }
+        Returns: string
       }
       set_volunteer_assignment_status: {
         Args: {
@@ -3214,11 +6036,19 @@ export type Database = {
         }
         Returns: undefined
       }
+      start_visitor_card_conversion: {
+        Args: { p_visitor_card_id: string }
+        Returns: undefined
+      }
+      submit_custom_form: {
+        Args: { p_submission_id: string }
+        Returns: undefined
+      }
       update_announcement: {
         Args: {
           p_announcement_id: string
           p_audience_type: Database["public"]["Enums"]["communication_audience_type"]
-          p_expires_at?: string | null
+          p_expires_at?: string
           p_message_body: string
           p_title: string
         }
@@ -3291,36 +6121,51 @@ export type Database = {
           p_channel: Database["public"]["Enums"]["communication_channel"]
           p_message_body: string
           p_name: string
-          p_subject: string | null
+          p_subject: string
           p_template_id: string
         }
         Returns: undefined
       }
       update_curriculum_plan: {
         Args: {
-          p_audience: string | null
+          p_audience: string
           p_curriculum_plan_id: string
-          p_ends_on: string | null
-          p_starts_on: string | null
+          p_ends_on: string
+          p_starts_on: string
           p_status: Database["public"]["Enums"]["curriculum_status"]
-          p_summary: string | null
+          p_summary: string
           p_title: string
+        }
+        Returns: undefined
+      }
+      update_custom_form_version_draft: {
+        Args: { p_instructions?: string; p_title: string; p_version_id: string }
+        Returns: undefined
+      }
+      update_document_template_version_draft: {
+        Args: {
+          p_effective_from?: string
+          p_effective_to?: string
+          p_explicit_expires_on?: string
+          p_valid_for?: string
+          p_validity_policy: Database["public"]["Enums"]["document_validity_policy"]
+          p_version_id: string
         }
         Returns: undefined
       }
       update_event: {
         Args: {
-          p_address: string | null
-          p_building: string | null
-          p_campus: string | null
-          p_capacity: number | null
-          p_description: string | null
+          p_address: string
+          p_building: string
+          p_campus: string
+          p_capacity: number
+          p_description: string
           p_ends_at: string
           p_event_id: string
           p_event_type: string
-          p_meeting_instructions: string | null
+          p_meeting_instructions: string
           p_name: string
-          p_room: string | null
+          p_room: string
           p_starts_at: string
           p_status: Database["public"]["Enums"]["event_status"]
           p_timezone: string
@@ -3329,11 +6174,11 @@ export type Database = {
       }
       update_event_registration_settings: {
         Args: {
-          p_capacity: number | null
+          p_capacity: number
           p_event_id: string
-          p_registration_closes_at: string | null
-          p_registration_opens_at: string | null
-          p_waitlist_capacity: number | null
+          p_registration_closes_at: string
+          p_registration_opens_at: string
+          p_waitlist_capacity: number
         }
         Returns: undefined
       }
@@ -3371,15 +6216,26 @@ export type Database = {
       }
       update_lesson: {
         Args: {
-          p_audience: string | null
-          p_discussion_guide: string | null
-          p_lesson_body: string | null
+          p_audience: string
+          p_discussion_guide: string
+          p_lesson_body: string
           p_lesson_id: string
-          p_preparation_notes: string | null
-          p_scripture_references: string | null
+          p_preparation_notes: string
+          p_scripture_references: string
           p_status: Database["public"]["Enums"]["lesson_status"]
-          p_summary: string | null
-          p_teaching_objective: string | null
+          p_summary: string
+          p_teaching_objective: string
+          p_title: string
+        }
+        Returns: undefined
+      }
+      update_library_resource: {
+        Args: {
+          p_audience: Database["public"]["Enums"]["library_resource_audience"]
+          p_category_id: string
+          p_description: string
+          p_resource_id: string
+          p_resource_type: Database["public"]["Enums"]["library_resource_type"]
           p_title: string
         }
         Returns: undefined
@@ -3390,12 +6246,17 @@ export type Database = {
       }
       update_prayer_request: {
         Args: {
-          p_category_id: string
+          p_category_id: string | null
+          p_person_id: string
           p_prayer_request_id: string
           p_request_details: string
           p_title: string
           p_visibility: Database["public"]["Enums"]["prayer_request_visibility"]
         }
+        Returns: undefined
+      }
+      update_resource_category: {
+        Args: { p_category_id: string; p_description?: string; p_name: string }
         Returns: undefined
       }
       upsert_volunteer_profile: {
@@ -3408,6 +6269,10 @@ export type Database = {
           p_ministry_title: string
           p_profile_id: string
         }
+        Returns: undefined
+      }
+      verify_medical_document: {
+        Args: { p_reason?: string; p_submission_id: string }
         Returns: undefined
       }
     }
@@ -3462,6 +6327,51 @@ export type Database = {
         | "failed"
         | "cancelled"
       curriculum_status: "draft" | "published" | "completed" | "archived"
+      custom_form_assignment_type:
+        | "event"
+        | "student"
+        | "household"
+        | "volunteer"
+        | "general_ministry"
+      custom_form_field_type:
+        | "short_text"
+        | "long_text"
+        | "yes_no"
+        | "single_choice"
+        | "multiple_choice"
+        | "date"
+        | "acknowledgment"
+      custom_form_status: "draft" | "active" | "archived"
+      custom_form_submission_status: "draft" | "submitted" | "archived"
+      custom_form_version_status: "draft" | "published" | "retired"
+      document_digital_status:
+        | "missing"
+        | "uploaded"
+        | "accepted"
+        | "needs_replacement"
+      document_kind: "permission_slip" | "medical_release"
+      document_lifecycle_status:
+        | "digital_received"
+        | "paper_required"
+        | "under_review"
+        | "complete"
+        | "rejected"
+        | "expired"
+        | "superseded"
+        | "archived"
+      document_review_action:
+        | "accepted"
+        | "rejected"
+        | "replacement_requested"
+        | "medical_verified"
+        | "medical_verification_revoked"
+      document_template_status: "draft" | "active" | "archived"
+      document_template_version_status: "draft" | "published" | "retired"
+      document_upload_source: "parent" | "staff"
+      document_validity_policy:
+        | "event_specific"
+        | "fixed_interval"
+        | "explicit_expiration"
       event_registration_status:
         | "draft"
         | "registered"
@@ -3471,11 +6381,40 @@ export type Database = {
         | "completed"
       event_reminder_status: "scheduled" | "completed" | "cancelled"
       event_status: "draft" | "published" | "active" | "completed" | "archived"
+      forms_capability:
+        | "forms.documents.manage"
+        | "forms.documents.paper_confirm"
+        | "forms.medical.view"
+        | "forms.medical.verify"
+        | "forms.participation.override"
+        | "custom_forms.manage"
+        | "custom_forms.submit"
+        | "visitor_cards.manage"
       household_status: "prospect" | "active" | "inactive" | "archived"
       lesson_status: "draft" | "published" | "archived"
+      library_resource_audience:
+        | "ministry"
+        | "volunteer"
+        | "family"
+        | "all_authenticated"
+      library_resource_status: "draft" | "published" | "archived"
+      library_resource_type: "document" | "image" | "video" | "other"
+      ministry_schedule_status:
+        | "draft"
+        | "published"
+        | "cancelled"
+        | "completed"
+      paper_evidence_action: "confirmed_on_file" | "confirmation_revoked"
       person_status: "active" | "inactive" | "archived"
       prayer_request_status: "active" | "answered" | "archived"
       prayer_request_visibility: "public" | "leadership" | "private"
+      schedule_assignment_status:
+        | "assigned"
+        | "confirmed"
+        | "declined"
+        | "cancelled"
+      schedule_recurrence_pattern: "weekly" | "biweekly" | "monthly"
+      schedule_rotation_status: "active" | "paused" | "ended"
       student_status:
         | "prospective"
         | "registered"
@@ -3483,6 +6422,24 @@ export type Database = {
         | "inactive"
         | "archived"
       teaching_resource_type: "document" | "pdf" | "video" | "link" | "other"
+      visitor_card_link_type: "person" | "student" | "household" | "conversion"
+      visitor_card_review_action:
+        | "review_started"
+        | "duplicate_flagged"
+        | "duplicate_cleared"
+        | "closed"
+        | "reopened"
+        | "archived"
+      visitor_card_source: "staff" | "self_service"
+      visitor_card_status:
+        | "new"
+        | "under_review"
+        | "possible_duplicate"
+        | "linked_existing"
+        | "conversion_started"
+        | "converted"
+        | "closed"
+        | "archived"
       visitor_check_in_status: "checked_in" | "checked_out"
       volunteer_assignment_status:
         | "assigned"
@@ -3511,12 +6468,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3540,11 +6497,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3565,11 +6522,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3590,11 +6547,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3607,11 +6564,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3680,6 +6637,57 @@ export const Constants = {
         "cancelled",
       ],
       curriculum_status: ["draft", "published", "completed", "archived"],
+      custom_form_assignment_type: [
+        "event",
+        "student",
+        "household",
+        "volunteer",
+        "general_ministry",
+      ],
+      custom_form_field_type: [
+        "short_text",
+        "long_text",
+        "yes_no",
+        "single_choice",
+        "multiple_choice",
+        "date",
+        "acknowledgment",
+      ],
+      custom_form_status: ["draft", "active", "archived"],
+      custom_form_submission_status: ["draft", "submitted", "archived"],
+      custom_form_version_status: ["draft", "published", "retired"],
+      document_digital_status: [
+        "missing",
+        "uploaded",
+        "accepted",
+        "needs_replacement",
+      ],
+      document_kind: ["permission_slip", "medical_release"],
+      document_lifecycle_status: [
+        "digital_received",
+        "paper_required",
+        "under_review",
+        "complete",
+        "rejected",
+        "expired",
+        "superseded",
+        "archived",
+      ],
+      document_review_action: [
+        "accepted",
+        "rejected",
+        "replacement_requested",
+        "medical_verified",
+        "medical_verification_revoked",
+      ],
+      document_template_status: ["draft", "active", "archived"],
+      document_template_version_status: ["draft", "published", "retired"],
+      document_upload_source: ["parent", "staff"],
+      document_validity_policy: [
+        "event_specific",
+        "fixed_interval",
+        "explicit_expiration",
+      ],
       event_registration_status: [
         "draft",
         "registered",
@@ -3690,11 +6698,44 @@ export const Constants = {
       ],
       event_reminder_status: ["scheduled", "completed", "cancelled"],
       event_status: ["draft", "published", "active", "completed", "archived"],
+      forms_capability: [
+        "forms.documents.manage",
+        "forms.documents.paper_confirm",
+        "forms.medical.view",
+        "forms.medical.verify",
+        "forms.participation.override",
+        "custom_forms.manage",
+        "custom_forms.submit",
+        "visitor_cards.manage",
+      ],
       household_status: ["prospect", "active", "inactive", "archived"],
       lesson_status: ["draft", "published", "archived"],
+      library_resource_audience: [
+        "ministry",
+        "volunteer",
+        "family",
+        "all_authenticated",
+      ],
+      library_resource_status: ["draft", "published", "archived"],
+      library_resource_type: ["document", "image", "video", "other"],
+      ministry_schedule_status: [
+        "draft",
+        "published",
+        "cancelled",
+        "completed",
+      ],
+      paper_evidence_action: ["confirmed_on_file", "confirmation_revoked"],
       person_status: ["active", "inactive", "archived"],
       prayer_request_status: ["active", "answered", "archived"],
       prayer_request_visibility: ["public", "leadership", "private"],
+      schedule_assignment_status: [
+        "assigned",
+        "confirmed",
+        "declined",
+        "cancelled",
+      ],
+      schedule_recurrence_pattern: ["weekly", "biweekly", "monthly"],
+      schedule_rotation_status: ["active", "paused", "ended"],
       student_status: [
         "prospective",
         "registered",
@@ -3703,6 +6744,26 @@ export const Constants = {
         "archived",
       ],
       teaching_resource_type: ["document", "pdf", "video", "link", "other"],
+      visitor_card_link_type: ["person", "student", "household", "conversion"],
+      visitor_card_review_action: [
+        "review_started",
+        "duplicate_flagged",
+        "duplicate_cleared",
+        "closed",
+        "reopened",
+        "archived",
+      ],
+      visitor_card_source: ["staff", "self_service"],
+      visitor_card_status: [
+        "new",
+        "under_review",
+        "possible_duplicate",
+        "linked_existing",
+        "conversion_started",
+        "converted",
+        "closed",
+        "archived",
+      ],
       visitor_check_in_status: ["checked_in", "checked_out"],
       volunteer_assignment_status: [
         "assigned",
@@ -3722,82 +6783,80 @@ export const Constants = {
   },
 } as const
 
-// Application-facing aliases. Supabase CLI regeneration preserves the enum
-// definitions above but does not emit the PascalCase names used throughout
-// the feature modules.
-export type AccountRole = Database["public"]["Enums"]["account_role"]
-export type AccountStatus = Database["public"]["Enums"]["account_status"]
-export type AttendanceStatus =
-  Database["public"]["Enums"]["attendance_status"]
-export type AuditResult = Database["public"]["Enums"]["audit_result"]
-export type AuditSource = Database["public"]["Enums"]["audit_source"]
-export type BackgroundCheckStatus =
-  Database["public"]["Enums"]["background_check_status"]
-export type CareFollowUpPriority =
-  Database["public"]["Enums"]["care_follow_up_priority"]
-export type CareFollowUpStatus =
-  Database["public"]["Enums"]["care_follow_up_status"]
-export type CheckInStatus = Database["public"]["Enums"]["check_in_status"]
-export type CommunicationAudienceType =
-  Database["public"]["Enums"]["communication_audience_type"]
-export type CommunicationChannel =
-  Database["public"]["Enums"]["communication_channel"]
-export type CommunicationDeliveryStatus =
-  Database["public"]["Enums"]["communication_delivery_status"]
-export type CommunicationStatus =
-  Database["public"]["Enums"]["communication_status"]
-export type CurriculumStatus =
-  Database["public"]["Enums"]["curriculum_status"]
-export type EventRegistrationStatus =
-  Database["public"]["Enums"]["event_registration_status"]
-export type EventReminderStatus =
-  Database["public"]["Enums"]["event_reminder_status"]
-export type EventStatus = Database["public"]["Enums"]["event_status"]
-export type HouseholdStatus =
-  Database["public"]["Enums"]["household_status"]
-export type LessonStatus = Database["public"]["Enums"]["lesson_status"]
-export type PersonStatus = Database["public"]["Enums"]["person_status"]
-export type PrayerRequestStatus =
-  Database["public"]["Enums"]["prayer_request_status"]
-export type PrayerRequestVisibility =
-  Database["public"]["Enums"]["prayer_request_visibility"]
-export type StudentStatus = Database["public"]["Enums"]["student_status"]
-export type TeachingResourceType =
-  Database["public"]["Enums"]["teaching_resource_type"]
-export type VisitorCheckInStatus =
-  Database["public"]["Enums"]["visitor_check_in_status"]
-export type VolunteerAssignmentStatus =
-  Database["public"]["Enums"]["volunteer_assignment_status"]
-export type VolunteerCertificationStatus =
-  Database["public"]["Enums"]["volunteer_certification_status"]
-export type VolunteerSkillLevel =
-  Database["public"]["Enums"]["volunteer_skill_level"]
+type NullableRpcArgs<T> = T extends Record<string, unknown>
+  ? { [K in keyof T]: T[K] | null }
+  : T;
 
-// Milestone 14 scheduling domain. These aliases mirror the versioned
-// scheduling migrations and remain usable until the next Supabase CLI
-// regeneration incorporates the new enums into Database.
-export type MinistryScheduleStatus =
-  | "draft" | "published" | "cancelled" | "completed"
-export type ScheduleAssignmentStatus =
-  | "assigned" | "confirmed" | "declined" | "cancelled"
-export type ScheduleRotationStatus = "active" | "paused" | "ended"
-export type ScheduleRecurrencePattern = "weekly" | "biweekly" | "monthly"
-
-type NullableRpcArguments<T> = T extends { Args: infer Args }
-  ? Omit<T, "Args"> & {
-      Args: { [Key in keyof Args]: Args[Key] | null }
+type ApplicationFunctions = {
+  [K in keyof Database["public"]["Functions"]]:
+    Database["public"]["Functions"][K] extends {
+      Args: infer A;
+      Returns: infer R;
     }
-  : T
+      ? Omit<Database["public"]["Functions"][K], "Args"> & {
+          Args: NullableRpcArgs<A>;
+          Returns: R;
+        }
+      : Database["public"]["Functions"][K];
+};
 
-// PostgreSQL function parameters without defaults may still accept SQL NULL.
-// The generated Supabase types do not represent that distinction, while the
-// application intentionally uses null for optional RPC values.
 export type ApplicationDatabase = Omit<Database, "public"> & {
   public: Omit<Database["public"], "Functions"> & {
-    Functions: {
-      [Name in keyof Database["public"]["Functions"]]: NullableRpcArguments<
-        Database["public"]["Functions"][Name]
-      >
-    }
-  }
-}
+    Functions: ApplicationFunctions;
+  };
+};
+
+export type AccountRole = Database["public"]["Enums"]["account_role"];
+export type AccountStatus = Database["public"]["Enums"]["account_status"];
+export type AttendanceStatus = Database["public"]["Enums"]["attendance_status"];
+export type AuditResult = Database["public"]["Enums"]["audit_result"];
+export type AuditSource = Database["public"]["Enums"]["audit_source"];
+export type BackgroundCheckStatus = Database["public"]["Enums"]["background_check_status"];
+export type CareFollowUpPriority = Database["public"]["Enums"]["care_follow_up_priority"];
+export type CareFollowUpStatus = Database["public"]["Enums"]["care_follow_up_status"];
+export type CheckInStatus = Database["public"]["Enums"]["check_in_status"];
+export type CommunicationAudienceType = Database["public"]["Enums"]["communication_audience_type"];
+export type CommunicationChannel = Database["public"]["Enums"]["communication_channel"];
+export type CommunicationDeliveryStatus = Database["public"]["Enums"]["communication_delivery_status"];
+export type CommunicationStatus = Database["public"]["Enums"]["communication_status"];
+export type CurriculumStatus = Database["public"]["Enums"]["curriculum_status"];
+export type CustomFormAssignmentType = Database["public"]["Enums"]["custom_form_assignment_type"];
+export type CustomFormFieldType = Database["public"]["Enums"]["custom_form_field_type"];
+export type CustomFormStatus = Database["public"]["Enums"]["custom_form_status"];
+export type CustomFormSubmissionStatus = Database["public"]["Enums"]["custom_form_submission_status"];
+export type CustomFormVersionStatus = Database["public"]["Enums"]["custom_form_version_status"];
+export type DocumentDigitalStatus = Database["public"]["Enums"]["document_digital_status"];
+export type DocumentKind = Database["public"]["Enums"]["document_kind"];
+export type DocumentLifecycleStatus = Database["public"]["Enums"]["document_lifecycle_status"];
+export type DocumentReviewAction = Database["public"]["Enums"]["document_review_action"];
+export type DocumentTemplateStatus = Database["public"]["Enums"]["document_template_status"];
+export type DocumentTemplateVersionStatus = Database["public"]["Enums"]["document_template_version_status"];
+export type DocumentUploadSource = Database["public"]["Enums"]["document_upload_source"];
+export type DocumentValidityPolicy = Database["public"]["Enums"]["document_validity_policy"];
+export type EventRegistrationStatus = Database["public"]["Enums"]["event_registration_status"];
+export type EventReminderStatus = Database["public"]["Enums"]["event_reminder_status"];
+export type EventStatus = Database["public"]["Enums"]["event_status"];
+export type FormsCapability = Database["public"]["Enums"]["forms_capability"];
+export type HouseholdStatus = Database["public"]["Enums"]["household_status"];
+export type LessonStatus = Database["public"]["Enums"]["lesson_status"];
+export type LibraryResourceAudience = Database["public"]["Enums"]["library_resource_audience"];
+export type LibraryResourceStatus = Database["public"]["Enums"]["library_resource_status"];
+export type LibraryResourceType = Database["public"]["Enums"]["library_resource_type"];
+export type MinistryScheduleStatus = Database["public"]["Enums"]["ministry_schedule_status"];
+export type PaperEvidenceAction = Database["public"]["Enums"]["paper_evidence_action"];
+export type PersonStatus = Database["public"]["Enums"]["person_status"];
+export type PrayerRequestStatus = Database["public"]["Enums"]["prayer_request_status"];
+export type PrayerRequestVisibility = Database["public"]["Enums"]["prayer_request_visibility"];
+export type ScheduleAssignmentStatus = Database["public"]["Enums"]["schedule_assignment_status"];
+export type ScheduleRecurrencePattern = Database["public"]["Enums"]["schedule_recurrence_pattern"];
+export type ScheduleRotationStatus = Database["public"]["Enums"]["schedule_rotation_status"];
+export type StudentStatus = Database["public"]["Enums"]["student_status"];
+export type TeachingResourceType = Database["public"]["Enums"]["teaching_resource_type"];
+export type VisitorCardLinkType = Database["public"]["Enums"]["visitor_card_link_type"];
+export type VisitorCardReviewAction = Database["public"]["Enums"]["visitor_card_review_action"];
+export type VisitorCardSource = Database["public"]["Enums"]["visitor_card_source"];
+export type VisitorCardStatus = Database["public"]["Enums"]["visitor_card_status"];
+export type VisitorCheckInStatus = Database["public"]["Enums"]["visitor_check_in_status"];
+export type VolunteerAssignmentStatus = Database["public"]["Enums"]["volunteer_assignment_status"];
+export type VolunteerCertificationStatus = Database["public"]["Enums"]["volunteer_certification_status"];
+export type VolunteerSkillLevel = Database["public"]["Enums"]["volunteer_skill_level"];

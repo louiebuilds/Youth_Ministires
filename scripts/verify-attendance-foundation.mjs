@@ -604,6 +604,74 @@ try {
   assert.equal(reenteredRecord.rows[0].exception_reason, null);
   assert.equal(reenteredRecord.rows[0].override_by_profile_id, null);
 
+  const unassignedVolunteerEvents = await asAuthenticated(
+    ids.otherVolunteer,
+    () => db.query(`
+      select * from public.list_event_calendar(
+        '2099-09-01', '2099-09-30', null, null
+      )
+    `),
+  );
+  assert.equal(
+    unassignedVolunteerEvents.rows.length,
+    0,
+    "An unassigned Volunteer cannot discover an Event",
+  );
+  await expectDatabaseError(
+    () => asAuthenticated(ids.otherVolunteer, () =>
+      db.query("select public.get_event_workspace($1)", [ids.event])),
+    "An unassigned Volunteer cannot open the Event workspace",
+  );
+  const assignedVolunteerWorkspace = await asAuthenticated(
+    ids.assignedVolunteer,
+    () => db.query(
+      "select public.get_event_workspace($1) as workspace",
+      [ids.event],
+    ),
+  );
+  assert.equal(
+    assignedVolunteerWorkspace.rows[0].workspace.canManage,
+    false,
+    "An assigned Volunteer receives a non-manager Event workspace",
+  );
+  await expectDatabaseError(
+    () => asAuthenticated(ids.otherVolunteer, () => db.query(`
+      select public.create_event(
+        'Denied Event', 'Synthetic Test', 'draft', null,
+        '2099-09-10 18:00', '2099-09-10 20:00', 'America/Chicago',
+        null, null, null, null, null, null
+      )
+    `)),
+    "A Volunteer cannot create an Event",
+  );
+  await expectDatabaseError(
+    () => asAuthenticated(ids.assignedVolunteer, () => db.query(`
+      select public.update_event(
+        $1, 'Denied Update', 'Synthetic Test', 'published', null,
+        '2099-09-01 18:00', '2099-09-01 20:00', 'America/Chicago',
+        null, null, null, null, null
+      )
+    `, [ids.event])),
+    "A Volunteer cannot update an Event",
+  );
+  await expectDatabaseError(
+    () => asAuthenticated(ids.assignedVolunteer, () =>
+      db.query("select public.archive_event($1)", [ids.event])),
+    "A Volunteer cannot archive an Event",
+  );
+  for (const [operation, description] of [
+    ["select * from public.list_event_registrations($1)", "registration management"],
+    ["select * from public.list_event_volunteer_assignments($1)", "Volunteer assignment management"],
+    ["select * from public.list_event_reminders($1)", "Event reminder management"],
+    ["select * from public.list_event_checklist_items($1)", "Event checklist management"],
+  ]) {
+    await expectDatabaseError(
+      () => asAuthenticated(ids.assignedVolunteer, () =>
+        db.query(operation, [ids.event])),
+      `A Volunteer cannot access ${description}`,
+    );
+  }
+
   const parentEvents = await asAuthenticated(ids.parent, () =>
     db.query(
       `
@@ -653,6 +721,46 @@ try {
     parentDraftCalendar.rows.length,
     0,
     "Parents cannot discover draft events",
+  );
+  const calendarBoundaryEvents = [];
+  for (const [name, startsAt, endsAt] of [
+    ["September boundary", "2026-09-01 00:00", "2026-09-01 01:00"],
+    ["Youth Fall Kickoff", "2026-09-20 00:30", "2026-09-20 02:00"],
+    ["December boundary", "2026-12-01 23:00", "2026-12-01 23:30"],
+  ]) {
+    const created = await asAuthenticated(ids.admin, () =>
+      db.query(
+        `
+          select public.create_event(
+            $1, 'Youth Night', 'published', null,
+            $2, $3, 'America/Chicago', 30,
+            'Main Campus', 'Youth Building', 'Youth Room', null, null
+          ) as event_id
+        `,
+        [name, startsAt, endsAt],
+      ),
+    );
+    calendarBoundaryEvents.push(created.rows[0].event_id);
+  }
+  const acceptanceRange = await asAuthenticated(ids.admin, () =>
+    db.query(
+      `
+        select event_id, event_name
+        from public.list_event_calendar(
+          '2026-09-01', '2026-12-01', null, null
+        )
+      `,
+    ),
+  );
+  assert.deepEqual(
+    new Set(acceptanceRange.rows.map((event) => event.event_id)),
+    new Set(calendarBoundaryEvents),
+    "The inclusive range must retain both boundaries and September 20 in the Event timezone",
+  );
+  assert.equal(
+    acceptanceRange.rows.some((event) => event.event_name === "Youth Fall Kickoff"),
+    true,
+    "September 20 America/Chicago Event is visible from September 1 through December 1",
   );
   await asAuthenticated(ids.admin, () =>
     db.query("select public.archive_event($1)", [managedEventId]),
@@ -745,6 +853,111 @@ try {
     ),
   );
   assert.equal(eventAssignments.rows[0].assignment_id, ids.assignment);
+
+  const eventWorkspacePage = await readFile(
+    "app/(platform)/events/[eventId]/page.tsx",
+    "utf8",
+  );
+  const eventPublishForm = await readFile(
+    "features/events/components/event-publish-form.tsx",
+    "utf8",
+  );
+  const eventCalendarService = await readFile(
+    "features/events/services/event-management-service.ts",
+    "utf8",
+  );
+  const calendarServiceFunction = eventCalendarService.slice(
+    eventCalendarService.indexOf("export async function listEventCalendar"),
+    eventCalendarService.indexOf("export async function getEventWorkspace"),
+  );
+  const eventsPage = await readFile(
+    "app/(platform)/events/page.tsx",
+    "utf8",
+  );
+  const loginAction = await readFile(
+    "features/auth/actions/login-action.ts",
+    "utf8",
+  );
+  const signOutAction = await readFile(
+    "features/auth/actions/sign-out-action.ts",
+    "utf8",
+  );
+  const loginForm = await readFile(
+    "features/auth/components/login-form.tsx",
+    "utf8",
+  );
+  const userMenu = await readFile(
+    "components/layout/user-menu.tsx",
+    "utf8",
+  );
+  const authorizationSource = await readFile(
+    "features/auth/types/authorization.ts",
+    "utf8",
+  );
+  const volunteerCapabilities = authorizationSource.slice(
+    authorizationSource.indexOf("volunteer: ["),
+    authorizationSource.indexOf("youth_pastor: ["),
+  );
+  for (const section of [
+    "overview",
+    "registration",
+    "volunteers",
+    "forms",
+    "planning",
+    "settings",
+  ]) {
+    assert.match(
+      eventWorkspacePage,
+      new RegExp(`id: "${section}"`),
+      `Event workspace exposes the ${section} section`,
+    );
+  }
+  assert.match(eventWorkspacePage, /searchParams: Promise/);
+  assert.match(eventWorkspacePage, /aria-current=/);
+  assert.match(eventWorkspacePage, /overflow-x-auto/);
+  assert.match(eventWorkspacePage, /requested\.success && visible\.has/);
+  assert.match(eventWorkspacePage, /managementAvailable && event\.status === "draft"/);
+  assert.match(eventWorkspacePage, /active === "registration"/);
+  assert.match(eventWorkspacePage, /active === "volunteers" && managementAvailable/);
+  assert.match(eventWorkspacePage, /active === "planning" && managementAvailable/);
+  assert.match(eventWorkspacePage, /active === "settings" && managementAvailable/);
+  assert.match(eventWorkspacePage, /permissionManager \|\| account\.role === "parent"/);
+  assert.match(eventWorkspacePage, /Destructive action/);
+  assert.match(eventPublishForm, /updateEventAction/);
+  assert.match(eventPublishForm, /name="status" type="hidden" value="published"/);
+  assert.doesNotMatch(eventPublishForm, /createEvent|archiveEvent/);
+  assert.match(eventCalendarService, /EventCalendarResult/);
+  assert.match(calendarServiceFunction, /return \{ success: false \}/);
+  assert.match(calendarServiceFunction, /success: true,[\s\S]*events:/);
+  assert.match(calendarServiceFunction, /console\.error\("list_event_calendar failed", \{[\s\S]*code:/);
+  assert.doesNotMatch(calendarServiceFunction, /error\.message|error\.details|error\.hint/);
+  assert.match(eventsPage, /calendar\?\.success && events\.length === 0/);
+  assert.match(eventsPage, /calendar && !calendar\.success/);
+  assert.match(eventsPage, /We couldn&apos;t load the event calendar\. Please try again\./);
+  assert.match(eventsPage, /account\.role !== "volunteer"/);
+  assert.match(volunteerCapabilities, /"events\.view"/);
+  assert.doesNotMatch(
+    volunteerCapabilities,
+    /events\.manage|forms\.documents\.manage|custom_forms\.manage|settings\.manage/,
+  );
+  assert.match(eventWorkspacePage, /const isVolunteer = account\.role === "volunteer"/);
+  assert.match(eventWorkspacePage, /if \(!isVolunteer\) visible\.add\("registration"\)/);
+  assert.match(eventWorkspacePage, /managementAvailable = !isVolunteer && event\.canManage/);
+  for (const source of [loginAction, signOutAction]) {
+    assert.match(source, /revalidatePath\("\/", "layout"\)/);
+    assert.match(source, /return \{ success: true \}/);
+    assert.doesNotMatch(source, /redirect\(/);
+  }
+  assert.match(loginForm, /if \(state\.success\) window\.location\.replace\("\/"\)/);
+  assert.match(userMenu, /if \(state\.success\) window\.location\.replace\("\/login"\)/);
+  assert.match(loginAction, /The email or password is incorrect\./);
+  assert.match(loginAction, /Sign in is temporarily unavailable\. Please try again\./);
+  assert.match(signOutAction, /Sign out is temporarily unavailable\. Please try again\./);
+  assert.match(signOutAction, /if \(error\)/);
+  assert.match(loginForm, /!state\.success && state\.message/);
+  assert.match(userMenu, /!state\.success && state\.message/);
+  assert.doesNotMatch(loginForm, /router\.refresh/);
+  assert.doesNotMatch(userMenu, /router\.refresh/);
 
   await expectDatabaseError(
     () =>

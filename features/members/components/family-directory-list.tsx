@@ -22,7 +22,7 @@ export function FamilyDirectoryList({
         </h2>
         <p className="mt-2 text-sm leading-6 text-slate-600">
           {familyContext
-            ? "This account is not currently linked to a family record."
+            ? "This account is not currently linked to a family record. Ask a ministry administrator or Youth Pastor to connect your account to your family."
             : "Try a different family name, city, or region."}
         </p>
       </section>

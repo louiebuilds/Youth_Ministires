@@ -28,7 +28,6 @@ export const certificationSchema = z.object({
 });
 
 export const skillSchema = z.object({
-  profileId: z.string().uuid(),
   name: z.string().trim().min(1).max(60),
   description: optionalText(300),
 });

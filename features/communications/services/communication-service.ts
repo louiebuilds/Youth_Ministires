@@ -3,7 +3,7 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 
 import type {
-  Announcement,
+  AnnouncementListResult,
   CommunicationTemplate,
   CommunicationHistoryEntry,
   CommunicationRecipientPreview,
@@ -14,6 +14,43 @@ import type {
   CommunicationChannel,
 } from "@/lib/supabase/database.types";
 
+type AnnouncementListFailureCategory =
+  | "authorization"
+  | "validation_contract"
+  | "unavailable"
+  | "unexpected";
+
+const safeErrorCode = (value: unknown) =>
+  typeof value === "string" && /^[A-Za-z0-9_]{1,20}$/.test(value)
+    ? value
+    : "unknown";
+
+function announcementListFailureCategory(
+  code: string,
+): AnnouncementListFailureCategory {
+  if (code === "42501" || code === "PGRST301") return "authorization";
+  if (code.startsWith("22") || code.startsWith("23") ||
+    code === "42883" || code === "PGRST202") {
+    return "validation_contract";
+  }
+  if (code.startsWith("08") || code.startsWith("53") ||
+    code.startsWith("57") || code.startsWith("PGRST")) {
+    return "unavailable";
+  }
+  return "unexpected";
+}
+
+function logAnnouncementListFailure(
+  code: string,
+  category: AnnouncementListFailureCategory,
+) {
+  console.error("Announcement list RPC failed", {
+    operation: "list_announcements",
+    code,
+    category,
+  });
+}
+
 type AnnouncementInput = {
   title: string;
   messageBody: string;
@@ -21,37 +58,64 @@ type AnnouncementInput = {
   expiresAt: string | null;
 };
 
+type AnnouncementProjectionRow = {
+  announcement_id: string;
+  title: string;
+  message_body: string;
+  audience_type: CommunicationAudienceType;
+  published_at: string | null;
+  expires_at: string | null;
+  archived_at: string | null;
+  created_at: string;
+  updated_at: string;
+  can_manage: boolean;
+};
+
 export async function listAnnouncements(
   search: string | null,
   includeArchived: boolean,
-): Promise<Announcement[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase.rpc("list_announcements", {
-    p_search: search,
-    p_include_archived: includeArchived,
-  });
-  if (error) return [];
-  return (data ?? []).map((item) => ({
-    announcementId: item.announcement_id,
-    title: item.title,
-    messageBody: item.message_body,
-    audienceType: item.audience_type,
-    publishedAt: item.published_at,
-    expiresAt: item.expires_at,
-    archivedAt: item.archived_at,
-    canManage: item.can_manage,
-  }));
+): Promise<AnnouncementListResult> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.rpc("list_announcements", {
+      p_search: search,
+      p_include_archived: includeArchived,
+    });
+    if (error) {
+      const code = safeErrorCode(error.code);
+      logAnnouncementListFailure(code, announcementListFailureCategory(code));
+      return { success: false };
+    }
+    return {
+      success: true,
+      announcements: (data as AnnouncementProjectionRow[] | null ?? []).map((item) => ({
+        announcementId: item.announcement_id,
+        title: item.title,
+        messageBody: item.message_body,
+        audienceType: item.audience_type,
+        publishedAt: item.published_at,
+        expiresAt: item.expires_at,
+        archivedAt: item.archived_at,
+        createdAt: item.created_at,
+        updatedAt: item.updated_at,
+        canManage: item.can_manage,
+      })),
+    };
+  } catch {
+    logAnnouncementListFailure("unknown", "unexpected");
+    return { success: false };
+  }
 }
 
 export async function createAnnouncement(input: AnnouncementInput) {
   const supabase = await createClient();
-  const { error } = await supabase.rpc("create_announcement", {
+  const { data, error } = await supabase.rpc("create_announcement", {
     p_title: input.title,
     p_message_body: input.messageBody,
     p_audience_type: input.audienceType,
     p_expires_at: input.expiresAt,
   });
-  return !error;
+  return error ? null : data;
 }
 
 export async function updateAnnouncement(
@@ -117,13 +181,18 @@ export async function createCommunicationTemplate(
   input: CommunicationTemplateInput,
 ) {
   const supabase = await createClient();
-  const { error } = await supabase.rpc("create_communication_template", {
+  const { data, error } = await supabase.rpc("create_communication_template", {
     p_name: input.name,
     p_channel: input.channel,
     p_subject: input.subject,
     p_message_body: input.messageBody,
   });
-  return !error;
+  return error ? null : data;
+}
+
+export async function getCommunicationTemplate(templateId: string) {
+  const templates = await listCommunicationTemplates(null, true);
+  return templates.find((template) => template.templateId === templateId) ?? null;
 }
 
 export async function updateCommunicationTemplate(

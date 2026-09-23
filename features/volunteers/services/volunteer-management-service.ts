@@ -6,6 +6,8 @@ import type {
   SchedulableEvent,
   VolunteerAssignment,
   VolunteerDirectoryEntry,
+  VolunteerProfileSaveFailureCategory,
+  VolunteerProfileSaveResult,
   VolunteerWorkspace,
 } from "@/features/volunteers/types/volunteer-management";
 import type {
@@ -24,6 +26,37 @@ const parseSkills = (value: unknown) =>
           : [],
       )
     : [];
+
+const safeErrorCode = (value: unknown) =>
+  typeof value === "string" && /^[A-Za-z0-9_]{1,20}$/.test(value)
+    ? value
+    : "unknown";
+
+function volunteerProfileFailureCategory(
+  code: string,
+): VolunteerProfileSaveFailureCategory {
+  if (code === "42501" || code === "PGRST301") return "authorization";
+  if (code.startsWith("22") || code.startsWith("23") ||
+    code === "42883" || code === "PGRST202") {
+    return "validation_contract";
+  }
+  if (code.startsWith("08") || code.startsWith("53") ||
+    code.startsWith("57") || code.startsWith("PGRST")) {
+    return "unavailable";
+  }
+  return "unexpected";
+}
+
+function logVolunteerProfileFailure(
+  code: string,
+  category: VolunteerProfileSaveFailureCategory,
+) {
+  console.error("Volunteer profile RPC failed", {
+    operation: "upsert_volunteer_profile",
+    code,
+    category,
+  });
+}
 
 export async function listVolunteerDirectory(search: string | null) {
   try {
@@ -136,17 +169,28 @@ export async function saveVolunteerProfile(input: {
   backgroundCheckCompletedAt: string | null;
   backgroundCheckExpiresAt: string | null;
   backgroundCheckReference: string | null; isActive: boolean;
-}) {
-  const supabase = await createClient();
-  const { error } = await supabase.rpc("upsert_volunteer_profile", {
-    p_profile_id: input.profileId, p_ministry_title: input.ministryTitle,
-    p_background_check_status: input.backgroundCheckStatus,
-    p_background_check_completed_at: input.backgroundCheckCompletedAt,
-    p_background_check_expires_at: input.backgroundCheckExpiresAt,
-    p_background_check_reference: input.backgroundCheckReference,
-    p_is_active: input.isActive,
-  });
-  return !error;
+}): Promise<VolunteerProfileSaveResult> {
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.rpc("upsert_volunteer_profile", {
+      p_profile_id: input.profileId, p_ministry_title: input.ministryTitle,
+      p_background_check_status: input.backgroundCheckStatus,
+      p_background_check_completed_at: input.backgroundCheckCompletedAt,
+      p_background_check_expires_at: input.backgroundCheckExpiresAt,
+      p_background_check_reference: input.backgroundCheckReference,
+      p_is_active: input.isActive,
+    });
+    if (!error) return { success: true };
+
+    const code = safeErrorCode(error.code);
+    const category = volunteerProfileFailureCategory(code);
+    logVolunteerProfileFailure(code, category);
+    return { success: false, category, code };
+  } catch {
+    const category = "unexpected" as const;
+    logVolunteerProfileFailure("unknown", category);
+    return { success: false, category, code: "unknown" };
+  }
 }
 
 export async function saveCertification(input: {
@@ -216,6 +260,7 @@ export async function listVolunteerAssignments(profileId: string) {
     assignmentStatus: item.assignment_status,
     assignmentStartsAt: item.assignment_starts_at,
     assignmentEndsAt: item.assignment_ends_at,
+    isPast: new Date(item.event_ends_at).getTime() < Date.now(),
   }));
 }
 

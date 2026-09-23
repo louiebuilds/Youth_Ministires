@@ -35,11 +35,13 @@ export default async function EventsPage({
     ? params.status as EventStatus : null;
   const rangeValid = to >= from &&
     (Date.parse(to) - Date.parse(from)) / 86_400_000 <= 400;
-  const events = rangeValid
+  const calendar = rangeValid
     ? await listEventCalendar({ fromDate: from, toDate: to, search, status })
-    : [];
-  const canManage = ["platform_administrator", "youth_pastor", "staff_member"]
-    .includes(account.role);
+    : null;
+  const events = calendar?.success ? calendar.events : [];
+  const canManage = account.role !== "volunteer" &&
+    ["platform_administrator", "youth_pastor", "staff_member"]
+      .includes(account.role);
 
   return (
     <div className="space-y-8">
@@ -131,7 +133,12 @@ export default async function EventsPage({
             </p>
           </Link>
         ))}
-        {events.length === 0 ? (
+        {rangeValid && calendar && !calendar.success ? (
+          <p className="rounded-xl border border-red-200 bg-red-50 p-6 font-semibold text-red-800" role="alert">
+            We couldn&apos;t load the event calendar. Please try again.
+          </p>
+        ) : null}
+        {calendar?.success && events.length === 0 ? (
           <p className="rounded-xl border border-slate-200 bg-white p-6 text-slate-500">
             No visible events match this calendar range.
           </p>

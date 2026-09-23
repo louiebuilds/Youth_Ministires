@@ -13,6 +13,7 @@ export type NavigationIcon =
   | "scheduling"
   | "settings"
   | "students"
+  | "visitors"
   | "volunteers";
 
 export type NavigationItem = Readonly<{
@@ -20,6 +21,7 @@ export type NavigationItem = Readonly<{
   href: string;
   icon: NavigationIcon;
   label: string;
+  roles?: readonly AccountRole[];
 }>;
 
 export const primaryNavigation: readonly NavigationItem[] = [
@@ -48,6 +50,12 @@ export const primaryNavigation: readonly NavigationItem[] = [
     label: "Volunteers",
   },
   {
+    capability: "visitor_cards.manage",
+    href: "/visitors",
+    icon: "visitors",
+    label: "Visitors",
+  },
+  {
     capability: "attendance.manage",
     href: "/attendance",
     icon: "attendance",
@@ -60,10 +68,10 @@ export const primaryNavigation: readonly NavigationItem[] = [
     label: "Check-In",
   },
   {
-    capability: "permission_forms.manage",
+    capability: "custom_forms.submit",
     href: "/permission-forms",
     icon: "permission-forms",
-    label: "Permission Forms",
+    label: "Forms",
   },
   {
     capability: "events.view",
@@ -117,7 +125,7 @@ export const primaryNavigation: readonly NavigationItem[] = [
 
 export function getNavigationForRole(role: AccountRole) {
   return primaryNavigation.filter((item) =>
-    hasCapability(role, item.capability),
+    hasCapability(role, item.capability) || item.roles?.includes(role),
   );
 }
 import type { AccountRole } from "@/lib/supabase/database.types";

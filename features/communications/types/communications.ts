@@ -17,8 +17,14 @@ export type Announcement = {
   publishedAt: string | null;
   expiresAt: string | null;
   archivedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
   canManage: boolean;
 };
+
+export type AnnouncementListResult =
+  | { success: true; announcements: Announcement[] }
+  | { success: false };
 
 export type CommunicationTemplate = {
   templateId: string;

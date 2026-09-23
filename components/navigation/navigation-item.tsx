@@ -37,6 +37,7 @@ const navigationIcons: Record<NavigationItemConfig["icon"], LucideIcon> = {
   scheduling: CalendarDays,
   settings: Settings,
   students: UsersRound,
+  visitors: UsersRound,
   volunteers: UserRoundCheck,
 };
 

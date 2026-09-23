@@ -87,6 +87,40 @@ export function LessonForm({
   );
 }
 
+export function PublishLessonForm({
+  lesson,
+}: Readonly<{ lesson: LessonWorkspace }>) {
+  const [state, action, pending] = useActionState(
+    updateLessonAction,
+    initialState,
+  );
+  return (
+    <form action={action} className="space-y-2">
+      <input name="lessonId" type="hidden" value={lesson.lessonId} />
+      <input name="title" type="hidden" value={lesson.title} />
+      <input name="summary" type="hidden" value={lesson.summary ?? ""} />
+      <input name="teachingObjective" type="hidden"
+        value={lesson.teachingObjective ?? ""} />
+      <input name="scriptureReferences" type="hidden"
+        value={lesson.scriptureReferences ?? ""} />
+      <input name="lessonBody" type="hidden" value={lesson.lessonBody ?? ""} />
+      <input name="discussionGuide" type="hidden"
+        value={lesson.discussionGuide ?? ""} />
+      <input name="preparationNotes" type="hidden"
+        value={lesson.preparationNotes ?? ""} />
+      <input name="audience" type="hidden" value={lesson.audience ?? ""} />
+      <input name="status" type="hidden" value="published" />
+      <button className="min-h-11 rounded-lg bg-sky-700 px-4 font-semibold text-white disabled:opacity-60"
+        disabled={pending}>
+        {pending ? "Publishing…" : "Publish lesson"}
+      </button>
+      {state.message ? <p className={`max-w-60 text-sm font-semibold ${
+        state.success ? "text-emerald-700" : "text-red-700"
+      }`}>{state.message}</p> : null}
+    </form>
+  );
+}
+
 export function ArchiveLessonForm({
   lessonId,
 }: Readonly<{ lessonId: string }>) {

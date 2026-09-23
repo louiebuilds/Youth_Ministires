@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
-import { answerPrayerRequestSchema, cancelFollowUpSchema, careFollowUpSchema, careNoteIdSchema, careNoteSchema, completeFollowUpSchema, prayerRequestIdSchema, prayerRequestSchema } from "@/features/prayer-care/schemas/prayer-request-schema";
-import { answerPrayerRequest, archiveCareNote, archivePrayerRequest, cancelCareFollowUp, completeCareFollowUp, createCareFollowUp, createCareNote, createPrayerRequest } from "@/features/prayer-care/services/prayer-care-service";
+import { answerPrayerRequestSchema, cancelFollowUpSchema, careFollowUpSchema, careNoteIdSchema, careNoteSchema, completeFollowUpSchema, editPrayerRequestSchema, prayerRequestIdSchema, prayerRequestSchema } from "@/features/prayer-care/schemas/prayer-request-schema";
+import { answerPrayerRequest, archiveCareNote, archivePrayerRequest, cancelCareFollowUp, completeCareFollowUp, createCareFollowUp, createCareNote, createPrayerRequest, updatePrayerRequest } from "@/features/prayer-care/services/prayer-care-service";
 
 export type PrayerCareActionState = { success: boolean; message?: string };
 
@@ -20,6 +20,21 @@ export async function createPrayerRequestAction(
   }
   revalidatePath("/prayer-care");
   return { success: true, message: "Prayer request created." };
+}
+
+export async function updatePrayerRequestAction(
+  _state: PrayerCareActionState,
+  formData: FormData,
+): Promise<PrayerCareActionState> {
+  const parsed = editPrayerRequestSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { success: false, message: "Review the prayer request details." };
+  }
+  if (!await updatePrayerRequest(parsed.data)) {
+    return { success: false, message: "The prayer request could not be updated." };
+  }
+  revalidatePath("/prayer-care");
+  return { success: true, message: "Prayer request updated." };
 }
 
 export async function createCareFollowUpAction(_state: PrayerCareActionState, formData: FormData): Promise<PrayerCareActionState> {

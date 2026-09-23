@@ -34,3 +34,52 @@ General resource-library features remain Milestone 13 and were not started.
 A possible moderated parent/youth community is recorded only as a future
 proposal because Version 1 excludes student accounts and requires separate
 safeguarding, consent, moderation, retention, and reporting decisions.
+
+## Full Platform Acceptance Follow-up — September 22, 2026
+
+Acceptance identified a functional workflow gap: authorized managers had no
+way to correct an active prayer request. Automated coverage now verifies the
+new edit workflow for manager-only authorization, inactive-account denial,
+active-only lifecycle enforcement, validation, identifier preservation, Person,
+Category, Title, Details, and all three Visibility values. It also verifies
+that the edit audit event contains no prayer title, details, person value, or
+category value and that Mark answered remains separate.
+
+The correction was implemented without changing existing acceptance requests or
+other live data. The Product Owner subsequently passed the live retest recorded
+below.
+
+## September 2026 Current-Platform Acceptance Checkpoint
+
+**Result:** Passed with documented follow-up enhancements
+
+Live Product Owner verification passed for:
+
+- Focused Overview, Prayer Requests, Care & Visits, Follow-ups, and Archived
+  workspace sections with intentional creation panels
+- Controlled creation visibility and readable stored visibility labels
+- Authorized active-request editing while preserving the request UUID
+- Public Parent summary visibility and leadership/private exclusion
+- Parent direct-URL confinement and absence of identity, details, assignments,
+  confidential care content, and management controls
+- Answered and archived prayer history retention
+- Confidential Hospital care-note creation, intentional reveal, archive, and
+  retained protected history
+- Follow-up creation, assignee, priority, due time, confidential-instruction
+  reveal, completion, and retained history
+- Reconciled canonical Parent/Person relationships and a single active Louie in
+  the Prayer & Care Person picker
+
+Migration `202609220001_edit_prayer_request_workflow.sql` is applied to the
+development project and its migration-history entry is recorded as applied.
+The applied migration must not be edited.
+
+The checkpoint also identified non-blocking future work: Parent prayer
+participation with leadership moderation; editing active care records and
+follow-ups; correct follow-up title prominence; visible protected lifecycle
+notes/reasons/timestamps; Care record-to-follow-up linking; and caregiver
+eligibility verification. These items require separate design and testing.
+
+This result is not final platform acceptance or a production-readiness claim.
+Comprehensive end-to-end acceptance will be repeated after feature development
+is complete.

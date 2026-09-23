@@ -24,6 +24,11 @@ export default async function FamilyCheckInPage() {
         </p>
       </header>
       <FamilyCheckInPass families={families} />
+      {families.length === 0 ? (
+        <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+          No family is linked to this account. Ask a ministry administrator or Youth Pastor to connect your account before creating a pass.
+        </p>
+      ) : null}
       <section className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
         Staff must still review care alerts and confirm every check-in or check-out.
         If the pass expires, create a new one.

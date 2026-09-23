@@ -1,8 +1,8 @@
 # Prayer & Care
 
 **Document ID:** FR-PRAYER-CARE
-**Version:** 1.1
-**Status:** Implemented and accepted
+**Version:** 1.2
+**Status:** Current-platform checkpoint passed; further features planned
 **Milestone:** 12 — Prayer & Care
 **Approved:** 2026-08-03
 **Accepted:** 2026-08-04
@@ -84,6 +84,58 @@ families, database authorization must be narrower than ordinary ministry data.
   private requests.
 - Staff cannot browse another caregiver's confidential notes or follow-ups.
 - Platform Administrators and Youth Pastors can perform approved oversight.
+- Platform Administrators and Youth Pastors can edit the Person, Category,
+  Visibility, Title, and Details of an active prayer request without replacing
+  its identifier; answering remains a separate lifecycle action.
 - Anonymous, inactive, suspended, disabled, and archived accounts are denied.
 - Direct-table and audit-helper access is denied.
 - Automated synthetic tests and separate administrator/family acceptance pass.
+
+## Full Platform Acceptance Gap — Active Request Editing
+
+Full Platform Acceptance found that the manager workspace could create, answer,
+and archive prayer requests but could not correct an active request. The
+approved correction adds an intentional **Edit request** workflow for the five
+editable fields while preserving the prayer-request identifier. The form stays
+hidden until opened from **Manage request**, and Cancel returns to the normal
+request card.
+
+The workflow retains the existing Platform Administrator and Youth Pastor
+management boundary. Staff Members, Volunteers, Parents, anonymous users, and
+inactive accounts gain no edit access. Each successful edit records the request
+identifier, resulting visibility, and names of the changed-capable fields in
+audit metadata; titles, details, person values, and category values are not
+copied into the audit event. The edit workflow passed live Product Owner
+retesting in September 2026.
+
+## Planned Follow-up Requirements
+
+The September current-platform checkpoint identified additional product work.
+These requirements are approved planning direction, not current behavior:
+
+- Parents may eventually submit prayer requests and family-scoped updates
+  without receiving manager access. Leadership must moderate lifecycle and any
+  public or answered summary.
+- Active confidential care records need an authorized edit workflow for Person,
+  Category, Title, occurred time, and confidential note while retaining record
+  identity and sanitized auditing.
+- Active follow-ups need authorized editing for Person, caregiver, Title,
+  Priority, due time, and confidential instructions.
+- Follow-up cards should lead with their Title. Authorized retained history
+  should expose applicable completion notes, cancellation reasons, lifecycle
+  timestamps, and appropriate actor attribution.
+- Authorized caregivers should be able to link a follow-up to its originating
+  care record without copying confidential narrative into ordinary task or
+  audit metadata.
+- Caregiver eligibility must derive from current active Prayer & Care authority,
+  not a broad account list.
+
+The current Parent sanitized-summary boundary remains authoritative until a
+separately approved family participation workflow is implemented.
+
+## September 2026 Checkpoint Status
+
+The Prayer & Care current-platform acceptance checkpoint passed with the
+follow-up enhancements above documented. This is not final production
+acceptance. Comprehensive acceptance will be repeated after the remaining
+platform features and workflow improvements are complete.

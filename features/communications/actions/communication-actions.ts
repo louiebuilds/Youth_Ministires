@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 import {
   announcementDetailsSchema,
@@ -36,16 +37,22 @@ export async function saveAnnouncementAction(
     return { success: false, message: "Review the announcement details." };
   }
   const { announcementId, ...input } = parsed.data;
-  const saved = announcementId
-    ? await updateAnnouncement(announcementId, input)
-    : await createAnnouncement(input);
-  if (!saved) {
+  if (!announcementId) {
+    const createdId = await createAnnouncement(input);
+    if (!createdId) {
+      return { success: false, message: "The announcement could not be saved." };
+    }
+    revalidatePath("/communications");
+    redirect(`/communications/${createdId}`);
+  }
+  if (!await updateAnnouncement(announcementId, input)) {
     return { success: false, message: "The announcement could not be saved." };
   }
   revalidatePath("/communications");
+  revalidatePath(`/communications/${announcementId}`);
   return {
     success: true,
-    message: announcementId ? "Announcement updated." : "Draft created.",
+    message: "Announcement updated.",
   };
 }
 
@@ -59,6 +66,7 @@ export async function publishAnnouncementAction(
     return { success: false, message: "The announcement was not published." };
   }
   revalidatePath("/communications");
+  revalidatePath(`/communications/${parsed.data.announcementId}`);
   return { success: true, message: "Announcement published." };
 }
 
@@ -72,6 +80,7 @@ export async function archiveAnnouncementAction(
     return { success: false, message: "The announcement was not archived." };
   }
   revalidatePath("/communications");
+  revalidatePath(`/communications/${parsed.data.announcementId}`);
   return { success: true, message: "Announcement archived." };
 }
 
@@ -86,17 +95,20 @@ export async function saveCommunicationTemplateAction(
     return { success: false, message: "Review the template details." };
   }
   const { templateId, ...input } = parsed.data;
-  const saved = templateId
-    ? await updateCommunicationTemplate(templateId, input)
-    : await createCommunicationTemplate(input);
-  if (!saved) {
+  if (!templateId) {
+    const createdId = await createCommunicationTemplate(input);
+    if (!createdId) {
+      return { success: false, message: "The template could not be saved." };
+    }
+    revalidatePath("/communications/templates");
+    redirect(`/communications/templates/${createdId}`);
+  }
+  if (!await updateCommunicationTemplate(templateId, input)) {
     return { success: false, message: "The template could not be saved." };
   }
   revalidatePath("/communications/templates");
-  return {
-    success: true,
-    message: templateId ? "Template updated." : "Template created.",
-  };
+  revalidatePath(`/communications/templates/${templateId}`);
+  redirect(`/communications/templates/${templateId}`);
 }
 
 export async function archiveCommunicationTemplateAction(
@@ -111,6 +123,7 @@ export async function archiveCommunicationTemplateAction(
     return { success: false, message: "The template was not archived." };
   }
   revalidatePath("/communications/templates");
+  revalidatePath(`/communications/templates/${parsed.data.templateId}`);
   return { success: true, message: "Template archived." };
 }
 

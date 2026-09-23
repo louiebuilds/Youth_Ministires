@@ -63,3 +63,11 @@ export const addFamilyAdultSchema = familyAdultSchema.omit({
   (value) => Boolean(value.email || value.phone),
   { message: "Provide an email address or phone number." },
 );
+
+export const parentAccountLinkSchema = z.object({
+  householdId: z.string().uuid(),
+  personId: z.string().uuid(),
+  profileId: z.string().uuid(),
+  confirmRelink: z.boolean(),
+  reason: z.string().trim().min(1).max(1000),
+});

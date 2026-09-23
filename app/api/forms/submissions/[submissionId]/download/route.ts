@@ -1,0 +1,5 @@
+import {NextResponse} from "next/server";
+import {submissionIdSchema} from "@/features/forms/schemas/document-submission-schema";
+import {authorizeAndDownloadSubmission} from "@/features/forms/services/document-submission-service";
+function contentDisposition(fileName:string){const ascii=fileName.replace(/[^A-Za-z0-9 ._()-]/g,"-");return `attachment; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(fileName)}`}
+export async function GET(_request:Request,{params}:{params:Promise<{submissionId:string}>}){const parsed=submissionIdSchema.safeParse((await params).submissionId);if(!parsed.success)return new NextResponse("Not found",{status:404});try{const file=await authorizeAndDownloadSubmission(parsed.data);return new NextResponse(file.blob.stream(),{headers:{"Content-Type":file.contentType,"Content-Disposition":contentDisposition(file.fileName),"X-Content-Type-Options":"nosniff","Cache-Control":"private, no-store"}})}catch{return new NextResponse("Download is not authorized.",{status:403})}}

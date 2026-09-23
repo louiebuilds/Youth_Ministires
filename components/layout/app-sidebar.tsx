@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { NavigationItem } from "@/components/navigation/navigation-item";
 import type { NavigationItem as NavigationItemConfig } from "@/config/navigation-config";
 
@@ -12,7 +14,14 @@ export function AppSidebar({ navigation }: AppSidebarProps) {
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-400">
           Ministry operations
         </p>
-        <p className="mt-2 text-lg font-semibold">Youth Ministries</p>
+        <Image
+          alt="First Coppell Students"
+          className="mt-3 h-auto w-full"
+          height={314}
+          priority
+          src="/images/youth-ministries-logo.png"
+          width={1220}
+        />
       </div>
 
       <nav aria-label="Primary navigation" className="flex-1 px-3 py-5">

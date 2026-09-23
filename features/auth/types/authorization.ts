@@ -11,7 +11,14 @@ export type PlatformCapability =
   | "events.view"
   | "families.view"
   | "members.manage"
-  | "permission_forms.manage"
+  | "forms.documents.manage"
+  | "forms.documents.paper_confirm"
+  | "forms.medical.view"
+  | "forms.medical.verify"
+  | "forms.participation.override"
+  | "custom_forms.manage"
+  | "custom_forms.submit"
+  | "visitor_cards.manage"
   | "prayer_care.view"
   | "reports.view"
   | "resource_library.view"
@@ -27,7 +34,7 @@ const roleCapabilities = {
     "families.view",
     "events.view",
     "communications.view",
-    "permission_forms.manage",
+    "custom_forms.submit",
     "prayer_care.view",
     "resource_library.view",
   ],
@@ -40,7 +47,14 @@ const roleCapabilities = {
     "volunteers.view",
     "attendance.manage",
     "check_in.manage",
-    "permission_forms.manage",
+    "forms.documents.manage",
+    "forms.documents.paper_confirm",
+    "forms.medical.view",
+    "forms.medical.verify",
+    "forms.participation.override",
+    "custom_forms.manage",
+    "custom_forms.submit",
+    "visitor_cards.manage",
     "prayer_care.view",
     "resource_library.view",
     "scheduling.view",
@@ -59,7 +73,11 @@ const roleCapabilities = {
     "volunteers.view",
     "attendance.manage",
     "check_in.manage",
-    "permission_forms.manage",
+    "forms.documents.manage",
+    "forms.documents.paper_confirm",
+    "custom_forms.manage",
+    "custom_forms.submit",
+    "visitor_cards.manage",
     "prayer_care.view",
     "resource_library.view",
     "scheduling.view",
@@ -80,6 +98,7 @@ const roleCapabilities = {
     "communications.view",
     "resource_library.view",
     "scheduling.view",
+    "custom_forms.submit",
   ],
   youth_pastor: [
     "dashboard.view",
@@ -90,7 +109,14 @@ const roleCapabilities = {
     "volunteers.view",
     "attendance.manage",
     "check_in.manage",
-    "permission_forms.manage",
+    "forms.documents.manage",
+    "forms.documents.paper_confirm",
+    "forms.medical.view",
+    "forms.medical.verify",
+    "forms.participation.override",
+    "custom_forms.manage",
+    "custom_forms.submit",
+    "visitor_cards.manage",
     "prayer_care.view",
     "resource_library.view",
     "scheduling.view",

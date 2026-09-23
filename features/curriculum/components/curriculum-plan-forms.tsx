@@ -6,6 +6,7 @@ import {
   addLessonToCurriculumPlanAction,
   archiveCurriculumPlanAction,
   createCurriculumPlanAction,
+  moveCurriculumPlanLessonAction,
   removeLessonFromCurriculumPlanAction,
   updateCurriculumPlanAction,
 } from "@/features/curriculum/actions/curriculum-actions";
@@ -83,13 +84,21 @@ export function CurriculumPlanForm({
 
 function PlanLessonRow({
   curriculumPlanId,
+  isFirst,
+  isLast,
   lesson,
 }: Readonly<{
   curriculumPlanId: string;
+  isFirst: boolean;
+  isLast: boolean;
   lesson: CurriculumPlanLesson;
 }>) {
-  const [state, action, pending] = useActionState(
+  const [removeState, removeAction, removePending] = useActionState(
     removeLessonFromCurriculumPlanAction,
+    initialState,
+  );
+  const [moveState, moveAction, movePending] = useActionState(
+    moveCurriculumPlanLessonAction,
     initialState,
   );
   return (
@@ -104,15 +113,30 @@ function PlanLessonRow({
             {[lesson.scriptureReferences, lesson.audience].filter(Boolean).join(" · ")}
           </p>
         </div>
-        <form action={action}>
-          <input name="curriculumPlanId" type="hidden"
-            value={curriculumPlanId} />
-          <input name="planLessonId" type="hidden" value={lesson.planLessonId} />
-          <button className="min-h-11 rounded-lg border border-red-300 px-3 font-semibold text-red-800"
-            disabled={pending}>Remove</button>
-        </form>
+        <div className="flex flex-wrap gap-2">
+          {(["up", "down"] as const).map((direction) => (
+            <form action={moveAction} key={direction}>
+              <input name="curriculumPlanId" type="hidden"
+                value={curriculumPlanId} />
+              <input name="planLessonId" type="hidden"
+                value={lesson.planLessonId} />
+              <input name="direction" type="hidden" value={direction} />
+              <button className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 font-semibold text-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={movePending || (direction === "up" ? isFirst : isLast)}>
+                {direction === "up" ? "Move up" : "Move down"}
+              </button>
+            </form>
+          ))}
+          <form action={removeAction}>
+            <input name="curriculumPlanId" type="hidden"
+              value={curriculumPlanId} />
+            <input name="planLessonId" type="hidden" value={lesson.planLessonId} />
+            <button className="min-h-11 rounded-lg border border-red-300 px-3 font-semibold text-red-800"
+              disabled={removePending}>Remove</button>
+          </form>
+        </div>
       </div>
-      <Message state={state} />
+      <Message state={moveState.message ? moveState : removeState} />
     </li>
   );
 }
@@ -132,7 +156,12 @@ export function CurriculumPlanLessons({
   );
   return (
     <section className="space-y-5 rounded-xl border border-slate-200 bg-white p-5">
-      <h2 className="text-xl font-bold">Ordered lessons</h2>
+      <div>
+        <h2 className="text-xl font-bold">Lesson sequence</h2>
+        <p className="mt-1 text-sm text-slate-600">
+          Arrange lessons in their intended teaching order.
+        </p>
+      </div>
       <form action={action} className="flex flex-wrap items-end gap-3">
         <input name="curriculumPlanId" type="hidden" value={curriculumPlanId} />
         <label className="min-w-72 flex-1 text-sm font-semibold">Add lesson
@@ -150,8 +179,9 @@ export function CurriculumPlanLessons({
       </form>
       <Message state={state} />
       <ol className="space-y-3">
-        {planLessons.map((lesson) => (
+        {planLessons.map((lesson, index) => (
           <PlanLessonRow curriculumPlanId={curriculumPlanId}
+            isFirst={index === 0} isLast={index === planLessons.length - 1}
             key={lesson.planLessonId} lesson={lesson} />
         ))}
       </ol>

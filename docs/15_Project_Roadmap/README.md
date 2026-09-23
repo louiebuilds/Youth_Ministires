@@ -27,16 +27,65 @@ planning, status reporting, and future scope must reference this roadmap.
 | 9 | Events | Complete |
 | 10 | Curriculum & Lessons | Complete |
 | 11 | Communication Center | Complete |
-| 12 | Prayer & Care | Complete |
+| 12 | Prayer & Care | Original milestone complete; September checkpoint passed with follow-up work |
 | 13 | Resource Library | Complete |
 | 14 | Scheduling | Complete |
-| 15 | Forms & Registrations | Paused |
+| 15 | Forms & Registrations | Active — remaining real-document and acceptance work |
 | 16 | Reporting & Analytics | Complete |
 | 17–20 | Later approved roadmap | Not started |
 
 Milestones 3 and 5–12 were accepted by the Product Owner using separate
 administrative and family accounts. Milestone 12 acceptance passed on
-2026-08-04.
+2026-08-04; its September 2026 current-platform checkpoint also passed with
+documented follow-up enhancements. Final platform acceptance will be rerun after
+feature development is complete.
+
+## Product Owner Development Strategy — September 2026
+
+The broader current-platform acceptance campaign stopped after the Prayer &
+Care checkpoint. The Product Owner chose to complete the platform feature set
+before spending additional time on comprehensive acceptance because testing
+was uncovering features and workflow improvements that would change previously
+tested areas.
+
+The current sequence is:
+
+1. Prayer & Care current-platform checkpoint — completed
+2. Return to feature development
+3. Complete remaining features and approved workflow/UX improvements
+4. Prepare or reset clean synthetic acceptance data
+5. Run comprehensive end-to-end final platform acceptance
+6. Complete Production Readiness
+
+Previously accepted modules remain valuable evidence, but no additional module
+should be marked finally accepted during this development phase.
+
+### Feature-Development Context
+
+Planned work includes:
+
+- Prayer & Care Parent participation, care/follow-up editing, lifecycle-history
+  presentation, care-to-follow-up linking, and caregiver eligibility work
+- Administration
+- Parent Community, distinct from official Communications
+- A role-aware Month/Week/Agenda/List Platform Calendar projecting authorized
+  Events, Schedules, registrations, and related dates with deep links
+- Official Communications UX improvements and future moderated GroupMe-like
+  groups/channels, replies, membership, notifications, and attachments
+- Mobile-responsive and PWA completion before considering native applications
+- AI Ministry Assistant
+- Remaining Forms & Registrations real-document implementation and acceptance
+- A Platform UX Consistency Pass
+- Existing defects and enhancements retained in `docs/PROJECT_STATUS.md`
+- Production Readiness after final comprehensive acceptance
+
+The Platform UX Consistency Pass will review Members/Families, Events,
+Attendance, Check-In, Volunteers, Scheduling, Communications, Curriculum,
+Prayer & Care, Resources, Forms & Registrations, Visitors, Reporting, and the
+future Administration workspace. Page titles and compact primary actions should
+precede active/current records; history follows active work; large create/edit
+forms open intentionally in an appropriate panel, drawer, modal, or dedicated
+route rather than permanently displacing operational records.
 
 ## Historical Numbering Reconciliation
 
@@ -280,7 +329,8 @@ administrator and family workflows, including notification read-state controls.
 
 ## Milestone 12 — Prayer & Care
 
-**Status:** Complete
+**Status:** Original milestone complete; September 2026 current-platform
+checkpoint passed with documented follow-up enhancements
 
 - Prayer requests
 - Care notes
@@ -294,6 +344,11 @@ history, confidential notes and hospital visits, assigned follow-ups,
 completion and cancellation history, care-note archival, auditing, and strict
 direct-access denial. The Product Owner accepted administrator and family
 workflows using synthetic data.
+
+Further feature development is planned for family-scoped moderated prayer
+participation, care and follow-up editing, richer protected lifecycle history,
+care-to-follow-up linking, and caregiver eligibility. Prayer & Care will be
+included in the final comprehensive platform acceptance rerun.
 
 ## Milestone 13 — Resource Library
 
@@ -309,15 +364,29 @@ workflows using synthetic data.
 
 ## Milestone 14 — Scheduling
 
+**Status:** Complete — current implementation evidence retained; final platform
+acceptance rerun planned
+
 - Volunteer scheduler
 - Classroom assignments
 - Recurring rotations
 - Availability
 - Calendar integration
 
+## Planned Enhancement — Platform Calendar
+
+The platform will add a role-aware Calendar navigation item as a view of authoritative existing dates, not as a second scheduling engine. Initial views are planned for Month, Week, and Agenda/List, with every item deep-linking to its authoritative Event, Schedule, registration, or other domain source.
+
+- Platform Administrators, Youth Pastors, and authorized Staff: ministry Events, relevant published schedules and responsibilities, and other authorized ministry dates.
+- Volunteers: published Events and their own published Scheduling responsibilities.
+- Parents: published Events plus authorized family and child registrations and activities.
+- Future Student accounts: dates authorized for that Student.
+
+Future planning may evaluate iCal, Google Calendar, Apple Calendar, and Outlook integration. Exact projection, privacy, and authorization architecture must be approved before implementation. This enhancement was documented during Scheduling acceptance and was not implemented as part of the Scheduling correction.
+
 ## Milestone 15 — Forms & Registrations
 
-**Status:** Paused pending Product Owner consultation with ministry leadership
+**Status:** Active — remaining real-document workflow and acceptance work
 
 - Visitor cards
 - Event registration
@@ -327,7 +396,7 @@ workflows using synthetic data.
 
 ## Milestone 16 — Reporting & Analytics
 
-**Status:** In progress
+**Status:** Complete — Product Owner accepted August 11, 2026
 
 - Attendance trends
 - Volunteer reports
@@ -387,5 +456,6 @@ without a composite score.
 - A milestone is complete only after implementation, automated verification,
   Product Owner acceptance, documentation, and a milestone commit.
 - Synthetic data is required for development and testing.
-- Milestone 13 must not begin until Milestone 12 is accepted, documented, and
-  committed.
+- During the current feature-development phase, new work requires Product Owner
+  and Technical Lead scope approval; final acceptance follows the completed
+  feature set rather than continuing module-by-module now.

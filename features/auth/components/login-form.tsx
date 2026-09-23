@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 
 import { loginAction } from "@/features/auth/actions/login-action";
 
@@ -16,8 +16,14 @@ export function LoginForm() {
     loginAction,
     initialState,
   );
-  const emailError = state.fieldErrors?.email?.[0];
-  const passwordError = state.fieldErrors?.password?.[0];
+  const emailError = state.success ? undefined : state.fieldErrors?.email?.[0];
+  const passwordError = state.success
+    ? undefined
+    : state.fieldErrors?.password?.[0];
+
+  useEffect(() => {
+    if (state.success) window.location.replace("/");
+  }, [state.success]);
 
   return (
     <form action={formAction} className="space-y-5" noValidate>
@@ -79,7 +85,7 @@ export function LoginForm() {
         ) : null}
       </div>
 
-      {state.message ? (
+      {!state.success && state.message ? (
         <div
           aria-live="polite"
           className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-800"

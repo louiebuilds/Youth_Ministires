@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 
 import {
   archiveCommunicationTemplateAction,
@@ -19,6 +19,7 @@ const field =
 export function CommunicationTemplateForm({
   template,
 }: Readonly<{ template?: CommunicationTemplate }>) {
+  const [channel, setChannel] = useState(template?.channel ?? "in_app");
   const [state, action, pending] = useActionState(
     saveCommunicationTemplateAction,
     initialState,
@@ -29,27 +30,35 @@ export function CommunicationTemplateForm({
         <input name="templateId" type="hidden" value={template.templateId} />
       ) : null}
       <div className="grid gap-4 md:grid-cols-2">
-        <label className="text-sm font-semibold">Template name
+        <label className="text-sm font-semibold" htmlFor="template-name">Template name
           <input className={field} defaultValue={template?.name ?? ""}
+            id="template-name"
             maxLength={150} name="name" required />
         </label>
-        <label className="text-sm font-semibold">Channel
+        <label className="text-sm font-semibold" htmlFor="template-channel">Channel
           <select className={field} defaultValue={template?.channel ?? "in_app"}
-            name="channel">
+            id="template-channel" name="channel"
+            onChange={(event) => setChannel(
+              event.target.value as CommunicationTemplate["channel"],
+            )}>
             <option value="in_app">In-app</option>
             <option value="email">Email</option>
             <option value="sms">SMS</option>
           </select>
         </label>
       </div>
-      <label className="block text-sm font-semibold">
-        Email subject (required only for email)
-        <input className={field} defaultValue={template?.subject ?? ""}
-          maxLength={200} name="subject" />
-      </label>
-      <label className="block text-sm font-semibold">Message
+      {channel === "email" ? (
+        <label className="block text-sm font-semibold" htmlFor="template-subject">
+          Email subject
+          <input className={field} defaultValue={template?.subject ?? ""}
+            id="template-subject" maxLength={200} name="subject" required />
+        </label>
+      ) : (
+        <input name="subject" type="hidden" value="" />
+      )}
+      <label className="block text-sm font-semibold" htmlFor="template-message">Message
         <textarea className={field} defaultValue={template?.messageBody ?? ""}
-          maxLength={10000} name="messageBody" required rows={5} />
+          id="template-message" maxLength={10000} name="messageBody" required rows={5} />
       </label>
       {state.message ? (
         <p className={state.success ? "text-emerald-700" : "text-red-700"}>

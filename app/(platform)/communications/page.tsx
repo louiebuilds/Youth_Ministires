@@ -3,9 +3,8 @@ import Link from "next/link";
 
 import { requireCapability } from "@/features/auth/services/authorization-service";
 import {
-  AnnouncementForm,
-  AnnouncementLifecycleForms,
-} from "@/features/communications/components/announcement-forms";
+  type Announcement,
+} from "@/features/communications/types/communications";
 import { NotificationList } from "@/features/communications/components/notification-list";
 import {
   getMyUnreadNotificationCount,
@@ -14,6 +13,27 @@ import {
 } from "@/features/communications/services/communication-service";
 
 export const metadata: Metadata = { title: "Communications" };
+
+const audienceLabel = (audience: Announcement["audienceType"]) => ({
+  ministry: "Entire ministry",
+  parents: "Parents and guardians",
+  volunteers: "Volunteers",
+  household: "Household",
+  event: "Event",
+  individual: "Individual",
+})[audience];
+
+function statusLabel(announcement: Announcement) {
+  if (announcement.archivedAt) return "Archived";
+  if (announcement.publishedAt && announcement.expiresAt &&
+    new Date(announcement.expiresAt) <= new Date()) return "Expired";
+  return announcement.publishedAt ? "Published" : "Draft";
+}
+
+const displayDate = (value: string) =>
+  new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(
+    new Date(value),
+  );
 
 export default async function CommunicationsPage({
   searchParams,
@@ -28,11 +48,14 @@ export default async function CommunicationsPage({
   const canManage = [
     "platform_administrator", "youth_pastor", "staff_member",
   ].includes(account.role);
-  const [announcements, notifications, unreadCount] = await Promise.all([
+  const [announcementResult, notifications, unreadCount] = await Promise.all([
     listAnnouncements(search, canManage && includeArchived),
     listMyInAppNotifications(),
     getMyUnreadNotificationCount(),
   ]);
+  const announcements = announcementResult.success
+    ? announcementResult.announcements
+    : [];
 
   return (
     <div className="space-y-8">
@@ -40,25 +63,23 @@ export default async function CommunicationsPage({
         <p className="text-sm font-semibold text-sky-700">Communication Center</p>
         <h1 className="mt-1 text-3xl font-bold text-slate-950">Announcements</h1>
         <p className="mt-2 text-slate-600">
-          Published ministry updates for parents, volunteers, and staff.
+          {canManage
+            ? "Create and manage ministry announcements."
+            : "Published ministry updates for parents, volunteers, and staff."}
         </p>
         {canManage ? (
           <div className="mt-4 flex flex-wrap gap-3">
             <Link className="inline-flex min-h-11 items-center rounded-lg bg-sky-700 px-4 font-semibold text-white"
-              href="/communications/compose">Compose test message</Link>
+              href="/communications/new">New announcement</Link>
             <Link className="inline-flex min-h-11 items-center rounded-lg border border-sky-700 px-4 font-semibold text-sky-800"
               href="/communications/templates">Manage templates</Link>
+            <Link className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 px-4 font-semibold text-slate-700"
+              href="/communications/compose">Compose test message</Link>
           </div>
         ) : null}
       </header>
       <NotificationList notifications={notifications}
         unreadCount={unreadCount} />
-      {canManage ? (
-        <section className="rounded-xl border border-slate-200 bg-white p-5">
-          <h2 className="mb-4 text-xl font-bold">Create announcement</h2>
-          <AnnouncementForm />
-        </section>
-      ) : null}
       <section className="rounded-xl border border-slate-200 bg-white p-5">
         <form className="flex flex-wrap items-end gap-4" method="get">
           <label className="min-w-64 flex-1 text-sm font-semibold">Search
@@ -77,16 +98,39 @@ export default async function CommunicationsPage({
         </form>
       </section>
       <section className="space-y-4">
-        {announcements.map((announcement) => (
+        {canManage && announcements.length ? (
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div className="hidden gap-4 border-b border-slate-200 bg-slate-50 px-5 py-3 text-xs font-bold uppercase tracking-wide text-slate-500 md:grid md:grid-cols-[minmax(0,2fr)_minmax(10rem,1fr)_8rem_10rem_4rem]">
+              <span>Title</span><span>Audience</span><span>Status</span>
+              <span>Last updated</span><span className="sr-only">Open</span>
+            </div>
+            <div className="divide-y divide-slate-200">
+              {announcements.map((announcement) => (
+                <Link
+                  className="grid gap-2 px-5 py-4 transition hover:bg-sky-50 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sky-700 md:grid-cols-[minmax(0,2fr)_minmax(10rem,1fr)_8rem_10rem_4rem] md:items-center md:gap-4"
+                  href={`/communications/${announcement.announcementId}`}
+                  key={announcement.announcementId}
+                >
+                  <span className="font-bold text-slate-950">{announcement.title}</span>
+                  <span className="text-sm text-slate-600">{audienceLabel(announcement.audienceType)}</span>
+                  <span className="text-sm font-semibold text-sky-800">{statusLabel(announcement)}</span>
+                  <time className="text-sm text-slate-600" dateTime={announcement.updatedAt}>
+                    {displayDate(announcement.updatedAt)}
+                  </time>
+                  <span className="text-sm font-semibold text-sky-800 md:text-right">Open</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : null}
+        {!canManage ? announcements.map((announcement) => (
           <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
             key={announcement.announcementId}>
             <div className="flex flex-wrap justify-between gap-3">
               <div>
                 <h2 className="text-xl font-bold">{announcement.title}</h2>
                 <p className="text-sm font-semibold text-sky-700">
-                  {announcement.audienceType}
-                  {announcement.archivedAt ? " · archived" :
-                    announcement.publishedAt ? " · published" : " · draft"}
+                  {audienceLabel(announcement.audienceType)} · {statusLabel(announcement)}
                 </p>
               </div>
               {announcement.expiresAt ? (
@@ -98,22 +142,17 @@ export default async function CommunicationsPage({
             <p className="mt-4 whitespace-pre-wrap text-slate-700">
               {announcement.messageBody}
             </p>
-            {canManage && !announcement.archivedAt ? (
-              <details className="mt-5 border-t border-slate-200 pt-4">
-                <summary className="cursor-pointer font-semibold">
-                  Edit announcement
-                </summary>
-                <div className="mt-4"><AnnouncementForm announcement={announcement} /></div>
-                <div className="mt-4">
-                  <AnnouncementLifecycleForms announcement={announcement} />
-                </div>
-              </details>
-            ) : null}
           </article>
-        ))}
-        {!announcements.length ? (
+        )) : null}
+        {announcementResult.success && !announcements.length ? (
           <p className="rounded-xl border border-slate-200 bg-white p-6 text-slate-600">
             No visible announcements match this search.
+          </p>
+        ) : null}
+        {!announcementResult.success ? (
+          <p className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-800"
+            role="alert">
+            We couldn&apos;t load announcements. Please try again.
           </p>
         ) : null}
       </section>

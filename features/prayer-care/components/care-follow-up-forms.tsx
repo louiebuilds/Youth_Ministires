@@ -26,9 +26,12 @@ export function CareFollowUpLifecycle({ followUp }: Readonly<{ followUp: CareFol
   const [completeState, completeAction, completing] = useActionState(completeCareFollowUpAction, initial);
   const [cancelState, cancelAction, cancelling] = useActionState(cancelCareFollowUpAction, initial);
   if (!(["pending", "in_progress"] as const).includes(followUp.status as "pending" | "in_progress")) return null;
-  return <div className="mt-4 grid gap-3 border-t border-slate-200 pt-4 md:grid-cols-2">
+  return <details className="mt-4 border-t border-slate-200 pt-4">
+    <summary className="cursor-pointer font-semibold text-sky-800">Manage follow-up</summary>
+    <div className="mt-4 grid gap-3 md:grid-cols-2">
     <form action={completeAction} className="space-y-2"><input type="hidden" name="careFollowUpId" value={followUp.careFollowUpId} /><textarea className={field} name="completionNotes" placeholder="Completion notes (optional)" maxLength={5000} /><button className="min-h-11 rounded-lg bg-emerald-700 px-4 font-semibold text-white" disabled={completing}>Complete</button></form>
     <form action={cancelAction} className="space-y-2"><input type="hidden" name="careFollowUpId" value={followUp.careFollowUpId} /><textarea className={field} name="cancellationReason" placeholder="Required cancellation reason" required maxLength={1000} /><button className="min-h-11 rounded-lg border border-red-300 px-4 font-semibold text-red-800" disabled={cancelling}>Cancel</button></form>
     {[completeState.message, cancelState.message].filter(Boolean).map((message) => <p className="text-sm md:col-span-2" key={message}>{message}</p>)}
-  </div>;
+    </div>
+  </details>;
 }

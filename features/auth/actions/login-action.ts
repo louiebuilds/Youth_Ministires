@@ -1,6 +1,6 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 import { loginSchema } from "@/features/auth/schemas/login-schema";
 import { signInWithPassword } from "@/features/auth/services/auth-service";
@@ -36,5 +36,8 @@ export async function loginAction(
     };
   }
 
-  redirect("/");
+  // An account transition must discard route payloads rendered for any
+  // previously authenticated identity in this browser session.
+  revalidatePath("/", "layout");
+  return { success: true };
 }

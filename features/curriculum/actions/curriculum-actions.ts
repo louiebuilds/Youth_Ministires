@@ -11,6 +11,7 @@ import {
   archiveCurriculumPlanSchema,
   curriculumPlanDetailsSchema,
   curriculumPlanLessonSchema,
+  moveCurriculumPlanLessonSchema,
   removeCurriculumPlanLessonSchema,
 } from "@/features/curriculum/schemas/curriculum-plan-schema";
 import {
@@ -29,12 +30,14 @@ import {
   createTeachingResourceLink,
   createTeachingResourceDownloadUrl,
   createLesson,
+  moveCurriculumPlanLesson,
   updateLesson,
   removeLessonFromCurriculumPlan,
   updateCurriculumPlan,
   finalizeTeachingResourceUpload,
   prepareTeachingResourceUpload,
 } from "@/features/curriculum/services/curriculum-service";
+import { classifyTeachingResourceFile } from "@/features/curriculum/utils/teaching-resource-file-classification.mjs";
 
 import type { CurriculumActionState } from "@/features/curriculum/types/curriculum";
 
@@ -167,6 +170,27 @@ export async function removeLessonFromCurriculumPlanAction(
   return { success: true, message: "Lesson removed and sequence updated." };
 }
 
+export async function moveCurriculumPlanLessonAction(
+  _state: CurriculumActionState,
+  formData: FormData,
+): Promise<CurriculumActionState> {
+  const parsed = moveCurriculumPlanLessonSchema.safeParse(
+    Object.fromEntries(formData),
+  );
+  if (!parsed.success) {
+    return { success: false, message: "This lesson could not be moved." };
+  }
+  const result = await moveCurriculumPlanLesson(
+    parsed.data.planLessonId,
+    parsed.data.direction,
+  );
+  if (!result.success) {
+    return { success: false, message: "This lesson could not be moved." };
+  }
+  revalidatePath(`/curriculum/plans/${parsed.data.curriculumPlanId}`);
+  return { success: true, message: "Lesson order updated and audited." };
+}
+
 export async function createTeachingResourceLinkAction(
   _state: CurriculumActionState,
   formData: FormData,
@@ -198,7 +222,14 @@ export async function archiveTeachingResourceAction(
 
 export async function prepareTeachingResourceUploadAction(input: unknown) {
   const parsed = teachingResourceUploadRequestSchema.safeParse(input);
-  if (!parsed.success) {
+  const classification = parsed.success
+    ? classifyTeachingResourceFile(
+      parsed.data.originalFileName,
+      parsed.data.contentType,
+    )
+    : null;
+  if (!parsed.success || !classification ||
+    parsed.data.resourceType !== classification.resourceType) {
     return { success: false as const, message: "Review the selected file." };
   }
   const result = await prepareTeachingResourceUpload(parsed.data);
@@ -209,13 +240,26 @@ export async function prepareTeachingResourceUploadAction(input: unknown) {
 
 export async function finalizeTeachingResourceUploadAction(input: unknown) {
   const parsed = teachingResourceUploadFinalizeSchema.safeParse(input);
-  if (!parsed.success ||
-    !await finalizeTeachingResourceUpload(parsed.data)) {
+  const classification = parsed.success
+    ? classifyTeachingResourceFile(
+      parsed.data.originalFileName,
+      parsed.data.contentType,
+    )
+    : null;
+  if (!parsed.success || !classification ||
+    parsed.data.resourceType !== classification.resourceType) {
     return {
       success: false as const,
-      message: "The uploaded file could not be finalized.",
+      message: "Review the selected file before uploading it.",
     };
   }
+  const result = await finalizeTeachingResourceUpload(parsed.data);
+  if (!result.success) return {
+    success: false as const,
+    message: result.category === "unavailable"
+      ? "The private file service is temporarily unavailable. Please try again."
+      : "The uploaded file could not be finalized.",
+  };
   revalidatePath(`/curriculum/lessons/${parsed.data.lessonId}`);
   return {
     success: true as const,

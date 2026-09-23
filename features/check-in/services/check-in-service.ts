@@ -100,10 +100,13 @@ async function rpcSucceeded(
   return !error;
 }
 
-export const checkInStudent = (eventId: string, studentId: string) =>
-  rpcSucceeded("check_in_student", {
+export async function checkInStudent(eventId: string, studentId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("check_in_student", {
     p_event_id: eventId, p_student_id: studentId,
   });
+  return !error && data !== null;
+}
 
 export const checkOutStudent = (
   eventId: string, studentId: string,

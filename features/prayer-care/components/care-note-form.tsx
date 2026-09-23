@@ -23,11 +23,14 @@ export function CareNoteForm({ people, categories }: Readonly<{ people: Option[]
 
 export function ArchiveCareNoteForm({ careNoteId }: Readonly<{ careNoteId: string }>) {
   const [state, action, pending] = useActionState(archiveCareNoteAction, initialState);
-  return <form action={action} className="mt-4 border-t border-red-200 pt-3">
+  return <details className="mt-4 border-t border-red-200 pt-3">
+    <summary className="cursor-pointer font-semibold text-red-800">Manage care record</summary>
+    <form action={action} className="mt-3">
     <input type="hidden" name="careNoteId" value={careNoteId} />
     <button className="min-h-11 rounded-lg border border-red-300 px-4 font-semibold text-red-800" disabled={pending}>
       {pending ? "Archiving…" : "Archive care note"}
     </button>
     {state.message ? <p className={state.success ? "mt-2 text-sm text-emerald-700" : "mt-2 text-sm text-red-700"}>{state.message}</p> : null}
-  </form>;
+    </form>
+  </details>;
 }

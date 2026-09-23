@@ -37,6 +37,12 @@ export const removeCurriculumPlanLessonSchema = z.object({
   planLessonId: z.string().uuid(),
 });
 
+export const moveCurriculumPlanLessonSchema = z.object({
+  curriculumPlanId: z.string().uuid(),
+  planLessonId: z.string().uuid(),
+  direction: z.enum(["up", "down"]),
+});
+
 export const archiveCurriculumPlanSchema = z.object({
   curriculumPlanId: z.string().uuid(),
 });

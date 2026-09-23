@@ -1,0 +1,9 @@
+"use server";
+import {revalidatePath} from "next/cache";
+import {prepareSubmissionSchema,submissionIdSchema,submissionWorkflowSchema} from "@/features/forms/schemas/document-submission-schema";
+import {finalizeDocumentSubmissionUpload,prepareDocumentSubmissionUpload,runSubmissionWorkflow} from "@/features/forms/services/document-submission-service";
+import type {DocumentSubmissionActionState} from "@/features/forms/types/document-submissions";
+const fail=(message:string):DocumentSubmissionActionState=>({success:false,message});const done=(message:string):DocumentSubmissionActionState=>({success:true,message});
+export async function prepareDocumentSubmissionUploadAction(value:unknown){return prepareDocumentSubmissionUpload(prepareSubmissionSchema.parse(value))}
+export async function finalizeDocumentSubmissionUploadAction(submissionId:string,fileName:string){await finalizeDocumentSubmissionUpload(submissionIdSchema.parse(submissionId),fileName);revalidatePath("/permission-forms")}
+export async function documentSubmissionWorkflowAction(_:DocumentSubmissionActionState,fd:FormData):Promise<DocumentSubmissionActionState>{const p=submissionWorkflowSchema.safeParse(Object.fromEntries(fd));const workflow=String(fd.get("workflow"));const allowed:Record<string,string>={paper_confirm:"confirm_document_paper_copy",paper_revoke:"revoke_document_paper_confirmation",accept:"accept_document_submission",reject:"reject_document_submission",replace_request:"request_document_replacement",medical_verify:"verify_medical_document",medical_revoke:"revoke_medical_verification"};if(!p.success||!allowed[workflow])return fail("Review the document action.");try{await runSubmissionWorkflow(allowed[workflow],p.data.submissionId,p.data.reason);revalidatePath("/permission-forms");return done("Document status updated and retained in history.")}catch(e){return fail(e instanceof Error?e.message:"The document action was denied.")}}

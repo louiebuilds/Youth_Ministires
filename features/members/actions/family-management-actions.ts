@@ -7,10 +7,12 @@ import {
   createFamilySchema,
   familyAdultSchema,
   familyDetailsSchema,
+  parentAccountLinkSchema,
 } from "@/features/members/schemas/family-management-schema";
 import {
   addFamilyAdult,
   createFamily,
+  linkParentAccountToPerson,
   updateFamilyAdult,
   updateFamilyDetails,
 } from "@/features/members/services/family-directory-service";
@@ -139,4 +141,35 @@ export async function addFamilyAdultAction(
   }
   revalidatePath(`/families/${parsed.data.householdId}`);
   return { success: true, message: "Adult contact added and audited." };
+}
+
+export async function linkParentAccountAction(
+  _state: FamilyManagementState,
+  formData: FormData,
+): Promise<FamilyManagementState> {
+  const parsed = parentAccountLinkSchema.safeParse({
+    householdId: formData.get("householdId"),
+    personId: formData.get("personId"),
+    profileId: formData.get("profileId"),
+    confirmRelink: checked(formData, "confirmRelink"),
+    reason: formData.get("reason"),
+  });
+  if (!parsed.success) {
+    return { success: false, message: "Select a Parent account and provide a reason." };
+  }
+
+  const result = await linkParentAccountToPerson(parsed.data);
+  if (!result.success) {
+    return {
+      success: false,
+      message: result.code === "42501"
+        ? "You are not authorized to link Parent accounts."
+        : "The account link was not changed. Review the account and confirmation.",
+    };
+  }
+
+  revalidatePath(`/families/${parsed.data.householdId}`);
+  revalidatePath("/families");
+  revalidatePath("/family-check-in");
+  return { success: true, message: "Parent account link updated and audited." };
 }

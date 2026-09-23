@@ -72,6 +72,26 @@ export type ManagedEventRegistration = {
   createdAt: string;
 };
 
+export type DocumentRequirementReadiness = {
+  requirementId: string | null;
+  templateVersionId: string | null;
+  templateName: string;
+  documentKind: "permission_slip" | "medical_release";
+  configured?: boolean;
+  schoolYearStart?: string;
+  ready: boolean;
+  blocksParticipation: boolean;
+  missing: string[];
+};
+
+export type EventRegistrationReadiness = {
+  registrationId: string;
+  studentId: string;
+  documentationReady: boolean;
+  requirements: DocumentRequirementReadiness[];
+  participationOverrideId: string | null;
+};
+
 export type EventVolunteerAssignment = {
   assignmentId: string;
   profileId: string;

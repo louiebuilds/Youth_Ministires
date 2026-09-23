@@ -17,6 +17,7 @@ import {
   searchCheckInHouseholds,
 } from "@/features/check-in/services/check-in-service";
 import { requireCapability } from "@/features/auth/services/authorization-service";
+import { listEventRegistrationReadiness } from "@/features/events/services/event-management-service";
 
 export const metadata: Metadata = { title: "Check-In" };
 
@@ -36,15 +37,16 @@ export default async function CheckInPage({
   const householdId =
     typeof params.household === "string" ? params.household : "";
   const selectedEvent = events.find((event) => event.eventId === eventId);
-  const [households, household, roster, visitors] = selectedEvent
+  const [households, household, roster, visitors, readiness] = selectedEvent
     ? await Promise.all([
         search.length > 0 && search.length <= 100
           ? searchCheckInHouseholds(eventId, search) : [],
         householdId ? getCheckInHousehold(eventId, householdId) : null,
         listEmergencyRoster(eventId),
         listCheckedInVisitors(eventId),
+        listEventRegistrationReadiness(eventId),
       ])
-    : [[], null, [], []];
+    : [[], null, [], [], []];
 
   return (
     <div className="space-y-8">
@@ -125,6 +127,8 @@ export default async function CheckInPage({
               <h2 className="text-xl font-bold text-slate-950">{household.householdName}</h2>
               <div className="mt-4 grid gap-4 lg:grid-cols-2">
                 {household.students.map((student) => {
+                  const documentation = readiness.find((item) =>
+                    item.studentId === student.studentId);
                   const pickups = household.pickups.filter(
                     (pickup) => pickup.studentId === student.studentId,
                   );
@@ -139,6 +143,11 @@ export default async function CheckInPage({
                           {student.checkInStatus ?? "Not checked in"}
                         </span>
                       </div>
+                      {documentation ? <div className={`mt-3 rounded-lg border p-3 text-sm ${documentation.documentationReady ? "border-emerald-200 bg-emerald-50 text-emerald-900" : "border-amber-300 bg-amber-50 text-amber-950"}`}>
+                        <p className="font-bold">Documentation: {documentation.documentationReady ? "READY" : "NOT READY"}</p>
+                        {documentation.participationOverrideId ? <p className="font-semibold text-sky-800">Participation Override: APPROVED</p> : null}
+                        {!documentation.documentationReady ? <ul className="mt-1 list-disc pl-5">{documentation.requirements.filter((item) => !item.ready).map((item) => <li key={item.requirementId}>{item.templateName} — {item.missing.join(", ").replaceAll("_", " ")}</li>)}</ul> : null}
+                      </div> : null}
                       {(student.medicalSummary || student.allergySummary ||
                         student.dietarySummary) ? (
                         <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm">

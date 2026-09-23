@@ -2,10 +2,7 @@
 
 import { useActionState } from "react";
 
-import {
-  cancelMyEventRegistrationAction,
-  registerMyStudentForEventAction,
-} from "@/features/events/actions/event-management-actions";
+import { manageEventRegistrationAction } from "@/features/events/actions/event-management-actions";
 
 import type {
   EventActionState,
@@ -21,12 +18,8 @@ function RegistrationRow({
   eventId: string;
   option: EventRegistrationOption;
 }>) {
-  const [registerState, registerAction, registering] = useActionState(
-    registerMyStudentForEventAction,
-    initialState,
-  );
-  const [cancelState, cancelAction, cancelling] = useActionState(
-    cancelMyEventRegistrationAction,
+  const [state, action, pending] = useActionState(
+    manageEventRegistrationAction,
     initialState,
   );
 
@@ -34,11 +27,6 @@ function RegistrationRow({
     ["registered", "waitlisted", "confirmed"].includes(
       option.registrationStatus,
     );
-
-  const message = cancelState.message ?? registerState.message;
-  const successful = cancelState.message
-    ? cancelState.success
-    : registerState.success;
 
   return (
     <article className="rounded-lg border border-slate-200 bg-white p-4">
@@ -62,7 +50,8 @@ function RegistrationRow({
 
       <div className="mt-4">
         {activeRegistration && option.registrationId ? (
-          <form action={cancelAction}>
+          <form action={action}>
+            <input name="intent" type="hidden" value="cancel" />
             <input name="eventId" type="hidden" value={eventId} />
             <input
               name="registrationId"
@@ -71,13 +60,14 @@ function RegistrationRow({
             />
             <button
               className="min-h-11 rounded-lg border border-red-300 bg-white px-4 font-semibold text-red-800 disabled:opacity-60"
-              disabled={cancelling}
+              disabled={pending}
             >
-              {cancelling ? "Cancelling…" : "Cancel registration"}
+              {pending ? "Cancelling…" : "Cancel registration"}
             </button>
           </form>
         ) : (
-          <form action={registerAction}>
+          <form action={action}>
+            <input name="intent" type="hidden" value="register" />
             <input name="eventId" type="hidden" value={eventId} />
             <input
               name="studentId"
@@ -86,22 +76,22 @@ function RegistrationRow({
             />
             <button
               className="min-h-11 rounded-lg bg-sky-700 px-4 font-semibold text-white disabled:opacity-60"
-              disabled={registering}
+              disabled={pending}
             >
-              {registering ? "Registering…" : "Register student"}
+              {pending ? "Registering…" : "Register student"}
             </button>
           </form>
         )}
       </div>
 
-      {message ? (
+      {state.message ? (
         <p
           className={`mt-3 text-sm font-semibold ${
-            successful ? "text-emerald-700" : "text-red-700"
+            state.success ? "text-emerald-700" : "text-red-700"
           }`}
           role="status"
         >
-          {message}
+          {state.message}
         </p>
       ) : null}
     </article>
@@ -110,9 +100,11 @@ function RegistrationRow({
 
 export function FamilyEventRegistration({
   eventId,
+  managerMode = false,
   options,
 }: Readonly<{
   eventId: string;
+  managerMode?: boolean;
   options: EventRegistrationOption[];
 }>) {
   if (options.length === 0) return null;
@@ -121,10 +113,10 @@ export function FamilyEventRegistration({
     <section className="space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-5">
       <div>
         <p className="text-sm font-semibold text-sky-700">
-          Family registration
+          {managerMode ? "Event registration management" : "Family registration"}
         </p>
         <h2 className="mt-1 text-xl font-bold text-slate-950">
-          Register your students
+          {managerMode ? "Register an existing student" : "Register your students"}
         </h2>
       </div>
 

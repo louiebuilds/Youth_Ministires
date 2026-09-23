@@ -251,12 +251,49 @@ try {
     db.query(
       `
         select public.upsert_volunteer_profile(
-          $1, 'Updated Synthetic Leader', 'cleared',
-          '2026-03-01', '2027-03-01', 'SYNTHETIC-UPDATED', true
+          $1, 'Adult Volunteer', 'cleared',
+          '2026-09-01', '2027-09-01', null, true
         )
       `,
       [ids.volunteer],
     ),
+  );
+
+  const acceptedProfile = await db.query(
+    `
+      select ministry_title, background_check_status,
+        background_check_completed_at::text as completed_at,
+        background_check_expires_at::text as expires_at,
+        background_check_reference, is_active
+      from public.volunteer_profiles
+      where profile_id = $1
+    `,
+    [ids.volunteer],
+  );
+  assert.deepEqual(
+    acceptedProfile.rows[0],
+    {
+      ministry_title: "Adult Volunteer",
+      background_check_status: "cleared",
+      completed_at: "2026-09-01",
+      expires_at: "2027-09-01",
+      background_check_reference: null,
+      is_active: true,
+    },
+    "The exact acceptance payload persists with a null provider reference",
+  );
+
+  await expectDatabaseError(
+    () => asAuthenticated(ids.admin, () => db.query(
+      `
+        select public.upsert_volunteer_profile(
+          $1, 'Adult Volunteer', 'cleared',
+          '2027-09-01', '2026-09-01', null, true
+        )
+      `,
+      [ids.volunteer],
+    )),
+    "Invalid background-check date ordering remains rejected",
   );
 
   const workspaceRows = await asAuthenticated(ids.volunteer, () =>
@@ -266,7 +303,7 @@ try {
   );
   assert.equal(
     workspaceRows.rows[0].workspace.ministryTitle,
-    "Updated Synthetic Leader",
+    "Adult Volunteer",
     "Volunteer can load their protected self workspace",
   );
   assert.equal(workspaceRows.rows[0].workspace.displayName, "Proper Volunteer");
@@ -426,6 +463,155 @@ try {
     directWriteRejected,
     true,
     "Direct authenticated writes remain closed until audited service functions are added",
+  );
+
+  const [
+    workspacePage,
+    directoryPage,
+    workspaceSections,
+    formsSource,
+    actionSource,
+    schemaSource,
+    serviceSource,
+  ] =
+    await Promise.all([
+      readFile("app/(platform)/volunteers/[profileId]/page.tsx", "utf8"),
+      readFile("app/(platform)/volunteers/page.tsx", "utf8"),
+      readFile(
+        "features/volunteers/components/volunteer-workspace-sections.tsx",
+        "utf8",
+      ),
+      readFile(
+        "features/volunteers/components/volunteer-management-forms.tsx",
+        "utf8",
+      ),
+      readFile(
+        "features/volunteers/actions/volunteer-management-actions.ts",
+        "utf8",
+      ),
+      readFile(
+        "features/volunteers/schemas/volunteer-management-schema.ts",
+        "utf8",
+      ),
+      readFile(
+        "features/volunteers/services/volunteer-management-service.ts",
+        "utf8",
+      ),
+    ]);
+
+  for (const section of [
+    "overview",
+    "compliance",
+    "skills",
+    "availability",
+    "assignments",
+  ]) {
+    assert.match(
+      workspaceSections,
+      new RegExp(`id: "${section}"`),
+      `${section} is a deep-linkable Volunteer workspace section`,
+    );
+  }
+  assert.match(
+    workspacePage,
+    /requested\.success\s*\?\s*requested\.data\s*:\s*"overview"/,
+    "Missing or invalid Volunteer sections safely default to Overview",
+  );
+  assert.match(
+    workspaceSections,
+    /aria-current=\{active === id \? "page" : undefined\}/,
+    "Volunteer section navigation exposes its active state",
+  );
+  assert.match(
+    workspaceSections,
+    /overflow-x-auto border-b/,
+    "Volunteer section navigation scrolls horizontally on narrow screens",
+  );
+  assert.match(
+    workspacePage,
+    /activeSection === "assignments" && viewerCanManage[\s\S]*listSchedulableEvents\(\)/,
+    "Schedulable Events load only for a manager viewing Assignments",
+  );
+  assert.doesNotMatch(
+    workspaceSections.match(/function VolunteerOverview[\s\S]*?function VolunteerComplianceSection/)?.[0] ?? "",
+    /VolunteerProfileForm|CertificationForm|SkillAssignmentForm|AvailabilityForm|ScheduleVolunteerForm/,
+    "Overview remains readable and does not render management forms",
+  );
+  assert.match(workspaceSections, /function VolunteerComplianceSection/);
+  assert.match(workspaceSections, /VolunteerProfileForm volunteer=\{volunteer\}/);
+  assert.match(workspaceSections, /CertificationForm profileId=\{volunteer\.profileId\}/);
+  assert.match(workspaceSections, /function VolunteerSkillsSection/);
+  assert.match(workspaceSections, /SkillAssignmentForm profileId=\{volunteer\.profileId\}/);
+  assert.doesNotMatch(
+    workspaceSections,
+    /Create skill option/,
+    "Global skill creation is absent from individual Volunteer records",
+  );
+  assert.match(
+    directoryPage,
+    /Volunteer skill catalog[\s\S]*SkillCatalogForm/,
+    "Global skill management remains in the manager-only Volunteer directory",
+  );
+  assert.match(workspaceSections, /function VolunteerAvailabilitySection/);
+  assert.match(workspaceSections, /AvailabilityForm profileId=\{volunteer\.profileId\}/);
+  assert.match(workspaceSections, /function VolunteerAssignmentsSection/);
+  assert.match(workspaceSections, /VolunteerAssignmentList/);
+  assert.match(workspaceSections, /ScheduleVolunteerForm/);
+  assert.match(
+    formsSource,
+    /event\.eventName} ·[\s\S]{0,40}new Date\(event\.startsAt\)\.toLocaleDateString\(\)/,
+    "The Event assignment selector remains human-readable",
+  );
+  assert.doesNotMatch(
+    `${workspacePage}\n${directoryPage}\n${workspaceSections}\n${formsSource}`,
+    /Scheduling is the next Milestone 7 step|Events are created and managed in Milestone 9/,
+    "Development milestone wording is absent from the active Volunteer UI",
+  );
+  assert.match(
+    schemaSource,
+    /backgroundCheckReference: optionalText\(100\)/,
+    "Blank provider references normalize to null during action validation",
+  );
+  assert.match(
+    actionSource,
+    /const result = await saveVolunteerProfile\(parsed\.data\)/,
+    "The profile action consumes the structured service result",
+  );
+  assert.match(
+    actionSource,
+    /result\.category === "unavailable"/,
+    "The browser receives only a safe availability distinction",
+  );
+  assert.doesNotMatch(
+    actionSource,
+    /error\.(message|details|hint)|result\.code/,
+    "The browser action does not expose RPC diagnostics",
+  );
+  assert.match(
+    serviceSource,
+    /return \{ success: false, category, code \}/,
+    "RPC failures retain a structured category and safe code",
+  );
+  const diagnosticBlock = serviceSource.match(
+    /console\.error\("Volunteer profile RPC failed", \{[\s\S]*?\}\);/,
+  )?.[0] ?? "";
+  assert.match(diagnosticBlock, /operation: "upsert_volunteer_profile"/);
+  assert.match(diagnosticBlock, /code/);
+  assert.match(diagnosticBlock, /category/);
+  assert.doesNotMatch(
+    diagnosticBlock,
+    /profileId|actor|email|ministry|background|completed|expires|reference|input|message|detail|hint|payload|p_/i,
+    "The server diagnostic contains no identity, payload, compliance, or raw RPC fields",
+  );
+  assert.match(
+    serviceSource,
+    /safeErrorCode[\s\S]*?\^\[A-Za-z0-9_\]\{1,20\}\$/,
+    "Only bounded PostgreSQL/Supabase-style codes enter diagnostics",
+  );
+  assert.match(
+    actionSource,
+    /This profile change was not allowed\./,
+    "Authorization and unexpected failures retain a sanitized browser message",
   );
 
   console.log("Volunteer Management foundation verification passed.");

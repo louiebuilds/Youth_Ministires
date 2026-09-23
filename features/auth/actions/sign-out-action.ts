@@ -1,17 +1,37 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
-import { getAuthenticatedUserId } from "@/features/auth/services/session-service";
 import { createClient } from "@/lib/supabase/server";
 
-export async function signOutAction() {
-  const userId = await getAuthenticatedUserId();
+export type SignOutActionState = {
+  success: boolean;
+  message?: string;
+};
 
-  if (userId) {
+export async function signOutAction(
+  state: SignOutActionState,
+): Promise<SignOutActionState> {
+  void state;
+
+  try {
     const supabase = await createClient();
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      return {
+        success: false,
+        message: "Sign out is temporarily unavailable. Please try again.",
+      };
+    }
+  } catch {
+    return {
+      success: false,
+      message: "Sign out is temporarily unavailable. Please try again.",
+    };
   }
 
-  redirect("/login");
+  // Purge authenticated client route state before handing the browser to the
+  // signed-out experience so Back/Forward cannot restore manager UI.
+  revalidatePath("/", "layout");
+  return { success: true };
 }

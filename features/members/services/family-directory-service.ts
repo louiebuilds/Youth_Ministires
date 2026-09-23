@@ -8,6 +8,15 @@ import type { FamilyWorkspace } from "@/features/members/types/family-workspace"
 import type {
   HouseholdStatus,
 } from "@/lib/supabase/database.types";
+import type { ParentAccountLinkCandidate } from "@/features/members/types/family-management";
+
+type UntypedRpcResult = Promise<{
+  data: unknown;
+  error: { code?: string; message: string } | null;
+}>;
+type UntypedRpcClient = {
+  rpc(name: string, args: Record<string, unknown>): UntypedRpcResult;
+};
 
 export async function listAccessibleFamilies(
   search: string | null,
@@ -211,4 +220,48 @@ export async function getFamilyWorkspace(
   } catch {
     return { success: false, reason: "unavailable" };
   }
+}
+
+export async function listParentAccountLinkCandidates(
+  personId: string,
+): Promise<ParentAccountLinkCandidate[]> {
+  const client = await createClient() as unknown as UntypedRpcClient;
+  const { data, error } = await client.rpc("list_parent_account_link_candidates", {
+    p_person_id: personId,
+  });
+  if (error || !Array.isArray(data)) return [];
+
+  return data.map((value) => {
+    const row = value as Record<string, unknown>;
+    return {
+      profileId: String(row.profile_id),
+      accountEmail: String(row.account_email),
+      displayName: String(row.display_name),
+      accountRole: "parent",
+      accountStatus: row.account_status as ParentAccountLinkCandidate["accountStatus"],
+      linkedPersonId: row.linked_person_id ? String(row.linked_person_id) : null,
+      linkedPersonName: row.linked_person_name ? String(row.linked_person_name) : null,
+      linkedHouseholds: Array.isArray(row.linked_households)
+        ? row.linked_households.map(String)
+        : [],
+      emailMatches: row.email_matches === true,
+      matchingActivePeopleCount: Number(row.matching_active_people_count),
+    };
+  });
+}
+
+export async function linkParentAccountToPerson(input: {
+  profileId: string;
+  personId: string;
+  confirmRelink: boolean;
+  reason: string;
+}) {
+  const client = await createClient() as unknown as UntypedRpcClient;
+  const { error } = await client.rpc("link_parent_account_to_person", {
+    p_profile_id: input.profileId,
+    p_person_id: input.personId,
+    p_confirm_relink: input.confirmRelink,
+    p_reason: input.reason,
+  });
+  return { success: !error, code: error?.code };
 }

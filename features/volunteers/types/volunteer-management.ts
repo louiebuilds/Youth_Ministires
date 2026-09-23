@@ -10,6 +10,20 @@ export type VolunteerActionState = {
   message?: string;
 };
 
+export type VolunteerProfileSaveFailureCategory =
+  | "authorization"
+  | "validation_contract"
+  | "unavailable"
+  | "unexpected";
+
+export type VolunteerProfileSaveResult =
+  | { success: true }
+  | {
+      success: false;
+      category: VolunteerProfileSaveFailureCategory;
+      code: string;
+    };
+
 export type VolunteerSkill = {
   id: string;
   name: string;
@@ -78,6 +92,7 @@ export type VolunteerAssignment = {
   assignmentStatus: string;
   assignmentStartsAt: string | null;
   assignmentEndsAt: string | null;
+  isPast: boolean;
 };
 
 export type SchedulableEvent = {

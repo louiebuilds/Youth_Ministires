@@ -13,6 +13,10 @@ export const prayerRequestSchema = z.object({
   visibility: z.enum(["public", "leadership", "private"]),
 });
 
+export const editPrayerRequestSchema = prayerRequestSchema.extend({
+  prayerRequestId: z.uuid(),
+});
+
 export const answerPrayerRequestSchema = z.object({
   prayerRequestId: z.uuid(),
   answerSummary: z.string().trim().min(1).max(5000),

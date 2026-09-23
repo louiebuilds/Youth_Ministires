@@ -29,6 +29,7 @@ export type CareNote = {
   noteContent: string;
   occurredAt: string;
   createdByName: string;
+  archivedAt: string | null;
 };
 
 export type CareFollowUp = {
@@ -38,4 +39,9 @@ export type CareFollowUp = {
   assignedToName: string; dueAt: string | null;
   completionNotes: string | null; completedAt: string | null;
   cancellationReason: string | null; cancelledAt: string | null;
+  assignedToProfileId: string; archivedAt: string | null; createdAt: string;
 };
+
+export type PrayerCareListResult<T> =
+  | { success: true; data: T }
+  | { success: false; data: T; message: string };

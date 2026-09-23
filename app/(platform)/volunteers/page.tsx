@@ -3,10 +3,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { requireCapability } from "@/features/auth/services/authorization-service";
-import { NewVolunteerForm } from "@/features/volunteers/components/volunteer-management-forms";
+import { NewVolunteerForm, SkillCatalogForm } from "@/features/volunteers/components/volunteer-management-forms";
 import {
   listVolunteerCandidates,
   listVolunteerDirectory,
+  listVolunteerSkills,
 } from "@/features/volunteers/services/volunteer-management-service";
 
 export const metadata: Metadata = { title: "Volunteers" };
@@ -23,16 +24,17 @@ export default async function VolunteersPage({
   const search = typeof params.q === "string" && params.q.length <= 100
     ? params.q.trim() || null
     : null;
-  const [directory, candidates] = await Promise.all([
+  const [directory, candidates, skills] = await Promise.all([
     listVolunteerDirectory(search),
     listVolunteerCandidates(),
+    listVolunteerSkills(),
   ]);
 
   return <div className="space-y-8">
     <section>
       <p className="text-sm font-semibold text-sky-700">Volunteer management</p>
       <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-950">Volunteer directory</h1>
-      <p className="mt-2 max-w-3xl text-base leading-7 text-slate-600">Manage volunteer profiles, compliance status, certifications, skills, and recurring availability. Scheduling is the next Milestone 7 step.</p>
+      <p className="mt-2 max-w-3xl text-base leading-7 text-slate-600">Manage volunteer profiles, compliance, certifications, skills, availability, and Event assignments.</p>
     </section>
 
     <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -43,6 +45,12 @@ export default async function VolunteersPage({
     </section>
 
     {candidates.length > 0 ? <section className="space-y-3"><h2 className="text-xl font-semibold text-slate-950">Add volunteer profile</h2><NewVolunteerForm candidates={candidates} /></section> : null}
+
+    <section className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div><p className="text-sm font-semibold text-sky-700">Ministry-wide configuration</p><h2 className="mt-1 text-xl font-semibold text-slate-950">Volunteer skill catalog</h2><p className="mt-1 text-sm text-slate-600">Create reusable skill options for Volunteer profiles.</p></div>
+      {skills.length ? <ul className="flex flex-wrap gap-2">{skills.map((skill) => <li className="rounded-full bg-sky-50 px-3 py-1.5 text-sm text-sky-900" key={skill.id}>{skill.name}</li>)}</ul> : <p className="text-sm text-slate-600">No skill options have been created.</p>}
+      <SkillCatalogForm />
+    </section>
 
     {!directory.success ? <section className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-900">The volunteer directory is temporarily unavailable.</section> :
       directory.volunteers.length === 0 ? <section className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-600">No volunteer profiles match this search.</section> :
