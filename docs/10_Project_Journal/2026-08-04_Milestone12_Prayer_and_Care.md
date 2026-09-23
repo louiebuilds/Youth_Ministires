@@ -222,3 +222,34 @@ remaining platform scope and approved UX/workflow improvements, prepare clean
 synthetic acceptance data, rerun comprehensive final platform acceptance, and
 then proceed to Production Readiness. Earlier acceptance remains useful
 evidence but is not a substitute for the final rerun.
+
+## Phase 1 Manager Enhancements — September 23, 2026
+
+**Status:** IMPLEMENTED AND LIVE-ACCEPTED
+
+The approved Prayer & Care checkpoint enhancements now support manager editing
+of active confidential Care Records and active Follow-ups, deliberate creation
+of a linked Follow-up from a Care Record, title-led Follow-up cards, and
+protected retained lifecycle outcome, timestamp, and actor display. Applied
+migration `202609230001_prayer_care_manager_workflow_enhancements.sql` remains
+immutable; known historical migration drift was not changed.
+
+Live acceptance changed the Person on **Phase 1 Care Edit Test - Updated** from
+Gillian to Katie and confirmed that the linked Follow-up inherited Katie while
+retaining the same Care Record source. Editing the linked Follow-up persisted
+its updated title, High priority, and In progress status. Completion moved it
+from Active follow-ups to Completed and cancelled, displayed the completion
+timestamp and Admin actor, and kept confidential instructions and the retained
+outcome collapsed until intentionally opened.
+
+Two client-state defects were found and corrected during acceptance. The Edit
+Care Record Person selector initially displayed a changed Person without
+reliably submitting it and now uses controlled state. Edit Follow-up Priority
+and Status had the same issue and now use controlled state. In addition, the
+shared optional UUID validator now normalizes an omitted, null, or empty
+`careNoteId` to null so an unlinked Follow-up edit validates correctly.
+
+The raw `in_progress` card label remains an optional, non-blocking usability
+polish item. This closes the Prayer & Care checkpoint and returns the project
+to feature development; it does not mark Prayer & Care or the platform finally
+accepted for production.

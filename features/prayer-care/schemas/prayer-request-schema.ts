@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const optionalUuid = z.preprocess(
-  (value) => value === "" ? null : value,
+  (value) => value === "" || value === undefined || value === null ? null : value,
   z.uuid().nullable(),
 );
 
@@ -22,7 +22,9 @@ export const answerPrayerRequestSchema = z.object({
   answerSummary: z.string().trim().min(1).max(5000),
 });
 
-export const prayerRequestIdSchema = z.object({ prayerRequestId: z.uuid() });
+export const prayerRequestIdSchema = z.object({
+  prayerRequestId: z.uuid(),
+});
 
 export const careNoteSchema = z.object({
   personId: z.uuid(),
@@ -35,14 +37,44 @@ export const careNoteSchema = z.object({
   ),
 });
 
-export const careNoteIdSchema = z.object({ careNoteId: z.uuid() });
+export const careNoteIdSchema = z.object({
+  careNoteId: z.uuid(),
+});
+
+export const editCareNoteSchema = careNoteSchema.extend({
+  careNoteId: z.uuid(),
+});
 
 export const careFollowUpSchema = z.object({
-  personId: z.uuid(), assignedToProfileId: z.uuid(),
+  personId: z.uuid(),
+  assignedToProfileId: z.uuid(),
+  careNoteId: optionalUuid,
   title: z.string().trim().min(1).max(200),
-  instructions: z.preprocess((v) => v === "" ? null : v, z.string().trim().min(1).max(5000).nullable()),
+  instructions: z.preprocess(
+    (value) => value === "" ? null : value,
+    z.string().trim().min(1).max(5000).nullable(),
+  ),
   priority: z.enum(["low", "normal", "high", "urgent"]),
-  dueAt: z.preprocess((v) => v === "" ? null : v, z.iso.datetime({ local: true }).nullable()),
+  dueAt: z.preprocess(
+    (value) => value === "" ? null : value,
+    z.iso.datetime({ local: true }).nullable(),
+  ),
 });
-export const completeFollowUpSchema = z.object({ careFollowUpId: z.uuid(), completionNotes: z.preprocess((v) => v === "" ? null : v, z.string().trim().min(1).max(5000).nullable()) });
-export const cancelFollowUpSchema = z.object({ careFollowUpId: z.uuid(), cancellationReason: z.string().trim().min(1).max(1000) });
+
+export const editCareFollowUpSchema = careFollowUpSchema.extend({
+  careFollowUpId: z.uuid(),
+  status: z.enum(["pending", "in_progress"]),
+});
+
+export const completeFollowUpSchema = z.object({
+  careFollowUpId: z.uuid(),
+  completionNotes: z.preprocess(
+    (value) => value === "" ? null : value,
+    z.string().trim().min(1).max(5000).nullable(),
+  ),
+});
+
+export const cancelFollowUpSchema = z.object({
+  careFollowUpId: z.uuid(),
+  cancellationReason: z.string().trim().min(1).max(1000),
+});

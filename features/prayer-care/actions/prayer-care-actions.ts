@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
-import { answerPrayerRequestSchema, cancelFollowUpSchema, careFollowUpSchema, careNoteIdSchema, careNoteSchema, completeFollowUpSchema, editPrayerRequestSchema, prayerRequestIdSchema, prayerRequestSchema } from "@/features/prayer-care/schemas/prayer-request-schema";
-import { answerPrayerRequest, archiveCareNote, archivePrayerRequest, cancelCareFollowUp, completeCareFollowUp, createCareFollowUp, createCareNote, createPrayerRequest, updatePrayerRequest } from "@/features/prayer-care/services/prayer-care-service";
+import { answerPrayerRequestSchema, cancelFollowUpSchema, careFollowUpSchema, careNoteIdSchema, careNoteSchema, completeFollowUpSchema, editCareFollowUpSchema, editCareNoteSchema, editPrayerRequestSchema, prayerRequestIdSchema, prayerRequestSchema } from "@/features/prayer-care/schemas/prayer-request-schema";
+import { answerPrayerRequest, archiveCareNote, archivePrayerRequest, cancelCareFollowUp, completeCareFollowUp, createCareFollowUp, createCareNote, createPrayerRequest, updateCareFollowUp, updateCareNote, updatePrayerRequest } from "@/features/prayer-care/services/prayer-care-service";
 
 export type PrayerCareActionState = { success: boolean; message?: string };
 
@@ -45,6 +45,14 @@ export async function createCareFollowUpAction(_state: PrayerCareActionState, fo
   revalidatePath("/prayer-care"); return { success: true, message: "Care follow-up created." };
 }
 
+export async function updateCareFollowUpAction(_state: PrayerCareActionState, formData: FormData): Promise<PrayerCareActionState> {
+  const parsed = editCareFollowUpSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { success: false, message: "Review the follow-up details." };
+  const input = { ...parsed.data, dueAt: parsed.data.dueAt ? new Date(parsed.data.dueAt).toISOString() : null };
+  if (!await updateCareFollowUp(input)) return { success: false, message: "The follow-up could not be updated." };
+  revalidatePath("/prayer-care"); return { success: true, message: "Follow-up updated." };
+}
+
 export async function completeCareFollowUpAction(_state: PrayerCareActionState, formData: FormData): Promise<PrayerCareActionState> {
   const parsed = completeFollowUpSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success || !await completeCareFollowUp(parsed.data.careFollowUpId, parsed.data.completionNotes)) return { success: false, message: "The follow-up was not completed." };
@@ -64,6 +72,14 @@ export async function createCareNoteAction(_state: PrayerCareActionState, formDa
   if (!await createCareNote(input)) return { success: false, message: "The confidential care note could not be created." };
   revalidatePath("/prayer-care");
   return { success: true, message: "Confidential care note created." };
+}
+
+export async function updateCareNoteAction(_state: PrayerCareActionState, formData: FormData): Promise<PrayerCareActionState> {
+  const parsed = editCareNoteSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { success: false, message: "Review the care-note details." };
+  const input = { ...parsed.data, occurredAt: parsed.data.occurredAt ? new Date(parsed.data.occurredAt).toISOString() : null };
+  if (!await updateCareNote(input)) return { success: false, message: "The confidential care note could not be updated." };
+  revalidatePath("/prayer-care"); return { success: true, message: "Confidential care note updated." };
 }
 
 export async function archiveCareNoteAction(_state: PrayerCareActionState, formData: FormData): Promise<PrayerCareActionState> {

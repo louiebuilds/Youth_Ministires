@@ -32,6 +32,21 @@ additional modules finally accepted during this development phase.
 
 ### Prayer & Care Checkpoint Results
 
+- Phase 1 manager enhancements are implemented and live-accepted: authorized
+  managers can edit active Care Records and Follow-ups, create a linked
+  Follow-up from a Care Record, and review protected lifecycle actor/timestamp
+  and retained outcome details. Applied migration
+  `202609230001_prayer_care_manager_workflow_enhancements.sql` is immutable.
+- Live acceptance changed a Care Record Person from Gillian to Katie and
+  confirmed propagation to its linked Follow-up without changing the source
+  relationship. Follow-up edits persisted the revised title, High priority,
+  and In progress status; completion moved it to retained history with its
+  timestamp and actor while confidential instructions/outcome stayed collapsed.
+- Acceptance found and corrected two client-state defects: the Care Record
+  Person selector now uses controlled state, and Follow-up Priority/Status use
+  controlled state. Edit Follow-up validation also accepts an omitted optional
+  `careNoteId`.
+
 - The focused Overview, Prayer Requests, Care & Visits, Follow-ups, and Archived
   workspace passed live use; creation and management forms remain hidden until
   intentionally opened.
@@ -61,14 +76,9 @@ additional modules finally accepted during this development phase.
 ### Feature and UX Backlog Identified at This Checkpoint
 
 - Parent family-scoped prayer submission and moderated update workflow
-- Authorized editing of active confidential care records
-- Authorized editing of active follow-ups
-- Follow-up cards led by the actual title rather than repeated Person name
-- Protected display of completion notes, cancellation reasons, timestamps, and
-  appropriate actor history
-- Deliberate Care record-to-follow-up linking without copying confidential note
-  contents into ordinary task metadata
 - Verification and design of eligible caregiver derivation
+- Display stored follow-up status as `In progress` rather than the raw
+  `in_progress` enum value
 - Deliberate existing-Person selection/reconciliation in Family creation; never
   auto-merge solely by email
 - Platform UX Consistency Pass prioritizing current records above creation forms

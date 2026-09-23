@@ -6064,6 +6064,19 @@ export type Database = {
         }
         Returns: undefined
       }
+      update_care_follow_up_details: {
+        Args: {
+          p_assigned_to_profile_id: string
+          p_care_follow_up_id: string
+          p_due_at: string
+          p_instructions: string
+          p_person_id: string
+          p_priority: Database["public"]["Enums"]["care_follow_up_priority"]
+          p_status: Database["public"]["Enums"]["care_follow_up_status"]
+          p_title: string
+        }
+        Returns: undefined
+      }
       update_care_follow_up: {
         Args: {
           p_assigned_to_profile_id: string
@@ -6082,6 +6095,17 @@ export type Database = {
           p_category_id: string
           p_note_content: string
           p_occurred_at: string
+          p_title: string
+        }
+        Returns: undefined
+      }
+      update_care_note_details: {
+        Args: {
+          p_care_note_id: string
+          p_category_id: string
+          p_note_content: string
+          p_occurred_at: string
+          p_person_id: string
           p_title: string
         }
         Returns: undefined

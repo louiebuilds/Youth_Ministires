@@ -23,23 +23,30 @@ export type VisiblePrayerRequest = PublicPrayerSummary & {
 
 export type CareNote = {
   careNoteId: string;
+  personId: string;
   personName: string;
+  categoryId: string | null;
   categoryName: string | null;
   title: string;
   noteContent: string;
   occurredAt: string;
   createdByName: string;
   archivedAt: string | null;
+  updatedAt: string;
 };
 
 export type CareFollowUp = {
-  careFollowUpId: string; personName: string; title: string;
+  careFollowUpId: string; personId: string; personName: string; title: string;
+  prayerRequestId: string | null; prayerRequestTitle: string | null;
+  careNoteId: string | null; careNoteTitle: string | null;
   instructions: string | null; priority: "low" | "normal" | "high" | "urgent";
   status: "pending" | "in_progress" | "completed" | "cancelled";
   assignedToName: string; dueAt: string | null;
   completionNotes: string | null; completedAt: string | null;
+  completedByName: string | null;
   cancellationReason: string | null; cancelledAt: string | null;
-  assignedToProfileId: string; archivedAt: string | null; createdAt: string;
+  cancelledByName: string | null;
+  assignedToProfileId: string; archivedAt: string | null; createdAt: string; updatedAt: string;
 };
 
 export type PrayerCareListResult<T> =
