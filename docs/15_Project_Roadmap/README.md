@@ -375,6 +375,9 @@ acceptance rerun planned
 
 ## Planned Enhancement — Platform Calendar
 
+**Status:** Implemented, applied to development, and Product Owner live
+acceptance passed September 24, 2026.
+
 The platform will add a role-aware Calendar navigation item as a view of authoritative existing dates, not as a second scheduling engine. Initial views are planned for Month, Week, and Agenda/List, with every item deep-linking to its authoritative Event, Schedule, registration, or other domain source.
 
 - Platform Administrators, Youth Pastors, and authorized Staff: ministry Events, relevant published schedules and responsibilities, and other authorized ministry dates.
@@ -382,7 +385,14 @@ The platform will add a role-aware Calendar navigation item as a view of authori
 - Parents: published Events plus authorized family and child registrations and activities.
 - Future Student accounts: dates authorized for that Student.
 
-Future planning may evaluate iCal, Google Calendar, Apple Calendar, and Outlook integration. Exact projection, privacy, and authorization architecture must be approved before implementation. This enhancement was documented during Scheduling acceptance and was not implemented as part of the Scheduling correction.
+The implemented first release provides responsive Month, Week, and Agenda
+views through a protected unified projection and deep links to authoritative
+Event and Schedule workspaces. It remains read-only and does not duplicate
+Event or Scheduling creation or lifecycle behavior.
+
+Future planning may evaluate iCal, Google Calendar, Apple Calendar, and Outlook
+integration. External synchronization is not part of the implemented first
+release.
 
 ## Milestone 15 — Forms & Registrations
 

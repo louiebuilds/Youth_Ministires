@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "calendar:test": "node scripts/verify-platform-calendar.mjs",
     "communication-management:test": "node scripts/verify-communication-foundation.mjs",
     "prayer-care:test": "node scripts/verify-prayer-care-foundation.mjs",
     "resource-library:test": "node scripts/verify-resource-library-foundation.mjs",

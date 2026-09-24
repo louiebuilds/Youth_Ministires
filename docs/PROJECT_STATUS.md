@@ -83,14 +83,16 @@ additional modules finally accepted during this development phase.
   auto-merge solely by email
 - Platform UX Consistency Pass prioritizing current records above creation forms
   across all major workspaces
-- Administration, Parent Community, Platform Calendar enhancement,
-  Communications group/channel direction, responsive/PWA completion, AI
+- Administration, Parent Community, Communications group/channel direction,
+  responsive/PWA completion, AI
   Ministry Assistant, and remaining real-document Forms & Registrations work
 
 Parent Community remains distinct from official Communications. The planned
-Calendar remains a role-aware Month/Week/Agenda/List projection of authorized
-Events, Schedules, registrations, and related dates with deep links—not a new
-scheduling engine. Future Communications work must retain official
+The Platform Calendar is implemented locally as a role-aware
+Month/Week/Agenda projection of authorized Events, Schedules, and family
+registrations with deep links—not a new scheduling engine. Migration
+`202609240001_platform_calendar.sql` and Product Owner live acceptance remain
+pending. Future Communications work must retain official
 announcements while separately designing moderated group/channel conversations.
 
 No release notes or milestone commit have been created for this checkpoint.
@@ -119,6 +121,8 @@ and must not be edited, renamed, deleted, replayed, or casually repaired.
 | `202609150002` | Local and Remote match. |
 | `202609210001` | Local and Remote match. |
 | `202609220001` | Local and Remote match. |
+| `202609230001` | Applied Prayer & Care manager workflow enhancement; immutable. |
+| `202609240001` | Local Platform Calendar migration; not yet applied. |
 
 This checkpoint supersedes earlier current-state wording that described any of
 the matching migrations as local or unapplied. Historical journal entries may
@@ -598,7 +602,28 @@ reason, calls the active empty state “No active assignments,” resolves the l
 Event name through the existing manager-authorized Event projection, and uses
 count-aware position and assignment labels.
 
-Automated verification passed. Final live Product Owner retesting is pending after Technical Lead review and approved development application of the new migration. Scheduling is not yet marked finally accepted, Full Platform Acceptance remains active, and no Calendar feature was started.
+Automated verification passed. Final live Product Owner retesting is pending after Technical Lead review and approved development application of the new migration. Scheduling is not yet marked finally accepted, and Full Platform Acceptance remains active.
+
+### Platform Calendar — September 24, 2026
+
+The approved Platform Calendar is implemented locally at `/calendar` with
+responsive Month, Week, and Agenda views, date navigation, a Today action,
+Event/Schedule visual distinction, and deep links back to the authoritative
+Event or Schedule workspace. Calendar is read-only and does not introduce a
+second event or scheduling data model.
+
+Forward migration `202609240001_platform_calendar.sql` adds one fixed-search-
+path, security-definer projection. Managers receive authorized non-archived
+Events and non-cancelled Schedules. Volunteers receive published/active Events
+and only their own published Scheduling responsibilities. Parents receive
+published/active Events plus relationship-authorized child registration
+context and no Schedule rows. Inactive profiles, anonymous users, invalid
+ranges, direct-table access, existing Event rules, and existing Scheduling
+rules remain fail-closed.
+
+Dedicated Calendar verification, lint, and TypeScript pass. The migration has
+not been applied to development and live Product Owner acceptance has not yet
+run, so this is implemented—not finally accepted.
 
 
 ### Live Acceptance Correction - Choice Draft Restoration

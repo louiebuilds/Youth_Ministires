@@ -5835,6 +5835,23 @@ export type Database = {
         Args: { p_reason: string; p_submission_id: string }
         Returns: undefined
       }
+      list_platform_calendar: {
+        Args: { p_from_date: string; p_to_date: string }
+        Returns: {
+          context: string | null
+          ends_at: string
+          href: string
+          is_personal: boolean
+          item_id: string
+          item_type: string
+          location: string | null
+          source_event_id: string | null
+          starts_at: string
+          status: string
+          timezone: string
+          title: string
+        }[]
+      }
       move_curriculum_plan_lesson: {
         Args: { p_direction: string; p_plan_lesson_id: string }
         Returns: number

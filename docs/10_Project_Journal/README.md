@@ -4,6 +4,7 @@ This section preserves milestone outcomes and implementation history.
 
 ## Entries
 
+- [Platform Calendar](2026-09-24_Platform_Calendar.md)
 - [Milestone 15 — Forms, Documentation & Registration Integration (Phases 1–5)](2026-08-12_Milestone15_Forms_Phases_1-4.md)
 - [Milestone 16 — Reporting & Analytics](2026-08-11_Milestone16_Reporting_and_Analytics.md)
 - [Milestone 14 — Scheduling](2026-08-11_Milestone14_Scheduling.md)

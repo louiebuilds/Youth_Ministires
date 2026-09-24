@@ -1,5 +1,6 @@
 export type NavigationIcon =
   | "attendance"
+  | "calendar"
   | "check-in"
   | "communications"
   | "curriculum"
@@ -78,6 +79,12 @@ export const primaryNavigation: readonly NavigationItem[] = [
     href: "/events",
     icon: "events",
     label: "Events",
+  },
+  {
+    capability: "events.view",
+    href: "/calendar",
+    icon: "calendar",
+    label: "Calendar",
   },
   {
     capability: "curriculum.view",

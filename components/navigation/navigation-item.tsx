@@ -24,6 +24,7 @@ import type { LucideIcon } from "lucide-react";
 
 const navigationIcons: Record<NavigationItemConfig["icon"], LucideIcon> = {
   attendance: ClipboardCheck,
+  calendar: CalendarDays,
   "check-in": ScanLine,
   communications: MessageSquare,
   curriculum: BookOpen,

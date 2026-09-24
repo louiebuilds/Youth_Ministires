@@ -5,6 +5,7 @@ records for the Youth Ministries Platform.
 
 ## Test Reports
 
+- [Platform Calendar Test Report](2026-09-24_Platform_Calendar_Test_Report.md)
 - [Milestone 15 Phase 5 Custom Forms Test Report](2026-08-22_Milestone15_Phase5_Custom_Forms_Test_Report.md)
 - [Milestone 16 Reporting & Analytics Test Report](2026-08-11_Milestone16_Reporting_and_Analytics_Test_Report.md)
 - [Milestone 14 Scheduling Test Report](2026-08-11_Milestone14_Scheduling_Test_Report.md)
