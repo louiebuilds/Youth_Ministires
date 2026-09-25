@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { requireCapability } from "@/features/auth/services/authorization-service";
 import { CreateChatRoomForm } from "@/features/communications/chat/components/chat-room-management";
+import { ChatUnreadBadge } from "@/features/communications/chat/components/chat-unread-badge";
 import { listChatRooms } from "@/features/communications/chat/services/chat-room-service";
 
 export const metadata: Metadata = {
@@ -31,9 +32,8 @@ export default async function ChatRoomsPage() {
         </h1>
 
         <p className="mt-2 max-w-3xl text-slate-600">
-          Ministry room membership and access are separate from official
-          announcements. Conversation messaging will be added in a later
-          checkpoint.
+          Private room conversations for authorized ministry participants are
+          separate from official announcements.
         </p>
 
         <nav
@@ -80,15 +80,21 @@ export default async function ChatRoomsPage() {
                   {room.roomName}
                 </h2>
 
-                <span
-                  className={`rounded-full px-2.5 py-1 text-xs font-bold ${
-                    room.archivedAt
-                      ? "bg-slate-200 text-slate-700"
-                      : "bg-emerald-100 text-emerald-800"
-                  }`}
-                >
-                  {room.archivedAt ? "Archived" : "Active"}
-                </span>
+                <div className="flex shrink-0 items-center gap-2">
+                  <ChatUnreadBadge
+                    archived={Boolean(room.archivedAt)}
+                    count={room.unreadCount}
+                  />
+                  <span
+                    className={`rounded-full px-2.5 py-1 text-xs font-bold ${
+                      room.archivedAt
+                        ? "bg-slate-200 text-slate-700"
+                        : "bg-emerald-100 text-emerald-800"
+                    }`}
+                  >
+                    {room.archivedAt ? "Archived" : "Active"}
+                  </span>
+                </div>
               </div>
 
               <p className="mt-3 text-sm capitalize text-slate-600">

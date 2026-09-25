@@ -486,7 +486,12 @@ authorization is explicitly deferred beyond Phase 1A.
 
 Chat tables force RLS and deny direct client access. Protected RPCs return
 authorized content. Removed bodies remain retained but are not returned through
-ordinary projections or copied to generic audit metadata. Realtime policies
-are not part of this checkpoint. The accepted room and messaging UI consumes
-only these protected RPCs; it does not add direct table access or broaden room
-management, moderation, or participant authority.
+ordinary projections or copied to generic audit metadata. The accepted room
+and messaging UI consumes only these protected RPCs; it does not add direct
+table access or broaden room management, moderation, or participant authority.
+
+Phase 1D authorizes receive-only private Broadcast topics through current Chat
+room access. Database triggers emit only an empty `message_changed` signal;
+message bodies, authors, replies, and moderation reasons remain absent. The
+browser receives no Broadcast insert authority, Chat tables remain excluded
+from direct access, and refreshed content continues through protected RPCs.

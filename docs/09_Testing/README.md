@@ -5,8 +5,8 @@ records for the Youth Ministries Platform.
 
 ## Test Reports
 
-- [Native Group Chat Phases 1B–1C UI and Acceptance Test Report](2026-09-25_Native_Group_Chat_Phase1B_Test_Report.md)
-- [Native Group Chat Phases 1A–1C Security and Regression Test Report](2026-09-25_Native_Group_Chat_Phase1_Test_Report.md)
+- [Native Group Chat Phases 1B–1D UI and Acceptance Test Report](2026-09-25_Native_Group_Chat_Phase1B_Test_Report.md)
+- [Native Group Chat Phases 1A–1D Security and Regression Test Report](2026-09-25_Native_Group_Chat_Phase1_Test_Report.md)
 - [Platform Calendar Test Report](2026-09-24_Platform_Calendar_Test_Report.md)
 - [Milestone 15 Phase 5 Custom Forms Test Report](2026-08-22_Milestone15_Phase5_Custom_Forms_Test_Report.md)
 - [Milestone 16 Reporting & Analytics Test Report](2026-08-11_Milestone16_Reporting_and_Analytics_Test_Report.md)

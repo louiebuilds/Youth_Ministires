@@ -245,3 +245,9 @@ and membership functions for the protected manager workspace. Phase 1C uses
 the message list, send, reply, moderation, and read-state functions for the
 accepted conversation workspace. Realtime and dynamic Event/Schedule
 authorization remain deferred. Announcements remain separate.
+
+Phase 1D uses private `chat-room:<room UUID>` Broadcast events only as change
+signals. Message content remains RPC-projected. Active clients debounce route
+refreshes and retain manual and visible-tab polling fallbacks. Successful
+`mark_chat_room_read` calls invalidate the room-list projection so subsequent
+navigation receives fresh authoritative unread counts.

@@ -6,7 +6,7 @@
 
 **v0.16.0**
 
-## Current Implementation — Native Group Chat Phases 1A–1C (September 25, 2026)
+## Current Implementation — Native Group Chat Phases 1A–1D (September 25, 2026)
 
 Native Group Chat Phases 1A–1C are implemented and have passed Product Owner
 live acceptance. Migration `202609250001_native_group_chat_phase1.sql` is
@@ -31,8 +31,19 @@ alignment, same-room replies, manager moderation, removed-message placeholders,
 archived read-only behavior, compact Room settings, and corrected Chat
 navigation active state.
 
-Dynamic Event/Schedule room-linking UI, Realtime delivery signals, and unread
-badge/presentation work remain for later approved Phase 1D checkpoints.
+Phase 1D adds private room-scoped Realtime change signals without broadcasting
+message content. Active rooms refresh their RPC-backed conversation through a
+debounced private subscription, a 25-second visible-tab polling fallback,
+hidden-tab return refresh, and a manual Refresh action. Opening an active room
+marks through its latest visible non-removed message using the protected,
+monotonic read-state RPC. Active room lists show accessible unread counts,
+capped visually at `99+`; archived rooms suppress active unread badges.
+
+Realtime message delivery, moderation refresh, hidden-tab return, and manual
+refresh passed live Product Owner acceptance. Unread badge presentation is
+implemented and technically verified but still awaits live acceptance.
+
+Dynamic Event/Schedule room-linking UI remains deferred.
 
 Deferred: direct messages, youth participation, attachments, reactions,
 message editing, push/email notifications, Parent Community, and GroupMe.

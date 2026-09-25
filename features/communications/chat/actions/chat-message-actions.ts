@@ -115,3 +115,20 @@ export async function markChatRoomReadAction(
     success: true,
   };
 }
+
+export async function markChatRoomReadThroughAction(
+  input: unknown,
+): Promise<boolean> {
+  const parsed = markChatRoomReadSchema.safeParse(input);
+
+  if (!parsed.success) return false;
+
+  const success = await markChatRoomRead(
+    parsed.data.roomId,
+    parsed.data.messageId,
+  );
+
+  if (success) revalidatePath("/communications/chat");
+
+  return success;
+}

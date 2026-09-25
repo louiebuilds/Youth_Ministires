@@ -6,6 +6,7 @@ import { z } from "zod";
 import { requireCapability } from "@/features/auth/services/authorization-service";
 import { ChatMessageWorkspace } from "@/features/communications/chat/components/chat-message-workspace";
 import { ChatRoomManagement } from "@/features/communications/chat/components/chat-room-management";
+import { ChatUnreadBadge } from "@/features/communications/chat/components/chat-unread-badge";
 import { listChatMessages } from "@/features/communications/chat/services/chat-message-service";
 import {
   getChatRoom,
@@ -122,13 +123,20 @@ export default async function ChatRoomPage({
                     href={`/communications/chat/${item.roomId}`}
                     key={item.roomId}
                   >
-                    {item.roomName}
-
-                    {item.archivedAt ? (
-                      <span className="block text-xs font-normal">
-                        Archived
+                    <span className="flex items-center justify-between gap-2">
+                      <span>
+                        {item.roomName}
+                        {item.archivedAt ? (
+                          <span className="block text-xs font-normal">
+                            Archived
+                          </span>
+                        ) : null}
                       </span>
-                    ) : null}
+                      <ChatUnreadBadge
+                        archived={Boolean(item.archivedAt)}
+                        count={item.unreadCount}
+                      />
+                    </span>
                   </Link>
                 );
               })}

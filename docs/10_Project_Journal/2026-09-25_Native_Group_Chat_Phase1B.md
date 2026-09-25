@@ -1,4 +1,4 @@
-# Native Group Chat Phases 1A–1C — Foundation, Rooms, and Messaging
+# Native Group Chat Phases 1A–1D — Foundation, Rooms, Messaging, and Refresh
 
 **Date:** September 25, 2026
 **Status:** Implemented, applied to development, and live-accepted
@@ -24,6 +24,20 @@ RPC projections; removed originals remain protected in the database and are
 not copied to generic audit metadata.
 
 Migration `202609250001_native_group_chat_phase1.sql` is applied to the
-development project and remains immutable. Realtime and unread badge/UI work,
-along with dynamic Event/Schedule linking UI, remain unimplemented Phase 1D
-work.
+development project and remains immutable.
+
+Phase 1D adds private, room-scoped Broadcast change signals through forward
+migration `202609250002_native_group_chat_realtime.sql`. Broadcast payloads
+contain no message or moderation content; the client treats them only as a
+signal to refresh protected RPC projections. Active rooms also provide a
+manual Refresh action, poll every 25 seconds while visible, refresh when a
+hidden tab returns, and unsubscribe cleanly on navigation.
+
+Active rooms mark through the latest visible non-removed message using the
+existing protected monotonic read-state workflow. Room cards and room
+navigation show accessible authoritative unread counts, capped visually at
+`99+`; archived rooms suppress active unread presentation. Realtime delivery,
+moderation refresh, hidden-tab return, and manual refresh passed live
+acceptance. Unread badge presentation remains pending live acceptance.
+
+Event/Schedule-linked room behavior remains deferred.

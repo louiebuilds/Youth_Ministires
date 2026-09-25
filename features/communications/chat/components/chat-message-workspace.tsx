@@ -11,6 +11,7 @@ import {
   sendChatMessageAction,
   type ChatMessageActionState,
 } from "@/features/communications/chat/actions/chat-message-actions";
+import { ChatRealtimeRefresh } from "@/features/communications/chat/components/chat-realtime-refresh";
 import type { ChatMessage } from "@/features/communications/chat/types/chat-message";
 
 const initialState: ChatMessageActionState = {
@@ -92,6 +93,11 @@ export function ChatMessageWorkspace({
     return groups;
   }, [messages]);
 
+  const latestVisibleMessageId = useMemo(
+    () => messages.findLast((message) => !message.removedAt)?.messageId ?? null,
+    [messages],
+  );
+
   return (
     <section className="flex min-h-[38rem] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <header className="border-b border-slate-200 bg-white px-5 py-4">
@@ -106,15 +112,22 @@ export function ChatMessageWorkspace({
             </p>
           </div>
 
-          <span
-            className={`rounded-full px-3 py-1 text-xs font-bold ${
-              archived
-                ? "bg-slate-100 text-slate-700"
-                : "bg-emerald-100 text-emerald-800"
-            }`}
-          >
-            {archived ? "Read-only" : "Active"}
-          </span>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <ChatRealtimeRefresh
+              archived={archived}
+              latestVisibleMessageId={latestVisibleMessageId}
+              roomId={roomId}
+            />
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-bold ${
+                archived
+                  ? "bg-slate-100 text-slate-700"
+                  : "bg-emerald-100 text-emerald-800"
+              }`}
+            >
+              {archived ? "Read-only" : "Active"}
+            </span>
+          </div>
         </div>
       </header>
 
