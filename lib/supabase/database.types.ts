@@ -6901,3 +6901,124 @@ export type VisitorCheckInStatus = Database["public"]["Enums"]["visitor_check_in
 export type VolunteerAssignmentStatus = Database["public"]["Enums"]["volunteer_assignment_status"];
 export type VolunteerCertificationStatus = Database["public"]["Enums"]["volunteer_certification_status"];
 export type VolunteerSkillLevel = Database["public"]["Enums"]["volunteer_skill_level"];
+
+// Native Group Chat Phase 1A is intentionally unapplied. These repository-side
+// definitions document the pending migration contract until linked-project type
+// regeneration can replace them after an approved database application.
+export type ChatRoomType =
+  | "ministry"
+  | "event"
+  | "volunteer_team"
+  | "staff_leadership"
+  | "parent"
+  | "custom";
+export type ChatSourceAccess =
+  | "explicit"
+  | "event_parents"
+  | "event_volunteers"
+  | "schedule_volunteers";
+export type ChatMembershipSource = "explicit" | "event" | "schedule";
+
+export type ChatRoomRow = {
+  archived_at: string | null;
+  archived_by_profile_id: string | null;
+  created_at: string;
+  created_by_profile_id: string;
+  event_id: string | null;
+  id: string;
+  name: string;
+  room_type: ChatRoomType;
+  schedule_id: string | null;
+  source_access: ChatSourceAccess;
+  updated_at: string;
+};
+
+export type ChatRoomMemberRow = {
+  added_by_profile_id: string;
+  id: string;
+  joined_at: string;
+  membership_source: ChatMembershipSource;
+  profile_id: string;
+  removal_reason: string | null;
+  removed_at: string | null;
+  removed_by_profile_id: string | null;
+  room_id: string;
+};
+
+export type ChatMessageRow = {
+  author_profile_id: string;
+  created_at: string;
+  id: string;
+  message_body: string;
+  removal_reason: string | null;
+  removed_at: string | null;
+  removed_by_profile_id: string | null;
+  reply_to_message_id: string | null;
+  room_id: string;
+};
+
+export type ChatReadStateRow = {
+  last_read_at: string;
+  last_read_message_id: string | null;
+  profile_id: string;
+  room_id: string;
+  updated_at: string;
+};
+
+export type NativeGroupChatFunctions = {
+  add_chat_room_member: { Args: { p_profile_id: string; p_room_id: string }; Returns: string };
+  archive_chat_room: { Args: { p_room_id: string }; Returns: undefined };
+  create_chat_room: {
+    Args: {
+      p_event_id?: string | null;
+      p_name: string;
+      p_room_type: ChatRoomType;
+      p_schedule_id?: string | null;
+      p_source_access?: ChatSourceAccess;
+    };
+    Returns: string;
+  };
+  get_chat_room: { Args: { p_room_id: string }; Returns: Json };
+  list_chat_member_candidates: {
+    Args: { p_room_id: string };
+    Returns: { display_name: string; is_member: boolean; primary_role: AccountRole; profile_id: string }[];
+  };
+  list_chat_messages: {
+    Args: { p_before?: string | null; p_limit?: number; p_room_id: string };
+    Returns: {
+      author_name: string;
+      author_profile_id: string;
+      can_moderate: boolean;
+      created_at: string;
+      message_body: string | null;
+      message_id: string;
+      removed_at: string | null;
+      reply_author_name: string | null;
+      reply_message_body: string | null;
+      reply_to_message_id: string | null;
+    }[];
+  };
+  list_chat_rooms: {
+    Args: Record<PropertyKey, never>;
+    Returns: {
+      archived_at: string | null;
+      can_manage: boolean;
+      event_id: string | null;
+      last_message_at: string | null;
+      room_id: string;
+      room_name: string;
+      room_type: ChatRoomType;
+      schedule_id: string | null;
+      source_access: ChatSourceAccess;
+      unread_count: number;
+    }[];
+  };
+  mark_chat_room_read: { Args: { p_message_id: string; p_room_id: string }; Returns: undefined };
+  remove_chat_message: { Args: { p_message_id: string; p_reason: string }; Returns: undefined };
+  remove_chat_room_member: { Args: { p_profile_id: string; p_reason: string; p_room_id: string }; Returns: undefined };
+  rename_chat_room: { Args: { p_name: string; p_room_id: string }; Returns: undefined };
+  send_chat_message: {
+    Args: { p_message_body: string; p_reply_to_message_id?: string | null; p_room_id: string };
+    Returns: string;
+  };
+};

@@ -67,6 +67,17 @@ export default async function CommunicationsPage({
             ? "Create and manage ministry announcements."
             : "Published ministry updates for parents, volunteers, and staff."}
         </p>
+        <nav className="mt-4 flex flex-wrap gap-3" aria-label="Communications workspaces">
+          <span className="inline-flex min-h-11 items-center rounded-lg bg-slate-900 px-4 font-semibold text-white">
+            Announcements
+          </span>
+          <Link
+            className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 px-4 font-semibold text-slate-700"
+            href="/communications/chat"
+          >
+            Group chat
+          </Link>
+        </nav>
         {canManage ? (
           <div className="mt-4 flex flex-wrap gap-3">
             <Link className="inline-flex min-h-11 items-center rounded-lg bg-sky-700 px-4 font-semibold text-white"

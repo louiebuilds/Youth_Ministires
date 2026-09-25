@@ -234,3 +234,14 @@ Future API capabilities may include:
 | Version | Date | Description |
 |---------|------|-------------|
 | 1.0 | July 30, 2026 | Initial Communication Center API documentation created for Milestone 11. |
+| 1.1 | September 25, 2026 | Added protected Native Group Chat Phase 1A RPC boundaries and Phase 1B–1C application usage. |
+
+## Native Group Chat Phase 1 RPCs
+
+Chat content is available only through protected room, message, membership,
+moderation, and read-state functions. Each function revalidates the active
+account, room-type eligibility, and retained membership. Phase 1B uses the room
+and membership functions for the protected manager workspace. Phase 1C uses
+the message list, send, reply, moderation, and read-state functions for the
+accepted conversation workspace. Realtime and dynamic Event/Schedule
+authorization remain deferred. Announcements remain separate.

@@ -6,6 +6,37 @@
 
 **v0.16.0**
 
+## Current Implementation — Native Group Chat Phases 1A–1C (September 25, 2026)
+
+Native Group Chat Phases 1A–1C are implemented and have passed Product Owner
+live acceptance. Migration `202609250001_native_group_chat_phase1.sql` is
+applied to development and must not be modified. No milestone or final platform
+acceptance is closed here.
+
+Announcements remain separate from private rooms. Active Platform
+Administrators and Youth Pastors alone manage rooms and moderate. Staff,
+Volunteers, and Parents participate through eligible retained membership. Chat
+tables deny direct access and protected RPCs supply content.
+
+The Phase 1B room-management workspace is implemented locally at
+`/communications/chat`. It keeps Chat separate from Announcements, lists only
+authorized rooms, and exposes create, rename, archive, and retained membership
+management only to Platform Administrators and Youth Pastors. Staff, Parents,
+and Volunteers receive read-only room metadata only when the protected RPCs
+authorize them. Archived rooms retain visible read-only history.
+
+Phase 1C supplies the protected conversation workspace. Live acceptance passed
+for Administrator/Volunteer two-way messaging, current-user and other-user
+alignment, same-room replies, manager moderation, removed-message placeholders,
+archived read-only behavior, compact Room settings, and corrected Chat
+navigation active state.
+
+Dynamic Event/Schedule room-linking UI, Realtime delivery signals, and unread
+badge/presentation work remain for later approved Phase 1D checkpoints.
+
+Deferred: direct messages, youth participation, attachments, reactions,
+message editing, push/email notifications, Parent Community, and GroupMe.
+
 ## Current Development and Acceptance Strategy — September 23, 2026
 
 The Prayer & Care current-platform acceptance checkpoint is **COMPLETED / PASSED

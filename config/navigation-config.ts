@@ -1,3 +1,9 @@
+import {
+  hasCapability,
+  type PlatformCapability,
+} from "@/features/auth/types/authorization";
+import type { AccountRole } from "@/lib/supabase/database.types";
+
 export type NavigationIcon =
   | "attendance"
   | "calendar"
@@ -99,6 +105,12 @@ export const primaryNavigation: readonly NavigationItem[] = [
     label: "Communications",
   },
   {
+    capability: "communications.view",
+    href: "/communications/chat",
+    icon: "communications",
+    label: "Chat",
+  },
+  {
     capability: "prayer_care.view",
     href: "/prayer-care",
     icon: "prayer-care",
@@ -131,12 +143,9 @@ export const primaryNavigation: readonly NavigationItem[] = [
 ];
 
 export function getNavigationForRole(role: AccountRole) {
-  return primaryNavigation.filter((item) =>
-    hasCapability(role, item.capability) || item.roles?.includes(role),
+  return primaryNavigation.filter(
+    (item) =>
+      hasCapability(role, item.capability) ||
+      item.roles?.includes(role),
   );
 }
-import type { AccountRole } from "@/lib/supabase/database.types";
-import {
-  hasCapability,
-  type PlatformCapability,
-} from "@/features/auth/types/authorization";

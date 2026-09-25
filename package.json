@@ -7,6 +7,7 @@
     "build": "next build",
     "calendar:test": "node scripts/verify-platform-calendar.mjs",
     "communication-management:test": "node scripts/verify-communication-foundation.mjs",
+    "chat:test": "node scripts/verify-native-group-chat.mjs",
     "prayer-care:test": "node scripts/verify-prayer-care-foundation.mjs",
     "resource-library:test": "node scripts/verify-resource-library-foundation.mjs",
     "reporting:test": "node scripts/verify-reporting-foundation.mjs",

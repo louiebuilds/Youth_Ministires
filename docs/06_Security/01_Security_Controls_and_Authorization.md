@@ -475,3 +475,18 @@ and does not persist generated files.
 General Reporting excludes medical, allergy, dietary, custody, Prayer & Care,
 background-check, certification-reference, credential, Giving, and paused
 Milestone 15 data.
+
+## Native Group Chat Phases 1A–1C Authorization
+
+`private.can_manage_chat()` is separate from Announcement management. Only
+active Platform Administrators and Youth Pastors manage rooms and moderate;
+Staff has no Phase 1 moderation authority. Parent and Volunteer access is
+room-scoped and membership-authorized. Dynamic linked Event/Schedule
+authorization is explicitly deferred beyond Phase 1A.
+
+Chat tables force RLS and deny direct client access. Protected RPCs return
+authorized content. Removed bodies remain retained but are not returned through
+ordinary projections or copied to generic audit metadata. Realtime policies
+are not part of this checkpoint. The accepted room and messaging UI consumes
+only these protected RPCs; it does not add direct table access or broaden room
+management, moderation, or participant authority.

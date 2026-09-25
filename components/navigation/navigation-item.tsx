@@ -22,7 +22,10 @@ import { usePathname } from "next/navigation";
 import type { NavigationItem as NavigationItemConfig } from "@/config/navigation-config";
 import type { LucideIcon } from "lucide-react";
 
-const navigationIcons: Record<NavigationItemConfig["icon"], LucideIcon> = {
+const navigationIcons: Record<
+  NavigationItemConfig["icon"],
+  LucideIcon
+> = {
   attendance: ClipboardCheck,
   calendar: CalendarDays,
   "check-in": ScanLine,
@@ -46,16 +49,36 @@ type NavigationItemProps = Readonly<{
   item: NavigationItemConfig;
 }>;
 
-export function NavigationItem({ item }: NavigationItemProps) {
+function isNavigationItemActive(
+  pathname: string,
+  item: NavigationItemConfig,
+) {
+  if (item.href === "/communications") {
+    return pathname === "/communications";
+  }
+
+  return (
+    pathname === item.href ||
+    pathname.startsWith(`${item.href}/`)
+  );
+}
+
+export function NavigationItem({
+  item,
+}: NavigationItemProps) {
   const pathname = usePathname();
-  const isActive =
-    pathname === item.href || pathname.startsWith(`${item.href}/`);
+  const isActive = isNavigationItemActive(
+    pathname,
+    item,
+  );
   const Icon = navigationIcons[item.icon];
 
   return (
     <li>
       <Link
-        aria-current={isActive ? "page" : undefined}
+        aria-current={
+          isActive ? "page" : undefined
+        }
         className={[
           "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
           "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
@@ -65,7 +88,10 @@ export function NavigationItem({ item }: NavigationItemProps) {
         ].join(" ")}
         href={item.href}
       >
-        <Icon aria-hidden="true" className="size-5 shrink-0" />
+        <Icon
+          aria-hidden="true"
+          className="size-5 shrink-0"
+        />
         <span>{item.label}</span>
       </Link>
     </li>

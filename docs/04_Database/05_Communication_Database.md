@@ -209,3 +209,16 @@ Future milestones may include:
 | Version | Date | Description |
 |---------|------|-------------|
 | 1.0 | July 30, 2026 | Initial Communication Center database documentation created for Milestone 11. |
+| 1.1 | September 25, 2026 | Added Native Group Chat Phase 1A database and security foundation. |
+| 1.2 | September 25, 2026 | Recorded the applied, immutable Chat migration and Phase 1C use of its protected message contract. |
+
+## Native Group Chat Phase 1
+
+Migration `202609250001_native_group_chat_phase1.sql` adds `chat_rooms`,
+`chat_room_members`, `chat_messages`, and `chat_read_state`. All four force RLS,
+deny direct authenticated table access, and use protected functions. Optional
+Event/Schedule links are structural only in Phase 1A; dynamic source
+authorization is deferred. Removed bodies remain retained in protected rows
+but ordinary projections return only removal state. Read state is monotonic.
+The migration is applied to development and must not be modified. Phases 1B–1C
+use this existing schema and RPC contract without a follow-up database change.
