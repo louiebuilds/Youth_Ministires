@@ -5,6 +5,7 @@ import {
 import type { AccountRole } from "@/lib/supabase/database.types";
 
 export type NavigationIcon =
+  | "administration"
   | "attendance"
   | "calendar"
   | "check-in"
@@ -133,6 +134,12 @@ export const primaryNavigation: readonly NavigationItem[] = [
     href: "/reports",
     icon: "reports",
     label: "Reports",
+  },
+  {
+    capability: "administration.manage",
+    href: "/administration",
+    icon: "administration",
+    label: "Administration",
   },
   {
     capability: "settings.manage",

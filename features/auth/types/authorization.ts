@@ -2,6 +2,7 @@ import type { AccountRole } from "@/lib/supabase/database.types";
 
 export type PlatformCapability =
   | "accounts.manage"
+  | "administration.manage"
   | "attendance.manage"
   | "check_in.manage"
   | "communications.manage"
@@ -40,6 +41,7 @@ const roleCapabilities = {
   ],
   platform_administrator: [
     "accounts.manage",
+    "administration.manage",
     "dashboard.view",
     "students.view",
     "families.view",
@@ -101,6 +103,7 @@ const roleCapabilities = {
     "custom_forms.submit",
   ],
   youth_pastor: [
+    "administration.manage",
     "dashboard.view",
     "curriculum.view",
     "students.view",

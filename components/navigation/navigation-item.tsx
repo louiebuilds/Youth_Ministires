@@ -13,6 +13,7 @@ import {
   MessageSquare,
   ScanLine,
   Settings,
+  ShieldCheck,
   UserRoundCheck,
   UsersRound,
 } from "lucide-react";
@@ -26,6 +27,7 @@ const navigationIcons: Record<
   NavigationItemConfig["icon"],
   LucideIcon
 > = {
+  administration: ShieldCheck,
   attendance: ClipboardCheck,
   calendar: CalendarDays,
   "check-in": ScanLine,
