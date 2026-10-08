@@ -68,6 +68,19 @@ export const syntheticCommunicationSchema = z.object({
   }
 });
 
+export const liveEmailCommunicationSchema = z.object({
+  title: z.string().trim().min(1).max(200),
+  subject: z.string().trim().min(1).max(200),
+  messageBody: z.string().trim().min(1).max(10000),
+  channel: z.literal("email"),
+  audienceType: z.enum(["parents", "volunteers"]),
+  templateId: z.string().trim().transform((value) => value || null)
+    .refine((value) => value === null || z.string().uuid().safeParse(value).success),
+  idempotencyKey: z.string().uuid(),
+  confirmedRecipientCount: z.coerce.number().int().positive(),
+  liveConfirmation: z.literal("confirmed"),
+});
+
 export const notificationIdSchema = z.object({
   notificationId: z.string().uuid(),
 });

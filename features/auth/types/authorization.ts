@@ -6,6 +6,7 @@ export type PlatformCapability =
   | "attendance.manage"
   | "check_in.manage"
   | "communications.manage"
+  | "communications.send_live_email"
   | "communications.view"
   | "community.moderate"
   | "community.participate"
@@ -70,6 +71,7 @@ const roleCapabilities = {
     "scheduling.view",
     "events.view",
     "communications.manage",
+    "communications.send_live_email",
     "communications.view",
     "community.view",
     "community.participate",
@@ -139,6 +141,7 @@ const roleCapabilities = {
     "scheduling.view",
     "events.view",
     "communications.manage",
+    "communications.send_live_email",
     "communications.view",
     "community.view",
     "community.participate",

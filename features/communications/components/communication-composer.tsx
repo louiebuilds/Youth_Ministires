@@ -2,7 +2,7 @@
 
 import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 
-import { sendSyntheticCommunicationAction } from "@/features/communications/actions/communication-actions";
+import { sendCommunicationAction } from "@/features/communications/actions/communication-actions";
 import { resolveTemplateApplication } from "@/features/communications/components/communication-template-application.mjs";
 
 import type {
@@ -18,15 +18,27 @@ export function CommunicationComposer({
   audienceType,
   channel,
   templates,
+  emailMode,
+  liveSendCount,
+  suppressedCount,
+  liveDisabledReason,
+  idempotencyKey,
 }: Readonly<{
   audienceType: "parents" | "volunteers";
   channel: "in_app" | "email" | "sms";
   templates: CommunicationTemplate[];
+  emailMode: "synthetic" | "live" | "disabled";
+  liveSendCount: number;
+  suppressedCount: number;
+  liveDisabledReason: string | null;
+  idempotencyKey: string;
 }>) {
   const [state, action, pending] = useActionState(
-    sendSyntheticCommunicationAction,
+    sendCommunicationAction,
     initialState,
   );
+  const [reviewingLiveSend, setReviewingLiveSend] = useState(false);
+  const [liveConfirmed, setLiveConfirmed] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
   const [subject, setSubject] = useState("");
   const [messageBody, setMessageBody] = useState("");
@@ -37,6 +49,8 @@ export function CommunicationComposer({
   const compatibleTemplates = templates.filter(
     (template) => template.channel === channel && !template.archivedAt,
   );
+  const isLiveEmail = channel === "email" && emailMode === "live";
+  const isDisabledLiveEmail = channel === "email" && emailMode === "disabled";
 
   const selectTemplate = useCallback((templateId: string) => {
     const input = {
@@ -91,6 +105,7 @@ export function CommunicationComposer({
     <form action={action} className="space-y-4">
       <input name="audienceType" type="hidden" value={audienceType} />
       <input name="channel" type="hidden" value={channel} />
+      <input name="idempotencyKey" type="hidden" value={idempotencyKey} />
       <label className="block text-sm font-semibold">Title
         <input className={field} maxLength={200} name="title" required />
       </label>
@@ -124,18 +139,54 @@ export function CommunicationComposer({
       <p className="text-sm text-slate-600">
         Template content is copied into these fields and can be edited before delivery.
       </p>
-      <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm font-semibold text-amber-900">
-        Test mode: this records a synthetic delivery. No email or SMS is sent.
-      </p>
+      {isLiveEmail ? (
+        <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-950">
+          <p className="font-bold">Live Email · beta allowlist only</p>
+          <p className="mt-1">Channel: Email · Audience: {audienceType}</p>
+          <p className="mt-1">{liveSendCount} allowlisted live recipient{liveSendCount === 1 ? "" : "s"} · {suppressedCount} suppressed</p>
+        </div>
+      ) : (
+        <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm font-semibold text-amber-900">
+          Test mode: this records a synthetic delivery. No email or SMS is sent.
+        </p>
+      )}
+      {isDisabledLiveEmail ? (
+        <p className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm font-semibold text-red-900" role="alert">
+          Live email is disabled: {liveDisabledReason ?? "configuration is incomplete"}
+        </p>
+      ) : null}
+      {isLiveEmail && reviewingLiveSend ? (
+        <div className="space-y-3 rounded-lg border-2 border-red-400 p-4">
+          <p className="font-bold text-red-900">Final confirmation</p>
+          <p>This will submit a real email through Resend to {liveSendCount} allowlisted recipient{liveSendCount === 1 ? "" : "s"}. Non-allowlisted recipients remain suppressed.</p>
+          <input name="confirmedRecipientCount" type="hidden" value={liveSendCount} />
+          <label className="flex items-start gap-2 font-semibold">
+            <input className="mt-1 size-4" name="liveConfirmation"
+              onChange={(event) => setLiveConfirmed(event.target.checked)}
+              type="checkbox" value="confirmed" />
+            <span>Send real email to {liveSendCount} recipient{liveSendCount === 1 ? "" : "s"}</span>
+          </label>
+        </div>
+      ) : null}
       {state.message ? (
         <p className={state.success ? "text-emerald-700" : "text-red-700"}>
           {state.message}
         </p>
       ) : null}
-      <button className="min-h-11 rounded-lg bg-sky-700 px-5 font-semibold text-white"
-        disabled={pending}>
-        {pending ? "Recording…" : "Complete synthetic delivery"}
-      </button>
+      {isLiveEmail && !reviewingLiveSend ? (
+        <button className="min-h-11 rounded-lg bg-red-700 px-5 font-semibold text-white"
+          disabled={liveSendCount === 0} onClick={() => setReviewingLiveSend(true)}
+          type="button">
+          Review live email send
+        </button>
+      ) : (
+        <button className="min-h-11 rounded-lg bg-sky-700 px-5 font-semibold text-white"
+          disabled={pending || isDisabledLiveEmail || (isLiveEmail && !liveConfirmed)}>
+          {pending ? "Submitting…" : isLiveEmail
+            ? `Send real email to ${liveSendCount} recipient${liveSendCount === 1 ? "" : "s"}`
+            : "Complete synthetic delivery"}
+        </button>
+      )}
     </form>
   );
 }

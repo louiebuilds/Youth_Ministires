@@ -3,12 +3,16 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { getCommunicationsEmailEnvironment } from "@/config/env";
+import { requireCapability } from "@/features/auth/services/authorization-service";
+import { hasCapability } from "@/features/auth/types/authorization";
 import {
   announcementDetailsSchema,
   announcementIdSchema,
   communicationTemplateIdSchema,
   communicationTemplateSchema,
   syntheticCommunicationSchema,
+  liveEmailCommunicationSchema,
   notificationIdSchema,
 } from "@/features/communications/schemas/announcement-schema";
 import {
@@ -20,6 +24,8 @@ import {
   updateAnnouncement,
   updateCommunicationTemplate,
   sendSyntheticCommunication,
+  sendLiveEmailCommunication,
+  previewLiveEmailRecipients,
   markAllMyNotificationsRead,
   markMyNotificationRead,
 } from "@/features/communications/services/communication-service";
@@ -127,10 +133,55 @@ export async function archiveCommunicationTemplateAction(
   return { success: true, message: "Template archived." };
 }
 
-export async function sendSyntheticCommunicationAction(
+export async function sendCommunicationAction(
   _state: CommunicationActionState,
   formData: FormData,
 ): Promise<CommunicationActionState> {
+  const emailEnvironment = getCommunicationsEmailEnvironment();
+  const account = await requireCapability("communications.manage");
+  const canSendLiveEmail = hasCapability(
+    account.role,
+    "communications.send_live_email",
+  );
+  if (formData.get("channel") === "email" && emailEnvironment.mode === "live"
+    && canSendLiveEmail) {
+    if (!emailEnvironment.liveEnabled) {
+      return {
+        success: false,
+        message: emailEnvironment.disabledReason ?? "Live email is disabled.",
+      };
+    }
+    const parsedLive = liveEmailCommunicationSchema.safeParse(
+      Object.fromEntries(formData),
+    );
+    if (!parsedLive.success) {
+      return { success: false, message: "Review and confirm the live email." };
+    }
+    const preview = await previewLiveEmailRecipients({
+      audienceType: parsedLive.data.audienceType,
+      allowlist: emailEnvironment.allowlist,
+    });
+    const liveSendCount = preview.filter((item) => item.liveSendAllowed).length;
+    if (liveSendCount !== parsedLive.data.confirmedRecipientCount) {
+      return {
+        success: false,
+        message: "The recipient list changed. Refresh and confirm the new count.",
+      };
+    }
+    const result = await sendLiveEmailCommunication(parsedLive.data);
+    if (!result.success) return { success: false, message: result.reason };
+    const suppressedCount = result.suppressedCount;
+    revalidatePath("/communications");
+    revalidatePath("/communications/compose");
+    return {
+      success: result.failedCount === 0,
+      message: `${result.sentCount} email${result.sentCount === 1 ? "" : "s"} accepted by Resend; ${result.failedCount} failed; ${suppressedCount} suppressed.`,
+      sentCount: result.sentCount,
+      failedCount: result.failedCount,
+      suppressedCount,
+    };
+  }
+
   const parsed = syntheticCommunicationSchema.safeParse(
     Object.fromEntries(formData),
   );

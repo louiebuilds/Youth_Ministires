@@ -7,6 +7,9 @@ import type {
 export type CommunicationActionState = {
   success: boolean;
   message?: string;
+  sentCount?: number;
+  failedCount?: number;
+  suppressedCount?: number;
 };
 
 export type Announcement = {
@@ -52,8 +55,16 @@ export type CommunicationHistoryEntry = {
   communicationStatus: CommunicationStatus;
   sentAt: string | null;
   deliveredCount: number;
+  sentCount: number;
+  failedCount: number;
   suppressedCount: number;
   syntheticDelivery: boolean;
+  deliveryMode: "synthetic" | "live";
+  providerName: string | null;
+};
+
+export type LiveEmailRecipientPreview = CommunicationRecipientPreview & {
+  liveSendAllowed: boolean;
 };
 
 export type InAppNotification = {

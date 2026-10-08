@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { resolveCommunicationsEmailEnvironment } from "@/config/communications-email-environment.mjs";
+
 const requiredValue = z
   .string()
   .trim()
@@ -45,4 +47,19 @@ export function getPublicEnvironment() {
     supabaseUrl: result.data.NEXT_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: result.data.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   });
+}
+
+export type CommunicationsEmailEnvironment = {
+  mode: "synthetic" | "live";
+  liveEnabled: boolean;
+  disabledReason: string | null;
+  apiKey: string | null;
+  fromEmail: string | null;
+  fromName: string;
+  replyToEmail: string | null;
+  allowlist: readonly string[];
+};
+
+export function getCommunicationsEmailEnvironment(): CommunicationsEmailEnvironment {
+  return resolveCommunicationsEmailEnvironment(process.env);
 }

@@ -874,8 +874,11 @@ export type Database = {
           delivered_at: string | null
           failure_reason: string | null
           id: string
+          provider_name: string | null
           provider_reference: string | null
           status: Database["public"]["Enums"]["communication_delivery_status"]
+          submission_key: string | null
+          submitted_at: string | null
           updated_at: string
         }
         Insert: {
@@ -885,8 +888,11 @@ export type Database = {
           delivered_at?: string | null
           failure_reason?: string | null
           id?: string
+          provider_name?: string | null
           provider_reference?: string | null
           status?: Database["public"]["Enums"]["communication_delivery_status"]
+          submission_key?: string | null
+          submitted_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -896,8 +902,11 @@ export type Database = {
           delivered_at?: string | null
           failure_reason?: string | null
           id?: string
+          provider_name?: string | null
           provider_reference?: string | null
           status?: Database["public"]["Enums"]["communication_delivery_status"]
+          submission_key?: string | null
+          submitted_at?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -914,6 +923,7 @@ export type Database = {
         Row: {
           communication_id: string
           created_at: string
+          destination_address: string | null
           destination_masked: string | null
           display_name: string
           household_id: string | null
@@ -925,6 +935,7 @@ export type Database = {
         Insert: {
           communication_id: string
           created_at?: string
+          destination_address?: string | null
           destination_masked?: string | null
           display_name: string
           household_id?: string | null
@@ -936,6 +947,7 @@ export type Database = {
         Update: {
           communication_id?: string
           created_at?: string
+          destination_address?: string | null
           destination_masked?: string | null
           display_name?: string
           household_id?: string | null
@@ -1019,11 +1031,15 @@ export type Database = {
           channel: Database["public"]["Enums"]["communication_channel"]
           created_at: string
           created_by_profile_id: string
+          delivery_mode: string
           event_id: string | null
           failure_reason: string | null
           household_id: string | null
           id: string
+          idempotency_key: string | null
           message_body: string
+          provider_name: string | null
+          provider_submission_completed_at: string | null
           scheduled_for: string | null
           sent_at: string | null
           status: Database["public"]["Enums"]["communication_status"]
@@ -1039,11 +1055,15 @@ export type Database = {
           channel: Database["public"]["Enums"]["communication_channel"]
           created_at?: string
           created_by_profile_id: string
+          delivery_mode?: string
           event_id?: string | null
           failure_reason?: string | null
           household_id?: string | null
           id?: string
+          idempotency_key?: string | null
           message_body: string
+          provider_name?: string | null
+          provider_submission_completed_at?: string | null
           scheduled_for?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["communication_status"]
@@ -1059,11 +1079,15 @@ export type Database = {
           channel?: Database["public"]["Enums"]["communication_channel"]
           created_at?: string
           created_by_profile_id?: string
+          delivery_mode?: string
           event_id?: string | null
           failure_reason?: string | null
           household_id?: string | null
           id?: string
+          idempotency_key?: string | null
           message_body?: string
+          provider_name?: string | null
+          provider_submission_completed_at?: string | null
           scheduled_for?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["communication_status"]
@@ -5610,7 +5634,11 @@ export type Database = {
           communication_id: string
           communication_status: Database["public"]["Enums"]["communication_status"]
           delivered_count: number
+          delivery_mode: string
+          failed_count: number
+          provider_name: string
           sent_at: string
+          sent_count: number
           suppressed_count: number
           synthetic_delivery: boolean
           title: string
@@ -6487,6 +6515,20 @@ export type Database = {
           suppression_reason: string
         }[]
       }
+      preview_live_email_recipients: {
+        Args: {
+          p_allowlist: string[]
+          p_audience_type: Database["public"]["Enums"]["communication_audience_type"]
+        }
+        Returns: {
+          destination_masked: string
+          display_name: string
+          live_send_allowed: boolean
+          preference_authorized: boolean
+          recipient_profile_id: string
+          suppression_reason: string
+        }[]
+      }
       promote_waitlisted_registration: {
         Args: { p_registration_id: string }
         Returns: undefined
@@ -6716,6 +6758,47 @@ export type Database = {
           p_room_id: string
         }
         Returns: string
+      }
+      create_live_email_communication: {
+        Args: {
+          p_allowlist: string[]
+          p_audience_type: Database["public"]["Enums"]["communication_audience_type"]
+          p_confirmed_recipient_count: number
+          p_idempotency_key: string
+          p_message_body: string
+          p_subject: string
+          p_template_id: string
+          p_title: string
+        }
+        Returns: string
+      }
+      claim_live_email_delivery: {
+        Args: { p_communication_id: string }
+        Returns: {
+          delivery_id: string
+          email_address: string
+          message_body: string
+          subject: string
+          submission_key: string
+        }[]
+      }
+      finalize_live_email_delivery: {
+        Args: {
+          p_delivery_id: string
+          p_failure_reason: string
+          p_provider_reference: string
+          p_success: boolean
+        }
+        Returns: undefined
+      }
+      get_live_email_send_result: {
+        Args: { p_communication_id: string }
+        Returns: {
+          failed_count: number
+          pending_count: number
+          sent_count: number
+          suppressed_count: number
+        }[]
       }
       send_synthetic_communication: {
         Args: {

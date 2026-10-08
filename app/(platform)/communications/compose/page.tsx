@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { randomUUID } from "node:crypto";
 
+import { getCommunicationsEmailEnvironment } from "@/config/env";
 import { getDefaultCommunicationChannel } from "@/features/administration/services/ministry-settings-service";
 import { requireCapability } from "@/features/auth/services/authorization-service";
+import { hasCapability } from "@/features/auth/types/authorization";
 import { CommunicationComposer } from "@/features/communications/components/communication-composer";
 import {
   listCommunicationHistory,
   listCommunicationTemplates,
   previewCommunicationRecipients,
+  previewLiveEmailRecipients,
 } from "@/features/communications/services/communication-service";
 
 export const metadata: Metadata = { title: "Compose Communication" };
@@ -20,7 +24,7 @@ export default async function ComposeCommunicationPage({
 }: Readonly<{
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }>) {
-  await requireCapability("communications.manage");
+  const account = await requireCapability("communications.manage");
   const params = await searchParams;
   const defaultChannel = await getDefaultCommunicationChannel();
   const channel = channels.includes(params.channel as typeof channels[number])
@@ -30,20 +34,36 @@ export default async function ComposeCommunicationPage({
   ) ? params.audience as typeof audiences[number] : "parents";
   const search = typeof params.q === "string" && params.q.trim().length <= 100
     ? params.q.trim() || null : null;
+  const emailEnvironment = getCommunicationsEmailEnvironment();
+  const canSendLiveEmail = hasCapability(account.role, "communications.send_live_email");
+  const liveEmailRequested = channel === "email"
+    && emailEnvironment.mode === "live" && canSendLiveEmail;
+  const liveEmailEnabled = liveEmailRequested && emailEnvironment.liveEnabled;
   const [recipients, templates, history] = await Promise.all([
-    previewCommunicationRecipients({ audienceType, channel }),
+    liveEmailEnabled
+      ? previewLiveEmailRecipients({
+          audienceType,
+          allowlist: emailEnvironment.allowlist,
+        })
+      : previewCommunicationRecipients({ audienceType, channel }),
     listCommunicationTemplates(null, false),
     listCommunicationHistory(search),
   ]);
   const eligible = recipients.filter((item) => item.preferenceAuthorized);
+  const liveSendCount = liveEmailEnabled
+    ? recipients.filter((item) => "liveSendAllowed" in item && item.liveSendAllowed).length
+    : 0;
+  const emailMode = liveEmailRequested
+    ? emailEnvironment.liveEnabled ? "live" : "disabled"
+    : "synthetic";
   return (
     <div className="space-y-8">
       <header>
         <Link className="text-sm font-semibold text-sky-700"
           href="/communications">← Communication Center</Link>
-        <h1 className="mt-2 text-3xl font-bold">Compose test communication</h1>
+        <h1 className="mt-2 text-3xl font-bold">Compose communication</h1>
         <p className="mt-2 text-slate-600">
-          Preview recipients and record provider-safe synthetic delivery.
+          Preview recipients before recording a synthetic delivery or an allowlisted beta email.
         </p>
       </header>
       <section className="rounded-xl border border-slate-200 bg-white p-5">
@@ -57,7 +77,7 @@ export default async function ComposeCommunicationPage({
           <label className="text-sm font-semibold">Channel
             <select className={field} defaultValue={channel} name="channel">
               <option value="in_app">In-app</option>
-              <option value="email">Email — synthetic</option>
+              <option value="email">Email</option>
               <option value="sms">SMS — synthetic</option>
             </select>
           </label>
@@ -78,7 +98,11 @@ export default async function ComposeCommunicationPage({
                 key={recipient.recipientProfileId}>
                 <span className="font-semibold">{recipient.displayName}</span>
                 <span className="ml-2 text-sm text-slate-600">
-                  {recipient.preferenceAuthorized
+                  {"liveSendAllowed" in recipient
+                    ? recipient.liveSendAllowed
+                      ? `${recipient.destinationMasked} · live beta recipient`
+                      : recipient.suppressionReason
+                    : recipient.preferenceAuthorized
                     ? recipient.destinationMasked
                     : recipient.suppressionReason}
                 </span>
@@ -90,7 +114,12 @@ export default async function ComposeCommunicationPage({
         <div className="rounded-xl border border-slate-200 bg-white p-5">
           <h2 className="mb-4 text-xl font-bold">Message</h2>
           <CommunicationComposer audienceType={audienceType} channel={channel}
-            templates={templates} />
+            templates={templates} emailMode={emailMode}
+            liveSendCount={liveSendCount}
+            suppressedCount={recipients.length - liveSendCount}
+            liveDisabledReason={liveEmailRequested
+              ? emailEnvironment.disabledReason : null}
+            idempotencyKey={randomUUID()} />
         </div>
       </section>
       <section className="space-y-4">
@@ -103,8 +132,11 @@ export default async function ComposeCommunicationPage({
               <span className="font-semibold">{item.channel} · {item.communicationStatus}</span>
             </div>
             <p className="mt-2 text-sm text-slate-600">
-              {item.audienceType} · {item.deliveredCount} delivered ·{" "}
-              {item.suppressedCount} suppressed · synthetic
+              {item.audienceType} · {item.syntheticDelivery
+                ? `${item.deliveredCount} delivered`
+                : `${item.sentCount} provider accepted · ${item.failedCount} failed`} ·{" "}
+              {item.suppressedCount} suppressed · {item.deliveryMode}
+              {item.providerName ? ` · ${item.providerName}` : ""}
             </p>
           </article>
         ))}

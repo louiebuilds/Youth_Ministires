@@ -7,6 +7,7 @@
     "build": "next build",
     "calendar:test": "node scripts/verify-platform-calendar.mjs",
     "communication-management:test": "node scripts/verify-communication-foundation.mjs",
+    "live-email:test": "node scripts/verify-live-email-foundation.mjs",
     "chat:test": "node scripts/verify-native-group-chat.mjs",
     "prayer-care:test": "node scripts/verify-prayer-care-foundation.mjs",
     "resource-library:test": "node scripts/verify-resource-library-foundation.mjs",
@@ -37,6 +38,7 @@
     "qrcode.react": "^4.2.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "resend": "^6.32.1",
     "sonner": "^2.0.7",
     "zod": "^4.4.3"
   },
