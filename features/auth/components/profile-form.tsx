@@ -14,6 +14,7 @@ type ProfileFormProps = Readonly<{
   displayName: string;
   email: string;
   roleLabel: string;
+  statusLabel?: string;
 }>;
 
 const inputClassName =
@@ -23,6 +24,7 @@ export function ProfileForm({
   displayName,
   email,
   roleLabel,
+  statusLabel,
 }: ProfileFormProps) {
   const [state, formAction, pending] = useActionState(
     updateProfileAction,
@@ -99,6 +101,24 @@ export function ProfileForm({
           value={roleLabel}
         />
       </div>
+
+      {statusLabel ? (
+        <div>
+          <label
+            className="block text-sm font-medium text-slate-800"
+            htmlFor="profile-status"
+          >
+            Account status
+          </label>
+          <input
+            className={inputClassName}
+            disabled
+            id="profile-status"
+            type="text"
+            value={statusLabel}
+          />
+        </div>
+      ) : null}
 
       {state.message ? (
         <div

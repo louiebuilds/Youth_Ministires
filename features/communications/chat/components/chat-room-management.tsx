@@ -6,8 +6,10 @@ import {
   addChatRoomMemberAction,
   archiveChatRoomAction,
   createChatRoomAction,
+  leaveChatRoomAction,
   removeChatRoomMemberAction,
   renameChatRoomAction,
+  setChatDiscoveryPreferenceAction,
   type ChatRoomActionState,
 } from "@/features/communications/chat/actions/chat-room-actions";
 import type {
@@ -115,6 +117,141 @@ export function CreateChatRoomForm() {
   );
 }
 
+export function ParentCreateChatRoomForm() {
+  const [state, action, pending] = useActionState(
+    createChatRoomAction,
+    initialState,
+  );
+
+  return (
+    <details className="rounded-xl border border-sky-200 bg-sky-50 p-5">
+      <summary className="min-h-11 cursor-pointer content-center text-lg font-bold text-sky-950">
+        Create private group
+      </summary>
+
+      <form action={action} className="mt-4 space-y-4">
+        <input name="roomType" type="hidden" value="custom" />
+
+        <label className="block text-sm font-semibold">
+          Group name
+          <input
+            className={inputClass}
+            name="name"
+            maxLength={150}
+            required
+          />
+        </label>
+
+        <p className="text-sm text-sky-900">
+          Private groups are invitation-only. After creating the group, you
+          can invite eligible people you already know through ministry chat.
+        </p>
+
+        <Result state={state} />
+
+        <button
+          className="min-h-11 rounded-lg bg-sky-700 px-4 font-semibold text-white disabled:opacity-60"
+          disabled={pending}
+        >
+          {pending ? "Creating…" : "Create private group"}
+        </button>
+      </form>
+    </details>
+  );
+}
+
+export function ParentChatDiscoveryForm({
+  discoverable,
+}: Readonly<{
+  discoverable: boolean;
+}>) {
+  const [state, action, pending] = useActionState(
+    setChatDiscoveryPreferenceAction,
+    initialState,
+  );
+
+  return (
+    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h2 className="text-lg font-bold text-slate-950">
+        Private-group invitations
+      </h2>
+      <p className="mt-2 text-sm leading-6 text-slate-600">
+        Choose whether other Parents can find your display name when inviting
+        members to private groups. This never shares your email, household,
+        children, or family records.
+      </p>
+
+      <form action={action} className="mt-4 space-y-3">
+        <input
+          name="parentDiscoverable"
+          type="hidden"
+          value="false"
+        />
+        <label className="flex min-h-11 items-start gap-3 rounded-lg border border-slate-200 p-3">
+          <input
+            className="mt-1 h-5 w-5"
+            defaultChecked={discoverable}
+            name="parentDiscoverable"
+            type="checkbox"
+            value="true"
+          />
+          <span>
+            <span className="block font-semibold text-slate-950">
+              Allow Parent private-group invitations
+            </span>
+            <span className="mt-1 block text-sm text-slate-600">
+              Other Parent group owners will see only your display name and
+              Parent role.
+            </span>
+          </span>
+        </label>
+
+        <button
+          className="min-h-11 rounded-lg border border-sky-700 px-4 font-semibold text-sky-800 disabled:opacity-60"
+          disabled={pending}
+        >
+          {pending ? "Saving…" : "Save invitation privacy"}
+        </button>
+
+        <Result state={state} />
+      </form>
+    </section>
+  );
+}
+
+export function LeaveChatRoomForm({
+  roomId,
+}: Readonly<{
+  roomId: string;
+}>) {
+  const [state, action, pending] = useActionState(
+    leaveChatRoomAction,
+    initialState,
+  );
+
+  return (
+    <form
+      action={action}
+      className="rounded-xl border border-amber-200 bg-amber-50 p-5"
+    >
+      <input name="roomId" type="hidden" value={roomId} />
+      <h2 className="font-bold text-amber-950">Leave private group</h2>
+      <p className="mt-2 text-sm text-amber-900">
+        You will immediately lose access to this group and its messages.
+      </p>
+      <button
+        className="mt-3 min-h-11 rounded-lg border border-amber-400 bg-white px-4 font-semibold text-amber-950 disabled:opacity-60"
+        disabled={pending}
+      >
+        {pending ? "Leaving…" : "Leave group"}
+      </button>
+      <div className="mt-2">
+        <Result state={state} />
+      </div>
+    </form>
+  );
+}
+
 export function ChatRoomManagement({
   room,
   candidates,
@@ -154,6 +291,11 @@ export function ChatRoomManagement({
     (candidate) => !candidate.isMember,
   );
 
+  const removableMembers = members.filter(
+    (candidate) =>
+      candidate.profileId !== room.ownerProfileId,
+  );
+
   if (room.archivedAt) {
     return (
       <details className="rounded-xl border border-slate-200 bg-white">
@@ -183,7 +325,10 @@ export function ChatRoomManagement({
             and membership changes are unavailable.
           </p>
 
-          <MemberList members={members} />
+          <MemberList
+            members={members}
+            ownerProfileId={room.ownerProfileId}
+          />
         </div>
       </details>
     );
@@ -254,7 +399,10 @@ export function ChatRoomManagement({
             Members
           </h2>
 
-          <MemberList members={members} />
+          <MemberList
+            members={members}
+            ownerProfileId={room.ownerProfileId}
+          />
 
           <form
             action={addAction}
@@ -310,6 +458,14 @@ export function ChatRoomManagement({
             </button>
           </form>
 
+          {room.isParentManaged ? (
+            <p className="mt-2 text-xs leading-5 text-slate-500">
+              Available Parents have opted in to private-group invitations.
+              Staff, Volunteers, and Youth Pastors remain limited by existing
+              ministry chat visibility.
+            </p>
+          ) : null}
+
           <div className="mt-2">
             <Result state={addState} />
           </div>
@@ -332,17 +488,17 @@ export function ChatRoomManagement({
                 required
                 defaultValue=""
                 disabled={
-                  !members.length ||
+                  !removableMembers.length ||
                   removePending
                 }
               >
                 <option value="" disabled>
-                  {members.length
+                  {removableMembers.length
                     ? "Select a member"
-                    : "No current members"}
+                    : "No removable members"}
                 </option>
 
-                {members.map((member) => (
+                {removableMembers.map((member) => (
                   <option
                     key={member.profileId}
                     value={member.profileId}
@@ -367,7 +523,7 @@ export function ChatRoomManagement({
             <button
               className="min-h-11 rounded-lg border border-red-300 px-4 font-semibold text-red-800 disabled:opacity-60"
               disabled={
-                !members.length ||
+                !removableMembers.length ||
                 removePending
               }
             >
@@ -384,12 +540,15 @@ export function ChatRoomManagement({
 
         <section className="border-t border-red-200 pt-5">
           <h2 className="text-base font-bold text-red-950">
-            Archive room
+              {room.isParentManaged
+                ? "Close private group"
+                : "Archive room"}
           </h2>
 
           <p className="mt-2 text-sm text-red-900">
-            Archiving preserves authorized history and
-            makes the room read-only.
+            {room.isParentManaged
+              ? "Closing preserves the conversation as read-only history. The owner cannot leave or remove themselves from an active group."
+              : "Archiving preserves authorized history and makes the room read-only."}
           </p>
 
           <form
@@ -408,7 +567,9 @@ export function ChatRoomManagement({
             >
               {archivePending
                 ? "Archiving…"
-                : "Archive room"}
+                : room.isParentManaged
+                  ? "Close group"
+                  : "Archive room"}
             </button>
           </form>
 
@@ -423,8 +584,10 @@ export function ChatRoomManagement({
 
 function MemberList({
   members,
+  ownerProfileId,
 }: Readonly<{
   members: ChatMemberCandidate[];
+  ownerProfileId: string | null;
 }>) {
   if (!members.length) {
     return (
@@ -443,6 +606,9 @@ function MemberList({
         >
           <span className="font-semibold">
             {member.displayName}
+            {member.profileId === ownerProfileId
+              ? " · Owner"
+              : ""}
           </span>
 
           <span className="text-sm capitalize text-slate-600">

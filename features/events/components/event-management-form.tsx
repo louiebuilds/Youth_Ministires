@@ -12,6 +12,7 @@ import type {
   EventActionState,
   EventWorkspace,
 } from "@/features/events/types/event-management";
+import type { NewEventDefaults } from "@/features/administration/services/ministry-settings-service";
 
 const initialState: EventActionState = { success: false };
 const inputClass =
@@ -33,11 +34,12 @@ function localDateTime(value: string, timezone: string) {
 }
 
 export function EventManagementForm({
+  defaults,
   event,
-}: Readonly<{ event?: EventWorkspace }>) {
+}: Readonly<{ defaults?: NewEventDefaults; event?: EventWorkspace }>) {
   const action = event ? updateEventAction : createEventAction;
   const [state, formAction, pending] = useActionState(action, initialState);
-  const timezone = event?.timezone ?? "America/Chicago";
+  const timezone = event?.timezone ?? defaults?.timezone ?? "America/Chicago";
   return (
     <form action={formAction} className="space-y-5">
       {event ? <input name="eventId" type="hidden" value={event.eventId} /> : null}
@@ -85,7 +87,7 @@ export function EventManagementForm({
         </label>
         <label className="text-sm font-semibold text-slate-700">
           Campus
-          <input className={inputClass} defaultValue={event?.campus ?? ""}
+          <input className={inputClass} defaultValue={event ? event.campus ?? "" : defaults?.campus ?? ""}
             maxLength={150} name="campus" />
         </label>
         <label className="text-sm font-semibold text-slate-700">
@@ -101,7 +103,7 @@ export function EventManagementForm({
       </div>
       <label className="block text-sm font-semibold text-slate-700">
         Address
-        <input className={inputClass} defaultValue={event?.address ?? ""}
+        <input className={inputClass} defaultValue={event ? event.address ?? "" : defaults?.address ?? ""}
           maxLength={300} name="address" />
       </label>
       <label className="block text-sm font-semibold text-slate-700">

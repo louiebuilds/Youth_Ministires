@@ -48,6 +48,9 @@ function mapRoom(
     archivedAt: row.archived_at as string | null,
     canManage: Boolean(row.can_manage),
     eventId: row.event_id as string | null,
+    isOwner: Boolean(row.is_owner),
+    isParentManaged: Boolean(row.is_parent_managed),
+    ownerProfileId: row.owner_profile_id as string | null,
     roomId: String(row.room_id),
     roomName: String(row.room_name),
     roomType: row.room_type as ChatRoomType,
@@ -80,6 +83,28 @@ export async function listChatRooms(): Promise<
   return {
     success: true,
     data: rooms,
+  };
+}
+
+export async function getParentChatDiscoverability(): Promise<
+  ChatQueryResult<boolean>
+> {
+  const { data, error } = await rpc(
+    "get_my_chat_discovery_preference",
+  );
+
+  if (error) {
+    logFailure(
+      "get_my_chat_discovery_preference",
+      error.code,
+    );
+
+    return { success: false };
+  }
+
+  return {
+    success: true,
+    data: Boolean(data),
   };
 }
 
@@ -246,6 +271,28 @@ export async function removeChatRoomMember(
       p_room_id: roomId,
       p_profile_id: profileId,
       p_reason: reason,
+    },
+  );
+}
+
+export async function leaveChatRoom(
+  roomId: string,
+): Promise<boolean> {
+  return mutate(
+    "leave_chat_room",
+    {
+      p_room_id: roomId,
+    },
+  );
+}
+
+export async function setParentChatDiscoverability(
+  parentDiscoverable: boolean,
+): Promise<boolean> {
+  return mutate(
+    "set_my_chat_discovery_preference",
+    {
+      p_parent_discoverable: parentDiscoverable,
     },
   );
 }

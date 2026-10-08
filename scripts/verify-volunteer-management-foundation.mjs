@@ -501,7 +501,6 @@ try {
 
   for (const section of [
     "overview",
-    "compliance",
     "skills",
     "availability",
     "assignments",
@@ -519,7 +518,7 @@ try {
   );
   assert.match(
     workspaceSections,
-    /aria-current=\{active === id \? "page" : undefined\}/,
+    /aria-current=\{\s*active === id\s*\? "page"\s*: undefined\s*\}/,
     "Volunteer section navigation exposes its active state",
   );
   assert.match(
@@ -529,19 +528,21 @@ try {
   );
   assert.match(
     workspacePage,
-    /activeSection === "assignments" && viewerCanManage[\s\S]*listSchedulableEvents\(\)/,
+    /activeSection ===\s*"assignments"\s*&&\s*viewerCanManage[\s\S]*?listSchedulableEvents\(\)/,
     "Schedulable Events load only for a manager viewing Assignments",
   );
   assert.doesNotMatch(
-    workspaceSections.match(/function VolunteerOverview[\s\S]*?function VolunteerComplianceSection/)?.[0] ?? "",
-    /VolunteerProfileForm|CertificationForm|SkillAssignmentForm|AvailabilityForm|ScheduleVolunteerForm/,
-    "Overview remains readable and does not render management forms",
+    workspaceSections.match(/function VolunteerOverview[\s\S]*?function VolunteerSkillsSection/)?.[0] ?? "",
+    /VolunteerProfileForm|SkillAssignmentForm|AvailabilityForm|ScheduleVolunteerForm/,
+    "Overview remains readable and does not render unrelated management forms",
   );
-  assert.match(workspaceSections, /function VolunteerComplianceSection/);
-  assert.match(workspaceSections, /VolunteerProfileForm volunteer=\{volunteer\}/);
-  assert.match(workspaceSections, /CertificationForm profileId=\{volunteer\.profileId\}/);
+  assert.match(
+    workspaceSections,
+    /volunteer\.canManage\s*\?\s*\([\s\S]*?<CertificationForm/,
+    "Certification management in Overview remains manager-gated",
+  );
   assert.match(workspaceSections, /function VolunteerSkillsSection/);
-  assert.match(workspaceSections, /SkillAssignmentForm profileId=\{volunteer\.profileId\}/);
+  assert.match(workspaceSections, /SkillAssignmentForm[\s\S]*?profileId=\{[\s\S]*?volunteer\.profileId/);
   assert.doesNotMatch(
     workspaceSections,
     /Create skill option/,
@@ -553,7 +554,7 @@ try {
     "Global skill management remains in the manager-only Volunteer directory",
   );
   assert.match(workspaceSections, /function VolunteerAvailabilitySection/);
-  assert.match(workspaceSections, /AvailabilityForm profileId=\{volunteer\.profileId\}/);
+  assert.match(workspaceSections, /AvailabilityForm[\s\S]*?profileId=\{[\s\S]*?volunteer\.profileId/);
   assert.match(workspaceSections, /function VolunteerAssignmentsSection/);
   assert.match(workspaceSections, /VolunteerAssignmentList/);
   assert.match(workspaceSections, /ScheduleVolunteerForm/);
@@ -589,13 +590,13 @@ try {
   );
   assert.match(
     serviceSource,
-    /return \{ success: false, category, code \}/,
+    /return \{\s*success: false,\s*category,\s*code,?\s*\}/,
     "RPC failures retain a structured category and safe code",
   );
   const diagnosticBlock = serviceSource.match(
-    /console\.error\("Volunteer profile RPC failed", \{[\s\S]*?\}\);/,
+    /console\.error\(\s*"Volunteer profile RPC failed",\s*\{[\s\S]*?\},?\s*\);/,
   )?.[0] ?? "";
-  assert.match(diagnosticBlock, /operation: "upsert_volunteer_profile"/);
+  assert.match(diagnosticBlock, /operation:\s*"upsert_volunteer_profile"/);
   assert.match(diagnosticBlock, /code/);
   assert.match(diagnosticBlock, /category/);
   assert.doesNotMatch(

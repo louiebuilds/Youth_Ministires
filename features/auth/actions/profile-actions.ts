@@ -39,6 +39,7 @@ export async function updateProfileAction(
   }
 
   revalidatePath("/profile");
+  revalidatePath("/settings");
 
   return {
     success: true,

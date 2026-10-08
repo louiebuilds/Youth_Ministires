@@ -35,6 +35,7 @@ const migrations = [
   "202608230002_admin_event_registration_management.sql",
   "202608230003_custom_form_assignment_active_uniqueness.sql",
   "202608230004_custom_form_submission_respondent_uniqueness.sql",
+  "202610060001_parent_document_operational_status.sql",
 ].map((name) => `supabase/migrations/${name}`);
 
 const ids = {
@@ -684,6 +685,24 @@ try {
   await db.query(`update public.student_document_submissions set digital_status='accepted',lifecycle_status='under_review',content_type='image/jpeg',file_size_bytes=100,checksum_sha256=repeat('a',64),original_file_name='current-medical.jpg' where id=$1`,[currentMedical]);
   await db.query(`insert into public.document_review_events(submission_id,action,actor_profile_id) values($1,'accepted',$2),($1,'medical_verified',$2)`,[currentMedical,ids.admin]);
   await db.query(`insert into public.document_paper_evidence_events(submission_id,action,actor_profile_id) values($1,'confirmed_on_file',$2)`,[currentMedical,ids.admin]);
+  const adminMedicalProjection=(await asUser(ids.admin,()=>db.query(`select medical_verified,review_state from public.list_document_submissions() where submission_id=$1`,[currentMedical]))).rows[0];
+  assert.equal(adminMedicalProjection.medical_verified,true,"Administrator retains detailed current Medical Release authorization state");
+  assert.equal(adminMedicalProjection.review_state,"accepted","Administrator retains detailed document review state");
+  const parentMedicalProjection=(await asUser(ids.parent,()=>db.query(`select medical_verified from public.list_document_submissions() where submission_id=$1`,[currentMedical]))).rows[0];
+  assert.equal(parentMedicalProjection.medical_verified,false,"Parent projection does not expose protected medical authorization detail");
+  const parentOperational=(await asUser(ids.parent,()=>db.query(`select * from public.list_document_submission_operational_statuses() where submission_id=$1`,[currentMedical]))).rows[0];
+  assert.deepEqual(parentOperational,{submission_id:currentMedical,operational_status:"complete"},"Parent receives sanitized but accurate COMPLETE state for an authorized Medical Release");
+  assert.equal((await asUser(ids.parent,()=>db.query(`select count(*) count from public.list_document_submission_operational_statuses() where submission_id=$1`,[unrelatedId]))).rows[0].count,0,"Parent operational statuses remain linked-family scoped");
+  await denied(()=>asUser(ids.volunteer,()=>db.query(`select * from public.list_document_submission_operational_statuses()`)),"Volunteers cannot access document operational statuses");
+  await db.query(`insert into public.document_review_events(submission_id,action,actor_profile_id,reason) values($1,'medical_verification_revoked',$2,'Pending ministry reauthorization')`,[currentMedical,ids.admin]);
+  assert.equal((await asUser(ids.parent,()=>db.query(`select operational_status from public.list_document_submission_operational_statuses() where submission_id=$1`,[currentMedical]))).rows[0].operational_status,"ministry_processing","Pending ministry authorization is not reported as Parent action required");
+  await db.query(`insert into public.document_review_events(submission_id,action,actor_profile_id) values($1,'medical_verified',$2)`,[currentMedical,ids.admin]);
+  const submissionWorkspaceSource=await readFile("features/forms/components/document-submission-workspace.tsx","utf8");
+  assert.match(submissionWorkspaceSource,/submission\.operationalStatus\s*===\s*"complete"/,"Parent COMPLETE rendering uses the sanitized operational status");
+  assert.match(submissionWorkspaceSource,/MINISTRY REVIEW PENDING/,"Parent presentation distinguishes ministry processing from Parent action");
+  assert.match(submissionWorkspaceSource,/manager &&[\s\S]*?submission\.reviewState/,"Review detail remains manager-only");
+  assert.match(submissionWorkspaceSource,/manager &&[\s\S]*?submission\.documentKind[\s\S]*?Authorization:/,"Medical authorization detail remains manager-only");
+  assert.match(submissionWorkspaceSource,/manager\s*\?\s*"Document review"\s*:\s*"Family documents"/,"Completed-document wording is role-aware");
   const noRequirement=await asUser(ids.admin,()=>db.query(`select public.get_event_registration_document_readiness($1) state`,[ids.registration]));
   assert.equal(noRequirement.rows[0].state.ready,true,"No active Event requirements is READY");
   const normalCheckIn=await asUser(ids.admin,()=>db.query(`select public.check_in_student($1,$2) id`,[ids.event,ids.student]));
@@ -977,12 +996,13 @@ try {
   const formsNavigationSource = await readFile("config/navigation-config.ts","utf8");
   assert.match(formsNavigationSource,/capability: "custom_forms\.submit",\s*href: "\/permission-forms"/,"Forms navigation follows the respondent capability instead of a manager capability or role bypass");
   const formsRouteSource = await readFile("app/(platform)/permission-forms/page.tsx","utf8");
-  assert.match(formsRouteSource,/customSubmit=hasCapability\(account\.role,"custom_forms\.submit"\)/,"Forms route recognizes respondent capability");
-  assert.match(formsRouteSource,/formsAccess=documentsAccess\|\|customManager\|\|customSubmit/);
+  assert.match(formsRouteSource,/customSubmit\s*=\s*hasCapability\(\s*account\.role,\s*"custom_forms\.submit"/,"Forms route recognizes respondent capability");
+  assert.match(formsRouteSource,/formsAccess\s*=\s*documentsAccess\s*\|\|\s*customManager\s*\|\|\s*customSubmit/);
   assert.match(formsRouteSource,/manager=\{customManager\}/,"Custom Form management controls remain capability-gated");
-  assert.match(formsRouteSource,/\{documentsManager\?<><section/,"Document template management remains manager-only");
-  assert.match(formsRouteSource,/\{medicalManager\?<MedicalFormsWorkspace/,"Medical management remains manager-only");
+  assert.match(formsRouteSource,/\{documentsManager\s*\?\s*\(/,"Document template management remains manager-only");
+  assert.match(formsRouteSource,/MedicalFormsWorkspace[\s\S]*?manager=\{\s*documentsManager\s*\}/,"Medical management remains manager-only");
   assert.doesNotMatch(formsRouteSource,/VisitorCardsWorkspace|visitor_cards\.manage/,"Parent Forms access does not reintroduce Visitor management");
+  assert.match(formsRouteSource,/Complete and view forms and documents for your linked family\./,"Parent heading describes linked-family completion and viewing instead of ministry management");
   const managerTemplateRouteSource = await readFile("app/(platform)/permission-forms/[templateId]/page.tsx","utf8");
   assert.match(managerTemplateRouteSource,/requireCapability\("forms\.documents\.manage"\)/,"Direct template-management access remains denied without its manager capability");
   const respondentRouteSource = await readFile("app/(platform)/permission-forms/my/[assignmentId]/page.tsx","utf8");
@@ -1001,8 +1021,8 @@ try {
   const assignmentUiSource = await readFile("features/forms/components/custom-forms-workspace.tsx","utf8");
   assert.doesNotMatch(assignmentUiSource,/Target ID/,"Custom Form assignments do not expose raw UUID entry");
   assert.match(assignmentUiSource,/targets\.events/);assert.match(assignmentUiSource,/targets\.students/);assert.match(assignmentUiSource,/targets\.households/);assert.match(assignmentUiSource,/targets\.volunteers/);
-  assert.match(assignmentUiSource,/General Ministry assignments apply without a specific target\./,"General Ministry deliberately remains targetless");
-  assert.match(assignmentUiSource,/name="targetId" required/,"Targeted assignments require a selected option");
+  assert.match(assignmentUiSource,/General ministry assignments apply\s*without a specific target\./i,"General Ministry deliberately remains targetless");
+  assert.match(assignmentUiSource,/name="targetId"\s*required/,"Targeted assignments require a selected option");
   const assignmentSchemaSource = await readFile("features/forms/schemas/custom-form-schema.ts","utf8");
   assert.match(assignmentSchemaSource,/Select a target before creating the assignment\./,"Missing targeted assignments receive an operator-friendly validation message");
   assert.match(assignmentSchemaSource,/General Ministry assignments do not use a target\./,"General Ministry cannot retain a stale target");
@@ -1109,12 +1129,18 @@ try {
   assert.equal(reregistered.rows[0].id,waitlistedRegistration.registration_id,"Re-registration reuses retained lifecycle history");assert.equal(reregistered.rows[0].status,"waitlisted");assert.equal(reregistered.rows[0].cancelled_at,null);assert.equal(reregistered.rows[0].cancelled_by_profile_id,null);
   const registrationUiSource=await readFile("features/events/components/family-event-registration.tsx","utf8");
   assert.equal((registrationUiSource.match(/useActionState\(/g)??[]).length,1,"Registration and cancellation share one current action-state channel");
-  assert.match(registrationUiSource,/manageEventRegistrationAction/);assert.match(registrationUiSource,/name="intent" type="hidden" value="register"/);assert.match(registrationUiSource,/name="intent" type="hidden" value="cancel"/);
+  assert.match(registrationUiSource,/manageEventRegistrationAction/);assert.match(registrationUiSource,/name="intent"\s*type="hidden"\s*value="register"/);assert.match(registrationUiSource,/name="intent"\s*type="hidden"\s*value="cancel"/);
   assert.doesNotMatch(registrationUiSource,/cancelState|registerState/,"An old cancellation state cannot take precedence over a later registration result");
   const registrationActionSource=await readFile("features/events/actions/event-management-actions.ts","utf8");
   assert.match(registrationActionSource,/Student registered successfully\./,"Initial and repeated registration retain current success messaging");
   assert.match(registrationActionSource,/Registration cancelled\./,"Cancellation retains its success message");
-  assert.match(registrationActionSource,/Student added to the waitlist\./,"Waitlist-specific messaging remains intact");  await denied(()=>asUser(ids.staff,()=>db.query(`select public.register_my_student_for_event($1,$2)`,[managedRegistrationEvent,ids.otherStudent])),"Ordinary Staff do not gain administrator registration authority");
+  assert.match(registrationActionSource,/Student added to the waitlist\./,"Waitlist-specific messaging remains intact");
+  assert.match(registrationActionSource,/registrationStatus: "cancelled"/,"Cancellation results identify the lifecycle state that produced their message");
+  const rosterUiSource=await readFile("features/events/components/event-registration-roster.tsx","utf8");
+  assert.match(rosterUiSource,/cancelState\.registrationStatus\s*===\s*registration\.registrationStatus/,"Re-registration supersedes a stale cancellation result on the retained roster row");
+  assert.match(rosterUiSource,/registration\.registrationStatus\s*===\s*"cancelled"[\s\S]*?Not applicable/,"Cancelled registrations do not present operational documentation readiness");
+  assert.match(rosterUiSource,/registeredCount}[\s\S]*?registered/,"The registered badge uses the active registered count instead of all retained rows");
+  await denied(()=>asUser(ids.staff,()=>db.query(`select public.register_my_student_for_event($1,$2)`,[managedRegistrationEvent,ids.otherStudent])),"Ordinary Staff do not gain administrator registration authority");
   await denied(()=>asUser(ids.volunteer,()=>db.query(`select public.register_my_student_for_event($1,$2)`,[managedRegistrationEvent,ids.otherStudent])),"Volunteers do not gain administrator registration authority");
   const deleteRpcs=await db.query(`select proname from pg_proc join pg_namespace on pg_namespace.oid=pg_proc.pronamespace where nspname='public' and proname like '%visitor_card%' and proname like '%delete%'`);
   assert.equal(deleteRpcs.rows.length,0,"No Visitor Card delete RPC exists");
@@ -1136,6 +1162,15 @@ try {
   await asUser(ids.pastor,()=>db.query(`select public.set_event_permission_slip_requirement($1,true,$2)`,[ids.event,ids.version]));
   const pinnedPermission=(await asUser(ids.parent,()=>db.query(`select public.get_event_permission_slip_requirement($1) state`,[ids.event]))).rows[0].state;
   assert.equal(pinnedPermission.templateVersionId,ids.version,"Event permission slips pin the exact published version");
+  assert.equal(pinnedPermission.required,true,"The authoritative Event projection reports the assigned waiver as required");
+  const permissionRequirementUiSource=await readFile("features/forms/components/event-permission-slip-form.tsx","utf8");
+  assert.match(permissionRequirementUiSource,/key=\{`\$\{requirement\.required\}:\$\{requirement\.templateVersionId \?\? "none"\}`\}/,"Server revalidation remounts the controls when the authoritative requirement changes");
+  assert.match(permissionRequirementUiSource,/useState\([\s\S]*?requirement\.required \? "yes" : "no"[\s\S]*?useState\([\s\S]*?requirement\.templateVersionId \?\? ""/i,"Remounted controls initialize from the authoritative required state and pinned version");
+  assert.match(permissionRequirementUiSource,/name="required"[\s\S]*?value=\{requiredValue\}/,"The required-waiver control is controlled after assignment and removal");
+  assert.match(permissionRequirementUiSource,/name="templateVersionId"[\s\S]*?value=\{templateVersionId\}/,"The version control displays the authoritative pinned version");
+  assert.doesNotMatch(permissionRequirementUiSource,/defaultValue=/,"Requirement controls do not retain stale one-time defaults across revalidation");
+  const permissionRequirementActionSource=await readFile("features/forms/actions/medical-permission-actions.ts","utf8");
+  assert.match(permissionRequirementActionSource,/setEventPermissionSlipRequirement\([\s\S]*?revalidatePath\(`\/events\/\$\{parsed\.data\.eventId\}`\)/,"Requirement assignment revalidates the authoritative Event route");
   await asUser(ids.parent,()=>db.query(`select public.authorize_document_template_master_download($1)`,[ids.version]));
   await denied(()=>asUser(ids.parent,()=>db.query(`select public.get_event_permission_slip_requirement($1)`,[ids.otherEvent])),"An unrelated Parent cannot inspect another Event requirement");
   const permissionSubmission='f6000000-0000-4000-8000-000000000001';

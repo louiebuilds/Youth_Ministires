@@ -17,9 +17,14 @@ const field =
   "mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2";
 
 export function CommunicationTemplateForm({
+  defaultChannel = "in_app",
   template,
-}: Readonly<{ template?: CommunicationTemplate }>) {
-  const [channel, setChannel] = useState(template?.channel ?? "in_app");
+}: Readonly<{
+  defaultChannel?: CommunicationTemplate["channel"];
+  template?: CommunicationTemplate;
+}>) {
+  const channelValue = template?.channel ?? defaultChannel;
+  const [channel, setChannel] = useState(channelValue);
   const [state, action, pending] = useActionState(
     saveCommunicationTemplateAction,
     initialState,
@@ -36,7 +41,7 @@ export function CommunicationTemplateForm({
             maxLength={150} name="name" required />
         </label>
         <label className="text-sm font-semibold" htmlFor="template-channel">Channel
-          <select className={field} defaultValue={template?.channel ?? "in_app"}
+          <select className={field} defaultValue={channelValue}
             id="template-channel" name="channel"
             onChange={(event) => setChannel(
               event.target.value as CommunicationTemplate["channel"],

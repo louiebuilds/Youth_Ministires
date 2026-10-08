@@ -2,9 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { requireCapability } from "@/features/auth/services/authorization-service";
-import { CreateChatRoomForm } from "@/features/communications/chat/components/chat-room-management";
+import {
+  CreateChatRoomForm,
+  ParentChatDiscoveryForm,
+  ParentCreateChatRoomForm,
+} from "@/features/communications/chat/components/chat-room-management";
 import { ChatUnreadBadge } from "@/features/communications/chat/components/chat-unread-badge";
-import { listChatRooms } from "@/features/communications/chat/services/chat-room-service";
+import {
+  getParentChatDiscoverability,
+  listChatRooms,
+} from "@/features/communications/chat/services/chat-room-service";
 
 export const metadata: Metadata = {
   title: "Group Chat",
@@ -14,11 +21,20 @@ const managerRoles = new Set(["platform_administrator", "youth_pastor"]);
 
 const roomTypeLabel = (value: string) => value.replaceAll("_", " ");
 
-export default async function ChatRoomsPage() {
+export default async function ChatRoomsPage({
+  searchParams,
+}: Readonly<{
+  searchParams: Promise<{ left?: string }>;
+}>) {
   const account = await requireCapability("communications.view");
+  const query = await searchParams;
   const result = await listChatRooms();
   const rooms = result.success ? result.data : [];
   const canManage = managerRoles.has(account.role);
+  const discoveryResult =
+    account.role === "parent"
+      ? await getParentChatDiscoverability()
+      : null;
 
   return (
     <div className="space-y-7">
@@ -54,6 +70,18 @@ export default async function ChatRoomsPage() {
       </header>
 
       {canManage ? <CreateChatRoomForm /> : null}
+
+      {account.role === "parent" ? <ParentCreateChatRoomForm /> : null}
+
+      {account.role === "parent" && discoveryResult?.success ? (
+        <ParentChatDiscoveryForm discoverable={discoveryResult.data} />
+      ) : null}
+
+      {query.left === "1" ? (
+        <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900" role="status">
+          You left the private group.
+        </p>
+      ) : null}
 
       {!result.success ? (
         <p
@@ -98,7 +126,9 @@ export default async function ChatRoomsPage() {
               </div>
 
               <p className="mt-3 text-sm capitalize text-slate-600">
-                {roomTypeLabel(room.roomType)} room
+                {room.isParentManaged
+                  ? "Private group"
+                  : `${roomTypeLabel(room.roomType)} official room`}
               </p>
 
               <p className="mt-4 text-sm font-semibold text-sky-800">

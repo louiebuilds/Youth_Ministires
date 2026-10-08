@@ -915,13 +915,13 @@ try {
   assert.match(eventWorkspacePage, /searchParams: Promise/);
   assert.match(eventWorkspacePage, /aria-current=/);
   assert.match(eventWorkspacePage, /overflow-x-auto/);
-  assert.match(eventWorkspacePage, /requested\.success && visible\.has/);
-  assert.match(eventWorkspacePage, /managementAvailable && event\.status === "draft"/);
+  assert.match(eventWorkspacePage, /requested\.success\s*&&\s*visible\.has/);
+  assert.match(eventWorkspacePage, /managementAvailable\s*&&\s*event\.status === "draft"/);
   assert.match(eventWorkspacePage, /active === "registration"/);
-  assert.match(eventWorkspacePage, /active === "volunteers" && managementAvailable/);
-  assert.match(eventWorkspacePage, /active === "planning" && managementAvailable/);
-  assert.match(eventWorkspacePage, /active === "settings" && managementAvailable/);
-  assert.match(eventWorkspacePage, /permissionManager \|\| account\.role === "parent"/);
+  assert.match(eventWorkspacePage, /active === "volunteers"\s*&&\s*managementAvailable/);
+  assert.match(eventWorkspacePage, /active === "planning"\s*&&\s*managementAvailable/);
+  assert.match(eventWorkspacePage, /active === "settings"\s*&&\s*managementAvailable/);
+  assert.match(eventWorkspacePage, /permissionManager\s*\|\|\s*account\.role === "parent"/);
   assert.match(eventWorkspacePage, /Destructive action/);
   assert.match(eventPublishForm, /updateEventAction/);
   assert.match(eventPublishForm, /name="status" type="hidden" value="published"/);
@@ -940,9 +940,9 @@ try {
     volunteerCapabilities,
     /events\.manage|forms\.documents\.manage|custom_forms\.manage|settings\.manage/,
   );
-  assert.match(eventWorkspacePage, /const isVolunteer = account\.role === "volunteer"/);
-  assert.match(eventWorkspacePage, /if \(!isVolunteer\) visible\.add\("registration"\)/);
-  assert.match(eventWorkspacePage, /managementAvailable = !isVolunteer && event\.canManage/);
+  assert.match(eventWorkspacePage, /const isVolunteer\s*=\s*account\.role === "volunteer"/);
+  assert.match(eventWorkspacePage, /if \(!isVolunteer\)\s*\{\s*visible\.add\("registration"\)/);
+  assert.match(eventWorkspacePage, /managementAvailable\s*=\s*!isVolunteer\s*&&\s*event\.canManage/);
   for (const source of [loginAction, signOutAction]) {
     assert.match(source, /revalidatePath\("\/", "layout"\)/);
     assert.match(source, /return \{ success: true \}/);

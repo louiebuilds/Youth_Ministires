@@ -5,8 +5,10 @@ import { redirect } from "next/navigation";
 
 import {
   addChatMemberSchema,
+  chatDiscoveryPreferenceSchema,
   chatRoomIdSchema,
   createChatRoomSchema,
+  leaveChatRoomSchema,
   removeChatMemberSchema,
   renameChatRoomSchema,
 } from "@/features/communications/chat/schemas/chat-room-schema";
@@ -14,8 +16,10 @@ import {
   addChatRoomMember,
   archiveChatRoom,
   createChatRoom,
+  leaveChatRoom,
   removeChatRoomMember,
   renameChatRoom,
+  setParentChatDiscoverability,
 } from "@/features/communications/chat/services/chat-room-service";
 
 export type ChatRoomActionState = {
@@ -163,5 +167,57 @@ export async function removeChatRoomMemberAction(
   return {
     success: true,
     message: "Member removed.",
+  };
+}
+
+export async function leaveChatRoomAction(
+  _state: ChatRoomActionState,
+  formData: FormData,
+): Promise<ChatRoomActionState> {
+  const parsed = leaveChatRoomSchema.safeParse(
+    Object.fromEntries(formData),
+  );
+
+  if (!parsed.success) {
+    return failure("The private group could not be left.");
+  }
+
+  const success = await leaveChatRoom(parsed.data.roomId);
+
+  if (!success) {
+    return failure("The private group could not be left.");
+  }
+
+  revalidatePath("/communications/chat");
+  redirect("/communications/chat?left=1");
+}
+
+export async function setChatDiscoveryPreferenceAction(
+  _state: ChatRoomActionState,
+  formData: FormData,
+): Promise<ChatRoomActionState> {
+  const parsed = chatDiscoveryPreferenceSchema.safeParse(
+    Object.fromEntries(formData),
+  );
+
+  if (!parsed.success) {
+    return failure("The chat privacy setting could not be updated.");
+  }
+
+  const success = await setParentChatDiscoverability(
+    parsed.data.parentDiscoverable,
+  );
+
+  if (!success) {
+    return failure("The chat privacy setting could not be updated.");
+  }
+
+  revalidatePath("/communications/chat");
+
+  return {
+    success: true,
+    message: parsed.data.parentDiscoverable
+      ? "Other Parents can now find your display name when inviting members."
+      : "Your display name is no longer available for new Parent group invitations.",
   };
 }

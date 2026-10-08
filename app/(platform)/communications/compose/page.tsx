@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { getDefaultCommunicationChannel } from "@/features/administration/services/ministry-settings-service";
 import { requireCapability } from "@/features/auth/services/authorization-service";
 import { CommunicationComposer } from "@/features/communications/components/communication-composer";
 import {
@@ -21,8 +22,9 @@ export default async function ComposeCommunicationPage({
 }>) {
   await requireCapability("communications.manage");
   const params = await searchParams;
+  const defaultChannel = await getDefaultCommunicationChannel();
   const channel = channels.includes(params.channel as typeof channels[number])
-    ? params.channel as typeof channels[number] : "in_app";
+    ? params.channel as typeof channels[number] : defaultChannel;
   const audienceType = audiences.includes(
     params.audience as typeof audiences[number],
   ) ? params.audience as typeof audiences[number] : "parents";

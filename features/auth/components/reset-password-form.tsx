@@ -14,7 +14,13 @@ const initialState: UpdatePasswordState = {
 const inputClassName =
   "mt-2 block min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none transition focus:border-sky-600 focus:ring-3 focus:ring-sky-100 aria-invalid:border-red-600 aria-invalid:focus:border-red-600 aria-invalid:focus:ring-red-100";
 
-export function ResetPasswordForm() {
+type ResetPasswordFormProps = {
+  mode?: "recovery" | "invitation";
+};
+
+export function ResetPasswordForm({
+  mode = "recovery",
+}: ResetPasswordFormProps) {
   const [state, formAction, pending] = useActionState(
     updatePasswordAction,
     initialState,
@@ -30,6 +36,7 @@ export function ResetPasswordForm() {
         >
           {state.message}
         </div>
+
         <Link
           className="mt-6 flex min-h-11 w-full items-center justify-center rounded-lg bg-sky-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700"
           href="/login"
@@ -45,6 +52,8 @@ export function ResetPasswordForm() {
 
   return (
     <form action={formAction} className="space-y-5" noValidate>
+      <input name="flow" type="hidden" value={mode} />
+
       <div>
         <label
           className="block text-sm font-medium text-slate-800"
@@ -52,6 +61,7 @@ export function ResetPasswordForm() {
         >
           New password
         </label>
+
         <input
           aria-describedby={
             passwordError
@@ -66,12 +76,14 @@ export function ResetPasswordForm() {
           required
           type="password"
         />
+
         <p
           className="mt-2 text-xs leading-5 text-slate-500"
           id="new-password-help"
         >
           Use at least 8 characters.
         </p>
+
         {passwordError ? (
           <p className="mt-2 text-sm text-red-700" id="new-password-error">
             {passwordError}
@@ -86,6 +98,7 @@ export function ResetPasswordForm() {
         >
           Confirm new password
         </label>
+
         <input
           aria-describedby={
             confirmPasswordError
@@ -100,6 +113,7 @@ export function ResetPasswordForm() {
           required
           type="password"
         />
+
         {confirmPasswordError ? (
           <p
             className="mt-2 text-sm text-red-700"
@@ -125,18 +139,26 @@ export function ResetPasswordForm() {
         disabled={pending}
         type="submit"
       >
-        {pending ? "Updating password…" : "Update password"}
+        {pending
+          ? mode === "invitation"
+            ? "Completing account…"
+            : "Updating password…"
+          : mode === "invitation"
+            ? "Complete account"
+            : "Update password"}
       </button>
 
-      <p className="text-center text-sm text-slate-600">
-        Need another recovery email?{" "}
-        <Link
-          className="font-semibold text-sky-700 underline-offset-4 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700"
-          href="/forgot-password"
-        >
-          Request a new link
-        </Link>
-      </p>
+      {mode === "recovery" ? (
+        <p className="text-center text-sm text-slate-600">
+          Need another recovery email?{" "}
+          <Link
+            className="font-semibold text-sky-700 underline-offset-4 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700"
+            href="/forgot-password"
+          >
+            Request a new link
+          </Link>
+        </p>
+      ) : null}
     </form>
   );
 }

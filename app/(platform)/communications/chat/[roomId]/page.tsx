@@ -5,7 +5,10 @@ import { z } from "zod";
 
 import { requireCapability } from "@/features/auth/services/authorization-service";
 import { ChatMessageWorkspace } from "@/features/communications/chat/components/chat-message-workspace";
-import { ChatRoomManagement } from "@/features/communications/chat/components/chat-room-management";
+import {
+  ChatRoomManagement,
+  LeaveChatRoomForm,
+} from "@/features/communications/chat/components/chat-room-management";
 import { ChatUnreadBadge } from "@/features/communications/chat/components/chat-unread-badge";
 import { listChatMessages } from "@/features/communications/chat/services/chat-message-service";
 import {
@@ -73,7 +76,11 @@ export default async function ChatRoomPage({
         <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-sm font-semibold capitalize text-sky-700">
-              {roomTypeLabel(room.roomType)} room
+              {room.isParentManaged
+                ? room.isOwner
+                  ? "Private group · You are the owner"
+                  : "Private group"
+                : `${roomTypeLabel(room.roomType)} official room`}
             </p>
 
             <h1 className="mt-1 text-3xl font-bold text-slate-950">
@@ -206,6 +213,12 @@ export default async function ChatRoomPage({
                 </p>
               ) : null}
             </section>
+          ) : null}
+
+          {room.isParentManaged &&
+          !room.isOwner &&
+          !room.archivedAt ? (
+            <LeaveChatRoomForm roomId={room.roomId} />
           ) : null}
         </main>
       </div>

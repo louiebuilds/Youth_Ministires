@@ -7,6 +7,9 @@ export type PlatformCapability =
   | "check_in.manage"
   | "communications.manage"
   | "communications.view"
+  | "community.moderate"
+  | "community.participate"
+  | "community.view"
   | "curriculum.view"
   | "dashboard.view"
   | "events.view"
@@ -35,10 +38,13 @@ const roleCapabilities = {
     "families.view",
     "events.view",
     "communications.view",
+    "community.view",
+    "community.participate",
     "custom_forms.submit",
     "prayer_care.view",
     "resource_library.view",
   ],
+
   platform_administrator: [
     "accounts.manage",
     "administration.manage",
@@ -63,10 +69,14 @@ const roleCapabilities = {
     "events.view",
     "communications.manage",
     "communications.view",
+    "community.view",
+    "community.participate",
+    "community.moderate",
     "curriculum.view",
     "reports.view",
     "settings.manage",
   ],
+
   staff_member: [
     "dashboard.view",
     "students.view",
@@ -86,22 +96,21 @@ const roleCapabilities = {
     "events.view",
     "communications.manage",
     "communications.view",
-    "prayer_care.view",
     "curriculum.view",
     "reports.view",
   ],
+
   volunteer: [
     "dashboard.view",
     "curriculum.view",
     "volunteers.view",
-    "attendance.manage",
-    "check_in.manage",
     "events.view",
     "communications.view",
     "resource_library.view",
     "scheduling.view",
     "custom_forms.submit",
   ],
+
   youth_pastor: [
     "administration.manage",
     "dashboard.view",
@@ -126,10 +135,16 @@ const roleCapabilities = {
     "events.view",
     "communications.manage",
     "communications.view",
+    "community.view",
+    "community.participate",
+    "community.moderate",
     "reports.view",
     "settings.manage",
   ],
-} as const satisfies Record<AccountRole, readonly PlatformCapability[]>;
+} as const satisfies Record<
+  AccountRole,
+  readonly PlatformCapability[]
+>;
 
 export const roleLabels = {
   parent: "Parent or Guardian",
@@ -143,7 +158,14 @@ export function hasCapability(
   role: AccountRole,
   capability: PlatformCapability,
 ) {
-  const capabilities: readonly PlatformCapability[] = roleCapabilities[role];
+  const capabilities: readonly PlatformCapability[] =
+    roleCapabilities[role];
 
   return capabilities.includes(capability);
+}
+
+export function getRoleCapabilities(role: AccountRole) {
+  return roleCapabilities[
+    role
+  ] as readonly PlatformCapability[];
 }

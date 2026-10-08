@@ -28,7 +28,7 @@ type PasswordResetRequestResult =
     }
   | {
       success: false;
-      reason: "unavailable";
+      reason: "rate-limited" | "unavailable";
     };
 
 type UpdatePasswordResult =
@@ -113,10 +113,13 @@ export async function requestPasswordReset(
       redirectTo: `${environment.appUrl}/auth/callback?next=/reset-password`,
     });
 
-    if (error?.status === 429 || (error?.status && error.status >= 500)) {
+    if (error) {
       return {
         success: false,
-        reason: "unavailable",
+        reason:
+          error.status === 429 || error.code === "over_email_send_rate_limit"
+            ? "rate-limited"
+            : "unavailable",
       };
     }
 

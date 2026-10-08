@@ -404,6 +404,10 @@ release.
 - Permission slips
 - Custom forms
 
+First-release scope explicitly defers public anonymous Visitor intake and
+automated missing-document Communication reminders. Version 1 retains
+staff-assisted Visitor entry and existing authorized Communications workflows.
+
 ## Milestone 16 — Reporting & Analytics
 
 **Status:** Complete — Product Owner accepted August 11, 2026

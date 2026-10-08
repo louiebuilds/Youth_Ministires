@@ -10,6 +10,7 @@ import {
   HeartHandshake,
   House,
   LayoutDashboard,
+  MessagesSquare,
   MessageSquare,
   ScanLine,
   Settings,
@@ -32,6 +33,7 @@ const navigationIcons: Record<
   calendar: CalendarDays,
   "check-in": ScanLine,
   communications: MessageSquare,
+  community: MessagesSquare,
   curriculum: BookOpen,
   dashboard: LayoutDashboard,
   events: CalendarDays,
@@ -69,10 +71,12 @@ export function NavigationItem({
   item,
 }: NavigationItemProps) {
   const pathname = usePathname();
+
   const isActive = isNavigationItemActive(
     pathname,
     item,
   );
+
   const Icon = navigationIcons[item.icon];
 
   return (
@@ -94,6 +98,7 @@ export function NavigationItem({
           aria-hidden="true"
           className="size-5 shrink-0"
         />
+
         <span>{item.label}</span>
       </Link>
     </li>

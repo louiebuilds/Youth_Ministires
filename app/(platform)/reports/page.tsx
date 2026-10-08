@@ -1,9 +1,174 @@
 import type { Metadata } from "next";
-import { requireCapability } from "@/features/auth/services/authorization-service";
-import { listAttendanceSessionReports,listCheckInEventReports } from "@/features/attendance/services/attendance-report-service";
-import { ReportingWorkspace } from "@/features/reporting/components/reporting-workspace";
-import { resolveReportingRange } from "@/features/reporting/schemas/reporting-schema";
-import { getReportingOverview,listAttendanceTrends,listCoverage,listEventParticipationTrends,listEventReports,listSavedReports,listVolunteerActivity } from "@/features/reporting/services/reporting-service";
 
-export const metadata:Metadata={title:"Reporting & Analytics"};
-export default async function ReportsPage({searchParams}:{searchParams:Promise<{preset?:string;from?:string;to?:string}>}){await requireCapability("reports.view");const params=await searchParams;const resolved=resolveReportingRange(params);if(!resolved.success)return <div className="space-y-4"><h1 className="text-3xl font-bold text-slate-950">Reporting & Analytics</h1><div className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-900"><h2 className="font-semibold">The reporting range is invalid.</h2><p className="mt-1 text-sm">{resolved.message} No report data was loaded.</p><a className="mt-4 inline-block font-semibold text-sky-800" href="/reports">Return to Reports</a></div></div>;const range=resolved.range;const [overview,weeklyTrends,monthlyTrends,events,eventTrends,volunteerActivity,coverage,savedReports,sessions,checkIns]=await Promise.all([getReportingOverview(range.fromDate,range.toDate),listAttendanceTrends(range.fromDate,range.toDate,"week"),listAttendanceTrends(range.fromDate,range.toDate,"month"),listEventReports(range.fromDate,range.toDate),listEventParticipationTrends(range.fromDate,range.toDate),listVolunteerActivity(range.fromDate,range.toDate),listCoverage(range.fromDate,range.toDate),listSavedReports(),listAttendanceSessionReports(range.fromDate,range.toDate),listCheckInEventReports(range.fromDate,range.toDate)]);return <ReportingWorkspace attendanceSessions={sessions} checkIns={checkIns} data={{overview,weeklyTrends,monthlyTrends,events,eventTrends,volunteerActivity,coverage,savedReports}} range={range}/>;}
+import { requireCapability } from "@/features/auth/services/authorization-service";
+import {
+  listAttendanceSessionReports,
+  listCheckInEventReports,
+} from "@/features/attendance/services/attendance-report-service";
+
+import {
+  ReportingWorkspace,
+  reportSections,
+} from "@/features/reporting/components/reporting-workspace";
+
+import { resolveReportingRange } from "@/features/reporting/schemas/reporting-schema";
+
+import {
+  getReportingOverview,
+  listAttendanceTrends,
+  listCoverage,
+  listEventParticipationTrends,
+  listEventReports,
+  listSavedReports,
+  listVolunteerActivity,
+} from "@/features/reporting/services/reporting-service";
+
+import type { ReportSection } from "@/features/reporting/components/reporting-workspace";
+
+export const metadata: Metadata = {
+  title: "Reporting & Analytics",
+};
+
+function resolveSection(
+  value: string | undefined,
+): ReportSection {
+  return reportSections.includes(
+    value as ReportSection,
+  )
+    ? (value as ReportSection)
+    : "overview";
+}
+
+export default async function ReportsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    view?: string;
+    preset?: string;
+    from?: string;
+    to?: string;
+  }>;
+}) {
+  await requireCapability(
+    "reports.view",
+  );
+
+  const params = await searchParams;
+
+  const activeSection =
+    resolveSection(params.view);
+
+  const resolved =
+    resolveReportingRange(params);
+
+  if (!resolved.success) {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-3xl font-bold text-slate-950">
+          Reporting &amp; Analytics
+        </h1>
+
+        <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-900">
+          <h2 className="font-semibold">
+            The reporting range is invalid.
+          </h2>
+
+          <p className="mt-1 text-sm">
+            {resolved.message} No report data
+            was loaded.
+          </p>
+
+          <a
+            className="mt-4 inline-block font-semibold text-sky-800"
+            href="/reports"
+          >
+            Return to Reports
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  const range = resolved.range;
+
+  const [
+    overview,
+    weeklyTrends,
+    monthlyTrends,
+    events,
+    eventTrends,
+    volunteerActivity,
+    coverage,
+    savedReports,
+    sessions,
+    checkIns,
+  ] = await Promise.all([
+    getReportingOverview(
+      range.fromDate,
+      range.toDate,
+    ),
+
+    listAttendanceTrends(
+      range.fromDate,
+      range.toDate,
+      "week",
+    ),
+
+    listAttendanceTrends(
+      range.fromDate,
+      range.toDate,
+      "month",
+    ),
+
+    listEventReports(
+      range.fromDate,
+      range.toDate,
+    ),
+
+    listEventParticipationTrends(
+      range.fromDate,
+      range.toDate,
+    ),
+
+    listVolunteerActivity(
+      range.fromDate,
+      range.toDate,
+    ),
+
+    listCoverage(
+      range.fromDate,
+      range.toDate,
+    ),
+
+    listSavedReports(),
+
+    listAttendanceSessionReports(
+      range.fromDate,
+      range.toDate,
+    ),
+
+    listCheckInEventReports(
+      range.fromDate,
+      range.toDate,
+    ),
+  ]);
+
+  return (
+    <ReportingWorkspace
+      activeSection={activeSection}
+      attendanceSessions={sessions}
+      checkIns={checkIns}
+      data={{
+        overview,
+        weeklyTrends,
+        monthlyTrends,
+        events,
+        eventTrends,
+        volunteerActivity,
+        coverage,
+        savedReports,
+      }}
+      range={range}
+    />
+  );
+}

@@ -3,7 +3,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
+import {
+  DEFAULT_FAMILY_CHECKIN_INSTRUCTIONS,
+  getFamilyCheckinInstructions,
+} from "@/features/administration/services/ministry-settings-service";
 import { requireCapability } from "@/features/auth/services/authorization-service";
+import { FamilyCheckInPass } from "@/features/check-in/components/family-check-in-pass";
+import { getActiveFamilyToken } from "@/features/check-in/services/check-in-service";
 import {
   AddFamilyAdultForm,
   FamilyAdultForm,
@@ -27,13 +33,17 @@ export default async function FamilyWorkspacePage({
   params: Promise<{ householdId: string }>;
 }>) {
   const account = await requireCapability("families.view");
-  const parsedId = householdIdSchema.safeParse((await params).householdId);
+  const parsedId = householdIdSchema.safeParse(
+    (await params).householdId,
+  );
 
   if (!parsedId.success) {
     notFound();
   }
 
-  const result = await getFamilyWorkspace(parsedId.data);
+  const result = await getFamilyWorkspace(
+    parsedId.data,
+  );
 
   if (!result.success) {
     if (result.reason === "denied") {
@@ -48,19 +58,51 @@ export default async function FamilyWorkspacePage({
   }
 
   const { family } = result;
-  const canLinkAccounts = account.role === "platform_administrator" || account.role === "youth_pastor";
-  const accountCandidates = canLinkAccounts
-    ? new Map(await Promise.all(
-        family.adults.filter((adult) => adult.isResponsibleAdult).map(async (adult) => [
-          adult.id,
-          await listParentAccountLinkCandidates(adult.id),
-        ] as const),
-      ))
-    : new Map();
+
+  const familyPassToken =
+    account.role === "parent"
+      ? await getActiveFamilyToken(
+          family.id,
+        )
+      : null;
+  const familyCheckinInstructions =
+    account.role === "parent"
+      ? await getFamilyCheckinInstructions()
+      : DEFAULT_FAMILY_CHECKIN_INSTRUCTIONS;
+
+  const canLinkAccounts =
+    account.role ===
+      "platform_administrator" ||
+    account.role === "youth_pastor";
+
+  const accountCandidates =
+    canLinkAccounts
+      ? new Map(
+          await Promise.all(
+            family.adults
+              .filter(
+                (adult) =>
+                  adult.isResponsibleAdult,
+              )
+              .map(
+                async (adult) =>
+                  [
+                    adult.id,
+                    await listParentAccountLinkCandidates(
+                      adult.id,
+                    ),
+                  ] as const,
+              ),
+          ),
+        )
+      : new Map();
+
   const address = [
     family.addressLine1,
     family.addressLine2,
-    [family.city, family.region].filter(Boolean).join(", "),
+    [family.city, family.region]
+      .filter(Boolean)
+      .join(", "),
     family.postalCode,
   ].filter(Boolean);
 
@@ -73,25 +115,49 @@ export default async function FamilyWorkspacePage({
         >
           ← Back to families
         </Link>
+
         <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-950">
           {family.name}
         </h1>
+
         <p className="mt-2 text-base capitalize text-slate-600">
           {family.status} family
         </p>
       </section>
+
+      {account.role === "parent" ? (
+        <FamilyCheckInPass
+          families={[
+            {
+              householdId: family.id,
+              householdName:
+                family.name,
+            },
+          ]}
+          familyPasses={{
+            [family.id]:
+              familyPassToken,
+          }}
+          instructions={familyCheckinInstructions}
+        />
+      ) : null}
 
       <div className="grid gap-6 xl:grid-cols-3">
         <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-950">
             Mailing address
           </h2>
+
           {address.length > 0 ? (
             <address className="mt-4 space-y-1 text-sm not-italic leading-6 text-slate-700">
               {address.map((line) => (
-                <p key={line}>{line}</p>
+                <p key={line}>
+                  {line}
+                </p>
               ))}
-              <p>{family.countryCode}</p>
+              <p>
+                {family.countryCode}
+              </p>
             </address>
           ) : (
             <p className="mt-4 text-sm text-slate-600">
@@ -104,82 +170,126 @@ export default async function FamilyWorkspacePage({
           <h2 className="text-lg font-semibold text-slate-950">
             Adults and contacts
           </h2>
-          {family.adults.length === 0 ? (
+
+          {family.adults.length ===
+          0 ? (
             <p className="mt-4 text-sm text-slate-600">
               No adult contacts are recorded.
             </p>
           ) : (
             <div className="mt-4 grid gap-4 md:grid-cols-2">
-              {family.adults.map((adult) => (
-                <article
-                  className="rounded-lg border border-slate-200 p-4"
-                  key={adult.id}
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <h3 className="font-semibold text-slate-950">
-                        {adult.preferredName || adult.firstName} {adult.lastName}
-                      </h3>
-                      <p className="mt-1 text-sm text-slate-600">
-                        {adult.relationshipLabel}
-                      </p>
+              {family.adults.map(
+                (adult) => (
+                  <article
+                    className="rounded-lg border border-slate-200 p-4"
+                    key={adult.id}
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <h3 className="font-semibold text-slate-950">
+                          {adult.preferredName ||
+                            adult.firstName}{" "}
+                          {
+                            adult.lastName
+                          }
+                        </h3>
+
+                        <p className="mt-1 text-sm text-slate-600">
+                          {
+                            adult.relationshipLabel
+                          }
+                        </p>
+                      </div>
+
+                      {adult.isPrimaryContact ? (
+                        <span className="rounded-full bg-sky-100 px-2.5 py-1 text-xs font-semibold text-sky-800">
+                          Primary contact
+                        </span>
+                      ) : null}
                     </div>
-                    {adult.isPrimaryContact ? (
-                      <span className="rounded-full bg-sky-100 px-2.5 py-1 text-xs font-semibold text-sky-800">
-                        Primary contact
-                      </span>
-                    ) : null}
-                  </div>
-                  <dl className="mt-4 space-y-2 text-sm">
-                    <div>
-                      <dt className="text-slate-500">Email</dt>
-                      <dd className="break-all text-slate-900">
-                        {adult.email || "Not provided"}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-slate-500">Phone</dt>
-                      <dd className="text-slate-900">
-                        {adult.phone || "Not provided"}
-                      </dd>
-                    </div>
-                  </dl>
-                  <ul className="mt-4 flex flex-wrap gap-2 text-xs text-slate-700">
-                    {adult.receiveEmail ? <li>Email updates</li> : null}
-                    {adult.receiveSms ? <li>Text updates</li> : null}
-                    {adult.receiveEmergencyNotifications ? (
-                      <li>Emergency alerts</li>
-                    ) : null}
-                  </ul>
-                </article>
-              ))}
+
+                    <dl className="mt-4 space-y-2 text-sm">
+                      <div>
+                        <dt className="text-slate-500">
+                          Email
+                        </dt>
+                        <dd className="break-all text-slate-900">
+                          {adult.email ||
+                            "Not provided"}
+                        </dd>
+                      </div>
+
+                      <div>
+                        <dt className="text-slate-500">
+                          Phone
+                        </dt>
+                        <dd className="text-slate-900">
+                          {adult.phone ||
+                            "Not provided"}
+                        </dd>
+                      </div>
+                    </dl>
+
+                    <ul className="mt-4 flex flex-wrap gap-2 text-xs text-slate-700">
+                      {adult.receiveEmail ? (
+                        <li>
+                          Email updates
+                        </li>
+                      ) : null}
+
+                      {adult.receiveSms ? (
+                        <li>
+                          Text updates
+                        </li>
+                      ) : null}
+
+                      {adult.receiveEmergencyNotifications ? (
+                        <li>
+                          Emergency alerts
+                        </li>
+                      ) : null}
+                    </ul>
+                  </article>
+                ),
+              )}
             </div>
           )}
         </section>
       </div>
 
       <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-950">Children</h2>
-        {family.children.length === 0 ? (
+        <h2 className="text-lg font-semibold text-slate-950">
+          Children
+        </h2>
+
+        {family.children.length ===
+        0 ? (
           <p className="mt-4 text-sm text-slate-600">
             No active child records are connected to this family.
           </p>
         ) : (
           <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {family.children.map((child) => (
-              <Link
-                className="rounded-lg border border-slate-200 p-4"
-                href={`/students/${child.id}`}
-                key={child.id}
-              >
-                <h3 className="font-semibold text-slate-950">
-                  {child.displayName}
-                </h3>
-                <p className="mt-2 text-sm text-slate-600">
-                  Grade {child.grade} · {child.status}
-                </p>
-              </Link>
-            ))}
+            {family.children.map(
+              (child) => (
+                <Link
+                  className="rounded-lg border border-slate-200 p-4"
+                  href={`/students/${child.id}`}
+                  key={child.id}
+                >
+                  <h3 className="font-semibold text-slate-950">
+                    {
+                      child.displayName
+                    }
+                  </h3>
+
+                  <p className="mt-2 text-sm text-slate-600">
+                    Grade{" "}
+                    {child.grade} ·{" "}
+                    {child.status}
+                  </p>
+                </Link>
+              ),
+            )}
           </div>
         )}
       </section>
@@ -190,13 +300,16 @@ export default async function FamilyWorkspacePage({
             <p className="text-sm font-semibold text-sky-700">
               Ministry management
             </p>
+
             <h2 className="mt-1 text-xl font-semibold text-slate-950">
               Edit family and contacts
             </h2>
+
             <p className="mt-1 text-sm text-slate-600">
               These changes are validated and recorded in the audit log.
             </p>
           </div>
+
           <div>
             <Link
               className="inline-flex min-h-11 items-center rounded-lg bg-sky-700 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-800"
@@ -205,21 +318,48 @@ export default async function FamilyWorkspacePage({
               Add child
             </Link>
           </div>
-          <FamilyDetailsForm family={family} />
+
+          <FamilyDetailsForm
+            family={family}
+          />
+
           <div className="space-y-4">
-            {family.adults.map((adult) => (
-              <div className="space-y-3" key={adult.id}>
-                <FamilyAdultForm adult={adult} householdId={family.id} />
-                {canLinkAccounts && adult.isResponsibleAdult ? (
-                  <ParentAccountLinkForm
+            {family.adults.map(
+              (adult) => (
+                <div
+                  className="space-y-3"
+                  key={adult.id}
+                >
+                  <FamilyAdultForm
                     adult={adult}
-                    candidates={accountCandidates.get(adult.id) ?? []}
-                    householdId={family.id}
+                    householdId={
+                      family.id
+                    }
                   />
-                ) : null}
-              </div>
-            ))}
-            <AddFamilyAdultForm householdId={family.id} />
+
+                  {canLinkAccounts &&
+                  adult.isResponsibleAdult ? (
+                    <ParentAccountLinkForm
+                      adult={adult}
+                      candidates={
+                        accountCandidates.get(
+                          adult.id,
+                        ) ?? []
+                      }
+                      householdId={
+                        family.id
+                      }
+                    />
+                  ) : null}
+                </div>
+              ),
+            )}
+
+            <AddFamilyAdultForm
+              householdId={
+                family.id
+              }
+            />
           </div>
         </section>
       ) : null}

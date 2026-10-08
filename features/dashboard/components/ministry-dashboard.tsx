@@ -75,12 +75,18 @@ export function MinistryDashboard({ data }: MinistryDashboardProps) {
             />
             <div>
               <p className="text-sm font-semibold text-amber-100">
-                {data.dataSource === "hybrid" ? "Live summary metrics" : "Synthetic preview data"}
+                {data.dataSource === "live"
+                  ? "Live ministry data"
+                  : data.dataSource === "hybrid"
+                    ? "Live summary metrics"
+                    : "Synthetic preview data"}
               </p>
               <p className="mt-1 text-xs leading-5 text-amber-50/80">
-                {data.dataSource === "hybrid"
-                  ? "Summary metrics and volunteer coverage are live and authorized. Upcoming events, announcements, birthdays, and Prayer & Care cards remain clearly separated preview content."
-                  : "Every value and name on this dashboard is fictional. Live connections will replace these previews in their approved feature milestones."}
+                {data.dataSource === "live"
+                  ? "Summary metrics, events, volunteer coverage, Prayer & Care counts, birthdays, and announcements use authorized operational records."
+                  : data.dataSource === "hybrid"
+                    ? "Summary metrics and volunteer coverage are live and authorized. Upcoming events, announcements, birthdays, and Prayer & Care cards remain clearly separated preview content."
+                    : "Every value and name on this dashboard is fictional. Live connections will replace these previews in their approved feature milestones."}
               </p>
             </div>
           </div>
@@ -100,7 +106,9 @@ export function MinistryDashboard({ data }: MinistryDashboardProps) {
             </p>
           </div>
           <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-800">
-            {data.dataSource === "hybrid" ? "Live overview" : "Sample overview"}
+            {data.dataSource === "live" || data.dataSource === "hybrid"
+              ? "Live overview"
+              : "Sample overview"}
           </span>
         </div>
 
@@ -178,6 +186,11 @@ export function MinistryDashboard({ data }: MinistryDashboardProps) {
               </li>
             ))}
           </ul>
+          {!data.upcomingEvents.length ? (
+            <p className="mt-5 rounded-lg bg-slate-50 p-4 text-sm text-slate-600">
+              No upcoming visible events.
+            </p>
+          ) : null}
         </section>
 
         {!isFamilyDashboard && (
@@ -279,6 +292,11 @@ export function MinistryDashboard({ data }: MinistryDashboardProps) {
               </li>
             ))}
           </ul>
+          {!data.birthdays.length ? (
+            <p className="mt-4 text-sm text-slate-600">
+              No birthdays in the next 14 days.
+            </p>
+          ) : null}
         </section>
         )}
 
@@ -304,6 +322,11 @@ export function MinistryDashboard({ data }: MinistryDashboardProps) {
               </li>
             ))}
           </ul>
+          {!data.announcements.length ? (
+            <p className="mt-4 text-sm text-slate-600">
+              No current announcements.
+            </p>
+          ) : null}
         </section>
       </div>
 
@@ -336,31 +359,30 @@ export function MinistryDashboard({ data }: MinistryDashboardProps) {
         </div>
       </section>
 
-      <section
-        aria-labelledby="preview-status-heading"
-        className="rounded-xl border border-emerald-200 bg-emerald-50 p-5"
-      >
-        <div className="flex gap-4">
-          <CheckCircle2
-            aria-hidden="true"
-            className="mt-0.5 size-5 shrink-0 text-emerald-700"
-          />
-          <div>
-            <h2
-              className="text-sm font-semibold text-emerald-950"
-              id="preview-status-heading"
-            >
-              Dashboard framework ready
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-emerald-900">
-              This milestone establishes separate, responsive family and
-              ministry dashboard experiences. Each future feature milestone
-              will replace its synthetic preview with authorized,
-              minimum-necessary live data.
-            </p>
+      {data.dataSource !== "live" ? (
+        <section
+          aria-labelledby="preview-status-heading"
+          className="rounded-xl border border-emerald-200 bg-emerald-50 p-5"
+        >
+          <div className="flex gap-4">
+            <CheckCircle2
+              aria-hidden="true"
+              className="mt-0.5 size-5 shrink-0 text-emerald-700"
+            />
+            <div>
+              <h2
+                className="text-sm font-semibold text-emerald-950"
+                id="preview-status-heading"
+              >
+                Dashboard framework ready
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-emerald-900">
+                Preview content remains clearly identified until its authorized live source is connected.
+              </p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
     </div>
   );
 }

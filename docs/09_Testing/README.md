@@ -5,6 +5,8 @@ records for the Youth Ministries Platform.
 
 ## Test Reports
 
+- [Milestone 15 Closure Gap Review](2026-10-04_Milestone15_Closure_Gap_Review.md)
+- [Production Readiness Migration Audit](2026-10-04_Production_Readiness_Migration_Audit.md)
 - [Native Group Chat Phases 1B–1D UI and Acceptance Test Report](2026-09-25_Native_Group_Chat_Phase1B_Test_Report.md)
 - [Native Group Chat Phases 1A–1D Security and Regression Test Report](2026-09-25_Native_Group_Chat_Phase1_Test_Report.md)
 - [Platform Calendar Test Report](2026-09-24_Platform_Calendar_Test_Report.md)

@@ -193,6 +193,7 @@ export async function registerMyStudentForEventAction(
 
   return {
     success: true,
+    registrationStatus: result.status,
     message: result.status === "waitlisted"
       ? "Student added to the waitlist."
       : "Student registered successfully.",
@@ -219,6 +220,7 @@ export async function cancelMyEventRegistrationAction(
 
   return {
     success: true,
+    registrationStatus: "cancelled",
     message: "Registration cancelled.",
   };
 }

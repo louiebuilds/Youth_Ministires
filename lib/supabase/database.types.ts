@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          intended_primary_role: Database["public"]["Enums"]["account_role"]
+          invited_by_profile_id: string
+          revoked_at: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          intended_primary_role: Database["public"]["Enums"]["account_role"]
+          invited_by_profile_id: string
+          revoked_at?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          intended_primary_role?: Database["public"]["Enums"]["account_role"]
+          invited_by_profile_id?: string
+          revoked_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_invitations_invited_by_profile_id_fkey"
+            columns: ["invited_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       announcements: {
         Row: {
           archived_at: string | null
@@ -477,6 +518,253 @@ export type Database = {
           },
         ]
       }
+      chat_messages: {
+        Row: {
+          author_profile_id: string
+          created_at: string
+          id: string
+          message_body: string
+          removal_reason: string | null
+          removed_at: string | null
+          removed_by_profile_id: string | null
+          reply_to_message_id: string | null
+          room_id: string
+        }
+        Insert: {
+          author_profile_id: string
+          created_at?: string
+          id?: string
+          message_body: string
+          removal_reason?: string | null
+          removed_at?: string | null
+          removed_by_profile_id?: string | null
+          reply_to_message_id?: string | null
+          room_id: string
+        }
+        Update: {
+          author_profile_id?: string
+          created_at?: string
+          id?: string
+          message_body?: string
+          removal_reason?: string | null
+          removed_at?: string | null
+          removed_by_profile_id?: string | null
+          reply_to_message_id?: string | null
+          room_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_author_profile_id_fkey"
+            columns: ["author_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_messages_removed_by_profile_id_fkey"
+            columns: ["removed_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_messages_reply_same_room_fk"
+            columns: ["reply_to_message_id", "room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_messages"
+            referencedColumns: ["id", "room_id"]
+          },
+          {
+            foreignKeyName: "chat_messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_read_state: {
+        Row: {
+          last_read_at: string
+          last_read_message_id: string | null
+          profile_id: string
+          room_id: string
+          updated_at: string
+        }
+        Insert: {
+          last_read_at?: string
+          last_read_message_id?: string | null
+          profile_id: string
+          room_id: string
+          updated_at?: string
+        }
+        Update: {
+          last_read_at?: string
+          last_read_message_id?: string | null
+          profile_id?: string
+          room_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_read_state_message_same_room_fk"
+            columns: ["last_read_message_id", "room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_messages"
+            referencedColumns: ["id", "room_id"]
+          },
+          {
+            foreignKeyName: "chat_read_state_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_read_state_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_room_members: {
+        Row: {
+          added_by_profile_id: string
+          id: string
+          joined_at: string
+          membership_source: Database["public"]["Enums"]["chat_membership_source"]
+          profile_id: string
+          removal_reason: string | null
+          removed_at: string | null
+          removed_by_profile_id: string | null
+          room_id: string
+        }
+        Insert: {
+          added_by_profile_id: string
+          id?: string
+          joined_at?: string
+          membership_source?: Database["public"]["Enums"]["chat_membership_source"]
+          profile_id: string
+          removal_reason?: string | null
+          removed_at?: string | null
+          removed_by_profile_id?: string | null
+          room_id: string
+        }
+        Update: {
+          added_by_profile_id?: string
+          id?: string
+          joined_at?: string
+          membership_source?: Database["public"]["Enums"]["chat_membership_source"]
+          profile_id?: string
+          removal_reason?: string | null
+          removed_at?: string | null
+          removed_by_profile_id?: string | null
+          room_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_room_members_added_by_profile_id_fkey"
+            columns: ["added_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_room_members_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_room_members_removed_by_profile_id_fkey"
+            columns: ["removed_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_room_members_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_rooms: {
+        Row: {
+          archived_at: string | null
+          archived_by_profile_id: string | null
+          created_at: string
+          created_by_profile_id: string
+          event_id: string | null
+          id: string
+          name: string
+          room_type: Database["public"]["Enums"]["chat_room_type"]
+          schedule_id: string | null
+          source_access: Database["public"]["Enums"]["chat_source_access"]
+          updated_at: string
+        }
+        Insert: {
+          archived_at?: string | null
+          archived_by_profile_id?: string | null
+          created_at?: string
+          created_by_profile_id: string
+          event_id?: string | null
+          id?: string
+          name: string
+          room_type: Database["public"]["Enums"]["chat_room_type"]
+          schedule_id?: string | null
+          source_access?: Database["public"]["Enums"]["chat_source_access"]
+          updated_at?: string
+        }
+        Update: {
+          archived_at?: string | null
+          archived_by_profile_id?: string | null
+          created_at?: string
+          created_by_profile_id?: string
+          event_id?: string | null
+          id?: string
+          name?: string
+          room_type?: Database["public"]["Enums"]["chat_room_type"]
+          schedule_id?: string | null
+          source_access?: Database["public"]["Enums"]["chat_source_access"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_rooms_archived_by_profile_id_fkey"
+            columns: ["archived_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_rooms_created_by_profile_id_fkey"
+            columns: ["created_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_rooms_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_rooms_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "ministry_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       check_in_records: {
         Row: {
           checked_in_at: string | null
@@ -812,6 +1100,177 @@ export type Database = {
             columns: ["template_id"]
             isOneToOne: false
             referencedRelation: "communication_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      community_comments: {
+        Row: {
+          author_profile_id: string
+          body: string
+          created_at: string
+          id: string
+          lifecycle_status: string
+          moderated_at: string | null
+          moderated_by_profile_id: string | null
+          moderation_reason: string | null
+          post_id: string
+          updated_at: string
+        }
+        Insert: {
+          author_profile_id: string
+          body: string
+          created_at?: string
+          id?: string
+          lifecycle_status?: string
+          moderated_at?: string | null
+          moderated_by_profile_id?: string | null
+          moderation_reason?: string | null
+          post_id: string
+          updated_at?: string
+        }
+        Update: {
+          author_profile_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          lifecycle_status?: string
+          moderated_at?: string | null
+          moderated_by_profile_id?: string | null
+          moderation_reason?: string | null
+          post_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_comments_author_profile_id_fkey"
+            columns: ["author_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_comments_moderated_by_profile_id_fkey"
+            columns: ["moderated_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_posts: {
+        Row: {
+          author_profile_id: string
+          body: string
+          category_id: string
+          created_at: string
+          event_id: string | null
+          id: string
+          is_locked: boolean
+          is_pinned: boolean
+          lifecycle_status: string
+          moderated_at: string | null
+          moderated_by_profile_id: string | null
+          moderation_reason: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_profile_id: string
+          body: string
+          category_id: string
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          is_locked?: boolean
+          is_pinned?: boolean
+          lifecycle_status?: string
+          moderated_at?: string | null
+          moderated_by_profile_id?: string | null
+          moderation_reason?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_profile_id?: string
+          body?: string
+          category_id?: string
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          is_locked?: boolean
+          is_pinned?: boolean
+          lifecycle_status?: string
+          moderated_at?: string | null
+          moderated_by_profile_id?: string | null
+          moderation_reason?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_posts_author_profile_id_fkey"
+            columns: ["author_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_posts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "community_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_posts_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_posts_moderated_by_profile_id_fkey"
+            columns: ["moderated_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -2052,31 +2511,40 @@ export type Database = {
         Row: {
           created_at: string
           created_by_profile_id: string | null
-          expires_at: string
+          expires_at: string | null
           household_id: string
           id: string
           revoked_at: string | null
+          token_auth_tag: string | null
+          token_ciphertext: string | null
           token_hash: string
+          token_iv: string | null
           used_at: string | null
         }
         Insert: {
           created_at?: string
           created_by_profile_id?: string | null
-          expires_at: string
+          expires_at?: string | null
           household_id: string
           id?: string
           revoked_at?: string | null
+          token_auth_tag?: string | null
+          token_ciphertext?: string | null
           token_hash: string
+          token_iv?: string | null
           used_at?: string | null
         }
         Update: {
           created_at?: string
           created_by_profile_id?: string | null
-          expires_at?: string
+          expires_at?: string | null
           household_id?: string
           id?: string
           revoked_at?: string | null
+          token_auth_tag?: string | null
+          token_ciphertext?: string | null
           token_hash?: string
+          token_iv?: string | null
           used_at?: string | null
         }
         Relationships: [
@@ -2583,6 +3051,56 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ministry_settings: {
+        Row: {
+          contact_email: string | null
+          contact_phone: string | null
+          default_campus_name: string | null
+          default_communication_channel: Database["public"]["Enums"]["communication_channel"]
+          default_event_address: string | null
+          family_checkin_instructions: string
+          id: number
+          ministry_display_name: string
+          timezone: string
+          updated_at: string
+          updated_by_profile_id: string | null
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          default_campus_name?: string | null
+          default_communication_channel: Database["public"]["Enums"]["communication_channel"]
+          default_event_address?: string | null
+          family_checkin_instructions: string
+          id?: number
+          ministry_display_name: string
+          timezone: string
+          updated_at?: string
+          updated_by_profile_id?: string | null
+        }
+        Update: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          default_campus_name?: string | null
+          default_communication_channel?: Database["public"]["Enums"]["communication_channel"]
+          default_event_address?: string | null
+          family_checkin_instructions?: string
+          id?: number
+          ministry_display_name?: string
+          timezone?: string
+          updated_at?: string
+          updated_by_profile_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ministry_settings_updated_by_profile_id_fkey"
+            columns: ["updated_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -4059,9 +4577,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_account_invitation: { Args: never; Returns: string }
       accept_document_submission: {
         Args: { p_reason?: string; p_submission_id: string }
         Returns: undefined
+      }
+      add_chat_room_member: {
+        Args: { p_profile_id: string; p_room_id: string }
+        Returns: string
       }
       add_child_relationship: {
         Args: {
@@ -4143,6 +4666,7 @@ export type Database = {
         Args: { p_care_note_id: string }
         Returns: undefined
       }
+      archive_chat_room: { Args: { p_room_id: string }; Returns: undefined }
       archive_communication_template: {
         Args: { p_template_id: string }
         Returns: undefined
@@ -4344,6 +4868,16 @@ export type Database = {
         }
         Returns: string
       }
+      create_chat_room: {
+        Args: {
+          p_event_id?: string
+          p_name: string
+          p_room_type: Database["public"]["Enums"]["chat_room_type"]
+          p_schedule_id?: string
+          p_source_access?: Database["public"]["Enums"]["chat_source_access"]
+        }
+        Returns: string
+      }
       create_child: {
         Args: {
           p_allergy_summary: string
@@ -4367,6 +4901,14 @@ export type Database = {
           p_name: string
           p_subject: string
         }
+        Returns: string
+      }
+      create_community_comment: {
+        Args: { p_body: string; p_post_id: string }
+        Returns: string
+      }
+      create_community_post: {
+        Args: { p_body: string; p_category_id: string; p_title: string }
         Returns: string
       }
       create_curriculum_plan: {
@@ -4526,6 +5068,14 @@ export type Database = {
         }
         Returns: number
       }
+      create_managed_invitation: {
+        Args: {
+          p_email: string
+          p_expires_at: string
+          p_intended_primary_role: Database["public"]["Enums"]["account_role"]
+        }
+        Returns: string
+      }
       create_member_tag: {
         Args: { p_color: string; p_name: string }
         Returns: string
@@ -4673,6 +5223,7 @@ export type Database = {
         Returns: Json
       }
       get_care_note: { Args: { p_care_note_id: string }; Returns: Json }
+      get_chat_room: { Args: { p_room_id: string }; Returns: Json }
       get_checkin_household: {
         Args: { p_event_id: string; p_household_id: string }
         Returns: Json
@@ -4686,6 +5237,7 @@ export type Database = {
         Args: { p_submission_id: string }
         Returns: Json
       }
+      get_dashboard_prayer_care_summary: { Args: never; Returns: Json }
       get_event_permission_slip_requirement: {
         Args: { p_event_id: string }
         Returns: Json
@@ -4699,12 +5251,38 @@ export type Database = {
         Returns: Json
       }
       get_event_workspace: { Args: { p_event_id: string }; Returns: Json }
+      get_family_checkin_pass: {
+        Args: { p_household_id: string }
+        Returns: {
+          created_at: string
+          pass_id: string
+          token_auth_tag: string
+          token_ciphertext: string
+          token_iv: string
+        }[]
+      }
       get_family_workspace: { Args: { p_household_id: string }; Returns: Json }
       get_growth_report_summary: {
         Args: { p_from: string; p_to: string }
         Returns: Json
       }
       get_lesson_workspace: { Args: { p_lesson_id: string }; Returns: Json }
+      get_ministry_settings: {
+        Args: never
+        Returns: {
+          contact_email: string
+          contact_phone: string
+          default_campus_name: string
+          default_communication_channel: Database["public"]["Enums"]["communication_channel"]
+          default_event_address: string
+          family_checkin_instructions: string
+          ministry_display_name: string
+          timezone: string
+          updated_at: string
+          updated_by_profile_id: string
+        }[]
+      }
+      get_my_medical_access: { Args: never; Returns: Json }
       get_my_unread_notification_count: { Args: never; Returns: number }
       get_prayer_request: {
         Args: { p_prayer_request_id: string }
@@ -4951,6 +5529,45 @@ export type Database = {
           updated_at: string
         }[]
       }
+      list_chat_member_candidates: {
+        Args: { p_room_id: string }
+        Returns: {
+          display_name: string
+          is_member: boolean
+          primary_role: Database["public"]["Enums"]["account_role"]
+          profile_id: string
+        }[]
+      }
+      list_chat_messages: {
+        Args: { p_before?: string; p_limit?: number; p_room_id: string }
+        Returns: {
+          author_name: string
+          author_profile_id: string
+          can_moderate: boolean
+          created_at: string
+          message_body: string
+          message_id: string
+          removed_at: string
+          reply_author_name: string
+          reply_message_body: string
+          reply_to_message_id: string
+        }[]
+      }
+      list_chat_rooms: {
+        Args: never
+        Returns: {
+          archived_at: string
+          can_manage: boolean
+          event_id: string
+          last_message_at: string
+          room_id: string
+          room_name: string
+          room_type: Database["public"]["Enums"]["chat_room_type"]
+          schedule_id: string
+          source_access: Database["public"]["Enums"]["chat_source_access"]
+          unread_count: number
+        }[]
+      }
       list_checked_in_visitors: {
         Args: { p_event_id: string }
         Returns: {
@@ -5099,6 +5716,13 @@ export type Database = {
           version_number: number
           version_status: Database["public"]["Enums"]["custom_form_version_status"]
           version_title: string
+        }[]
+      }
+      list_document_submission_operational_statuses: {
+        Args: never
+        Returns: {
+          operational_status: string
+          submission_id: string
         }[]
       }
       list_document_submissions: {
@@ -5363,6 +5987,41 @@ export type Database = {
           updated_at: string
         }[]
       }
+      list_managed_audit_events: {
+        Args: {
+          p_action?: string
+          p_date_from?: string
+          p_date_to?: string
+          p_limit?: number
+          p_result?: Database["public"]["Enums"]["audit_result"]
+          p_search?: string
+        }
+        Returns: {
+          action: string
+          actor_display_name: string
+          actor_profile_id: string
+          entity_id: string
+          entity_type: string
+          id: number
+          metadata: Json
+          occurred_at: string
+          request_id: string
+          result: Database["public"]["Enums"]["audit_result"]
+          source: Database["public"]["Enums"]["audit_source"]
+        }[]
+      }
+      list_managed_invitations: {
+        Args: never
+        Returns: {
+          accepted_at: string
+          email: string
+          expires_at: string
+          id: string
+          intended_primary_role: Database["public"]["Enums"]["account_role"]
+          invited_at: string
+          lifecycle_status: string
+        }[]
+      }
       list_member_directory: {
         Args: {
           p_grade?: string
@@ -5479,6 +6138,23 @@ export type Database = {
           linked_person_name: string
           matching_active_people_count: number
           profile_id: string
+        }[]
+      }
+      list_platform_calendar: {
+        Args: { p_from_date: string; p_to_date: string }
+        Returns: {
+          context: string
+          ends_at: string
+          href: string
+          is_personal: boolean
+          item_id: string
+          item_type: string
+          location: string
+          source_event_id: string
+          starts_at: string
+          status: string
+          timezone: string
+          title: string
         }[]
       }
       list_prayer_care_assignees: {
@@ -5648,6 +6324,14 @@ export type Database = {
           revoked_by_profile_id: string
         }[]
       }
+      list_upcoming_dashboard_birthdays: {
+        Args: { p_days?: number }
+        Returns: {
+          birthday_date: string
+          display_name: string
+          student_id: string
+        }[]
+      }
       list_visible_prayer_requests: {
         Args: { p_include_archived?: boolean }
         Returns: {
@@ -5752,9 +6436,25 @@ export type Database = {
         }[]
       }
       mark_all_my_notifications_read: { Args: never; Returns: number }
+      mark_chat_room_read: {
+        Args: { p_message_id: string; p_room_id: string }
+        Returns: undefined
+      }
       mark_my_notification_read: {
         Args: { p_notification_id: string }
         Returns: undefined
+      }
+      moderate_community_comment: {
+        Args: { p_comment_id: string; p_reason: string; p_status: string }
+        Returns: undefined
+      }
+      moderate_community_post: {
+        Args: { p_post_id: string; p_reason: string; p_status: string }
+        Returns: undefined
+      }
+      move_curriculum_plan_lesson: {
+        Args: { p_direction: string; p_plan_lesson_id: string }
+        Returns: number
       }
       open_custom_form_assignment: {
         Args: { p_assignment_id: string; p_subject_student_id?: string }
@@ -5807,6 +6507,22 @@ export type Database = {
         Args: { p_resource_id: string }
         Returns: undefined
       }
+      record_paper_event_waiver: {
+        Args: {
+          p_reason?: string
+          p_requirement_id: string
+          p_student_id: string
+        }
+        Returns: string
+      }
+      record_paper_medical_release: {
+        Args: {
+          p_reason?: string
+          p_student_id: string
+          p_template_version_id: string
+        }
+        Returns: string
+      }
       record_reporting_export: {
         Args: {
           p_format: string
@@ -5835,29 +6551,25 @@ export type Database = {
         Args: { p_reason: string; p_submission_id: string }
         Returns: undefined
       }
-      list_platform_calendar: {
-        Args: { p_from_date: string; p_to_date: string }
-        Returns: {
-          context: string | null
-          ends_at: string
-          href: string
-          is_personal: boolean
-          item_id: string
-          item_type: string
-          location: string | null
-          source_event_id: string | null
-          starts_at: string
-          status: string
-          timezone: string
-          title: string
-        }[]
+      remove_chat_message: {
+        Args: { p_message_id: string; p_reason: string }
+        Returns: undefined
       }
-      move_curriculum_plan_lesson: {
-        Args: { p_direction: string; p_plan_lesson_id: string }
-        Returns: number
+      remove_chat_room_member: {
+        Args: { p_profile_id: string; p_reason: string; p_room_id: string }
+        Returns: undefined
       }
+      remove_community_comment: {
+        Args: { p_comment_id: string }
+        Returns: undefined
+      }
+      remove_community_post: { Args: { p_post_id: string }; Returns: undefined }
       remove_lesson_from_curriculum_plan: {
         Args: { p_plan_lesson_id: string }
+        Returns: undefined
+      }
+      rename_chat_room: {
+        Args: { p_name: string; p_room_id: string }
         Returns: undefined
       }
       rename_saved_report: {
@@ -5890,6 +6602,10 @@ export type Database = {
       }
       revoke_event_participation_override: {
         Args: { p_override_id: string; p_reason: string }
+        Returns: undefined
+      }
+      revoke_managed_invitation: {
+        Args: { p_invitation_id: string }
         Returns: undefined
       }
       revoke_medical_verification: {
@@ -5993,6 +6709,14 @@ export type Database = {
           student_count: number
         }[]
       }
+      send_chat_message: {
+        Args: {
+          p_message_body: string
+          p_reply_to_message_id?: string
+          p_room_id: string
+        }
+        Returns: string
+      }
       send_synthetic_communication: {
         Args: {
           p_audience_type: Database["public"]["Enums"]["communication_audience_type"]
@@ -6006,6 +6730,14 @@ export type Database = {
       }
       set_child_tags: {
         Args: { p_student_id: string; p_tag_ids: string[] }
+        Returns: undefined
+      }
+      set_community_post_locked: {
+        Args: { p_is_locked: boolean; p_post_id: string }
+        Returns: undefined
+      }
+      set_community_post_pinned: {
+        Args: { p_is_pinned: boolean; p_post_id: string }
         Returns: undefined
       }
       set_event_checklist_item_completed: {
@@ -6057,6 +6789,16 @@ export type Database = {
         Args: { p_visitor_card_id: string }
         Returns: undefined
       }
+      store_family_checkin_pass: {
+        Args: {
+          p_household_id: string
+          p_token_auth_tag: string
+          p_token_ciphertext: string
+          p_token_hash: string
+          p_token_iv: string
+        }
+        Returns: string
+      }
       submit_custom_form: {
         Args: { p_submission_id: string }
         Returns: undefined
@@ -6081,6 +6823,18 @@ export type Database = {
         }
         Returns: undefined
       }
+      update_care_follow_up: {
+        Args: {
+          p_assigned_to_profile_id: string
+          p_care_follow_up_id: string
+          p_due_at: string
+          p_instructions: string
+          p_priority: Database["public"]["Enums"]["care_follow_up_priority"]
+          p_status: Database["public"]["Enums"]["care_follow_up_status"]
+          p_title: string
+        }
+        Returns: undefined
+      }
       update_care_follow_up_details: {
         Args: {
           p_assigned_to_profile_id: string
@@ -6088,18 +6842,6 @@ export type Database = {
           p_due_at: string
           p_instructions: string
           p_person_id: string
-          p_priority: Database["public"]["Enums"]["care_follow_up_priority"]
-          p_status: Database["public"]["Enums"]["care_follow_up_status"]
-          p_title: string
-        }
-        Returns: undefined
-      }
-      update_care_follow_up: {
-        Args: {
-          p_assigned_to_profile_id: string
-          p_care_follow_up_id: string
-          p_due_at: string
-          p_instructions: string
           p_priority: Database["public"]["Enums"]["care_follow_up_priority"]
           p_status: Database["public"]["Enums"]["care_follow_up_status"]
           p_title: string
@@ -6164,6 +6906,19 @@ export type Database = {
           p_name: string
           p_subject: string
           p_template_id: string
+        }
+        Returns: undefined
+      }
+      update_community_comment: {
+        Args: { p_body: string; p_comment_id: string }
+        Returns: undefined
+      }
+      update_community_post: {
+        Args: {
+          p_body: string
+          p_category_id: string
+          p_post_id: string
+          p_title: string
         }
         Returns: undefined
       }
@@ -6281,13 +7036,26 @@ export type Database = {
         }
         Returns: undefined
       }
+      update_ministry_settings: {
+        Args: {
+          p_contact_email: string
+          p_contact_phone: string
+          p_default_campus_name: string
+          p_default_communication_channel: Database["public"]["Enums"]["communication_channel"]
+          p_default_event_address: string
+          p_family_checkin_instructions: string
+          p_ministry_display_name: string
+          p_timezone: string
+        }
+        Returns: undefined
+      }
       update_own_profile: {
         Args: { p_display_name: string }
         Returns: undefined
       }
       update_prayer_request: {
         Args: {
-          p_category_id: string | null
+          p_category_id: string
           p_person_id: string
           p_prayer_request_id: string
           p_request_details: string
@@ -6345,6 +7113,19 @@ export type Database = {
         | "in_progress"
         | "completed"
         | "cancelled"
+      chat_membership_source: "explicit" | "event" | "schedule"
+      chat_room_type:
+        | "ministry"
+        | "event"
+        | "volunteer_team"
+        | "staff_leadership"
+        | "parent"
+        | "custom"
+      chat_source_access:
+        | "explicit"
+        | "event_parents"
+        | "event_volunteers"
+        | "schedule_volunteers"
       check_in_status: "expected" | "checked_in" | "checked_out" | "exception"
       communication_audience_type:
         | "ministry"
@@ -6651,6 +7432,21 @@ export const Constants = {
         "in_progress",
         "completed",
         "cancelled",
+      ],
+      chat_membership_source: ["explicit", "event", "schedule"],
+      chat_room_type: [
+        "ministry",
+        "event",
+        "volunteer_team",
+        "staff_leadership",
+        "parent",
+        "custom",
+      ],
+      chat_source_access: [
+        "explicit",
+        "event_parents",
+        "event_volunteers",
+        "schedule_volunteers",
       ],
       check_in_status: ["expected", "checked_in", "checked_out", "exception"],
       communication_audience_type: [

@@ -39,7 +39,7 @@ export type DashboardQuickAction = Readonly<{
 
 export type MinistryDashboardData = Readonly<{
   audience: "family" | "ministry";
-  dataSource: "hybrid" | "synthetic";
+  dataSource: "hybrid" | "live" | "synthetic";
   announcements: readonly DashboardAnnouncement[];
   birthdays: readonly DashboardBirthday[];
   metrics: readonly DashboardMetric[];

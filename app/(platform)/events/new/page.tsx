@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { getNewEventDefaults } from "@/features/administration/services/ministry-settings-service";
 import { requireCapability } from "@/features/auth/services/authorization-service";
 import { EventManagementForm } from "@/features/events/components/event-management-form";
 
@@ -10,6 +11,7 @@ export default async function CreateEventPage() {
   const account = await requireCapability("events.view");
   if (!["platform_administrator", "youth_pastor", "staff_member"]
     .includes(account.role)) notFound();
+  const defaults = await getNewEventDefaults();
   return (
     <div className="mx-auto max-w-4xl space-y-8">
       <header>
@@ -21,7 +23,7 @@ export default async function CreateEventPage() {
         </p>
       </header>
       <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <EventManagementForm />
+        <EventManagementForm defaults={defaults} />
       </section>
     </div>
   );

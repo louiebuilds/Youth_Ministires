@@ -11,6 +11,8 @@ const migrations = [
   "supabase/migrations/202608090001_scheduling_foundation.sql",
   "supabase/migrations/202609250001_native_group_chat_phase1.sql",
   "supabase/migrations/202609250002_native_group_chat_realtime.sql",
+  "supabase/migrations/202610080001_parent_private_group_chat.sql",
+  "supabase/migrations/202610080002_parent_chat_discovery.sql",
 ];
 
 const ids = {
@@ -88,8 +90,10 @@ try {
     await db.exec(sql);
   }
 
-  const foundationMigration = await readFile(migrations.at(-2), "utf8");
-  const realtimeMigration = await readFile(migrations.at(-1), "utf8");
+  const foundationMigration = await readFile(migrations.at(-4), "utf8");
+  const realtimeMigration = await readFile(migrations.at(-3), "utf8");
+  const parentPrivateGroupMigration = await readFile(migrations.at(-2), "utf8");
+  const parentDiscoveryMigration = await readFile(migrations.at(-1), "utf8");
   assert.match(foundationMigration, /private\.can_manage_chat\(\)/);
   assert.doesNotMatch(foundationMigration, /can_manage_communications/);
   assert.match(foundationMigration, /alter table public\.chat_messages force row level security/);
@@ -107,6 +111,16 @@ try {
   assert.match(realtimeMigration, /'\{\}'::jsonb/);
   assert.doesNotMatch(realtimeMigration, /message_body|author_profile_id|reply_to_message_id|removal_reason/);
   assert.match(realtimeMigration, /after insert or update of removed_at on public\.chat_messages/);
+  assert.match(parentPrivateGroupMigration, /add column is_parent_managed boolean not null default false/);
+  assert.match(parentPrivateGroupMigration, /private\.can_manage_chat_room\(p_room_id uuid\)/);
+  assert.match(parentPrivateGroupMigration, /private\.can_parent_invite_to_chat/);
+  assert.match(parentPrivateGroupMigration, /public\.leave_chat_room\(p_room_id uuid\)/);
+  assert.match(parentPrivateGroupMigration, /The group owner cannot be removed/);
+  assert.match(parentDiscoveryMigration, /create table public\.chat_discovery_preferences/);
+  assert.match(parentDiscoveryMigration, /parent_discoverable boolean not null default false/);
+  assert.match(parentDiscoveryMigration, /public\.get_my_chat_discovery_preference\(\)/);
+  assert.match(parentDiscoveryMigration, /public\.set_my_chat_discovery_preference/);
+  assert.match(parentDiscoveryMigration, /candidate\.primary_role = 'parent'/);
 
   const chatListPage = await readFile("app/(platform)/communications/chat/page.tsx", "utf8");
   const chatRoomPage = await readFile("app/(platform)/communications/chat/[roomId]/page.tsx", "utf8");
@@ -120,6 +134,9 @@ try {
   assert.match(chatListPage, /requireCapability\("communications\.view"\)/);
   assert.match(chatListPage, /managerRoles\.has\(account\.role\)/);
   assert.match(chatListPage, /canManage \? <CreateChatRoomForm \/>/);
+  assert.match(chatListPage, /account\.role === "parent" \? <ParentCreateChatRoomForm \/>/);
+  assert.match(chatListPage, /Private group/);
+  assert.match(chatListPage, /ParentChatDiscoveryForm/);
   assert.match(chatListPage, /Archived/);
   assert.match(
   chatRoomPage,
@@ -149,6 +166,11 @@ assert.match(
   assert.match(roomManagement, /archiveChatRoomAction/);
   assert.match(roomManagement, /addChatRoomMemberAction/);
   assert.match(roomManagement, /removeChatRoomMemberAction/);
+  assert.match(roomManagement, /leaveChatRoomAction/);
+  assert.match(roomManagement, /Create private group/);
+  assert.match(roomManagement, /candidate\.profileId !== room\.ownerProfileId/);
+  assert.match(roomManagement, /Allow Parent private-group invitations/);
+  assert.match(roomManagement, /never shares your email, household/);
   assert.match(
   roomManagement,
   /candidates\.filter\(\s*\(candidate\)\s*=>\s*candidate\.isMember\s*,?\s*\)/,
@@ -319,6 +341,151 @@ assert.match(
   await asUser(ids.staff, () => db.query("select public.mark_chat_room_read($1,$2)", [roomId, messages.rows[0].message_id]));
   const readState = await db.query("select last_read_message_id from public.chat_read_state where room_id=$1 and profile_id=$2", [roomId, ids.staff]);
   assert.equal(readState.rows[0].last_read_message_id, messages.rows[1].message_id, "Read state must not move backward");
+
+  await asUser(ids.admin, () => db.query("select public.add_chat_room_member($1,$2)", [roomId, ids.volunteer]));
+  await asUser(ids.admin, () => db.query("select public.add_chat_room_member($1,$2)", [parentRoom, ids.pastor]));
+
+  await denied(
+    () => asUser(ids.parent, () => db.query("select public.create_chat_room('Parent official attempt','parent','explicit',null,null)")),
+    "Parents cannot create official room types",
+  );
+  await denied(
+    () => asUser(ids.parent, () => db.query("select public.rename_chat_room($1,'Parent changed official room')", [parentRoom])),
+    "Parents cannot manage official ministry rooms",
+  );
+
+  const parentPrivateRoom = (await asUser(ids.parent, () =>
+    db.query("select public.create_chat_room('Parent private group','custom','explicit',null,null) id"),
+  )).rows[0].id;
+  const parentPrivateProjection = (await asUser(ids.parent, () =>
+    db.query("select * from public.list_chat_rooms() where room_id=$1", [parentPrivateRoom]),
+  )).rows[0];
+  assert.equal(parentPrivateProjection.is_parent_managed, true);
+  assert.equal(parentPrivateProjection.is_owner, true);
+  assert.equal(parentPrivateProjection.can_manage, true);
+  assert.equal(parentPrivateProjection.owner_profile_id, ids.parent);
+
+  assert.equal(
+    (await asUser(ids.otherParent, () => db.query("select public.get_my_chat_discovery_preference() discoverable"))).rows[0].discoverable,
+    false,
+    "Parent discovery is private by default",
+  );
+  await denied(
+    () => asUser(ids.staff, () => db.query("select public.set_my_chat_discovery_preference(true)")),
+    "Non-Parents cannot change the Parent discovery preference",
+  );
+  await denied(
+    () => asUser(ids.parent, () => db.query("select * from public.chat_discovery_preferences")),
+    "Parents cannot read discovery preference storage directly",
+  );
+
+  const privateByDefaultCandidates = await asUser(ids.parent, () =>
+    db.query("select * from public.list_chat_member_candidates($1)", [parentPrivateRoom]),
+  );
+  assert.equal(
+    privateByDefaultCandidates.rows.some((row) => row.profile_id === ids.otherParent),
+    false,
+    "A Parent is not discoverable merely because they share an official chat",
+  );
+
+  await asUser(ids.otherParent, () =>
+    db.query("select public.set_my_chat_discovery_preference(true)"),
+  );
+
+  const parentCandidates = await asUser(ids.parent, () =>
+    db.query("select * from public.list_chat_member_candidates($1)", [parentPrivateRoom]),
+  );
+  const candidateIds = new Set(parentCandidates.rows.map((row) => row.profile_id));
+  assert.equal(candidateIds.has(ids.parent), true, "The owner remains visible in membership management");
+  assert.equal(candidateIds.has(ids.otherParent), true, "An opted-in Parent is discoverable without a shared chat requirement");
+  assert.equal(candidateIds.has(ids.staff), true, "Shared Staff are eligible");
+  assert.equal(candidateIds.has(ids.volunteer), true, "Shared Volunteers are eligible");
+  assert.equal(candidateIds.has(ids.pastor), true, "Shared Youth Pastors are eligible");
+  assert.equal(candidateIds.has(ids.admin), false, "The platform directory is not exposed to Parent owners");
+  assert.equal(candidateIds.has(ids.otherVolunteer), false, "Unrelated accounts are not exposed to Parent owners");
+
+  await asUser(ids.parent, () =>
+    db.query("select public.send_chat_message($1,'Owner message before invitation',null)", [parentPrivateRoom]),
+  );
+  await asUser(ids.parent, () =>
+    db.query("select public.add_chat_room_member($1,$2)", [parentPrivateRoom, ids.otherParent]),
+  );
+  assert.equal(
+    (await asUser(ids.otherParent, () => db.query("select count(*)::int count from public.list_chat_messages($1,null,100)", [parentPrivateRoom]))).rows[0].count,
+    0,
+    "A newly invited member cannot read messages sent before joining",
+  );
+  await asUser(ids.parent, () =>
+    db.query("select public.send_chat_message($1,'Welcome after invitation',null)", [parentPrivateRoom]),
+  );
+  assert.equal(
+    (await asUser(ids.otherParent, () => db.query("select count(*)::int count from public.list_chat_messages($1,null,100)", [parentPrivateRoom]))).rows[0].count,
+    1,
+    "A newly invited member can read messages sent after joining",
+  );
+
+  await denied(
+    () => asUser(ids.otherParent, () => db.query("select public.rename_chat_room($1,'Unauthorized rename')", [parentPrivateRoom])),
+    "A member cannot manage another Parent's private group",
+  );
+  await denied(
+    () => asUser(ids.otherParent, () => db.query("select * from public.list_chat_member_candidates($1)", [parentPrivateRoom])),
+    "A member cannot enumerate candidates for another Parent's private group",
+  );
+  await denied(
+    () => asUser(ids.parent, () => db.query("select public.remove_chat_room_member($1,$2,'Owner mistake')", [parentPrivateRoom, ids.parent])),
+    "The owner cannot remove themselves",
+  );
+  await denied(
+    () => asUser(ids.parent, () => db.query("select public.leave_chat_room($1)", [parentPrivateRoom])),
+    "The owner must close the group rather than leave it",
+  );
+
+  await asUser(ids.parent, () =>
+    db.query("select public.add_chat_room_member($1,$2)", [parentPrivateRoom, ids.volunteer]),
+  );
+  await asUser(ids.volunteer, () => db.query("select public.leave_chat_room($1)", [parentPrivateRoom]));
+  await denied(
+    () => asUser(ids.volunteer, () => db.query("select public.send_chat_message($1,'Denied after leaving',null)", [parentPrivateRoom])),
+    "A member who leaves cannot send future messages",
+  );
+  assert.equal(
+    (await asUser(ids.volunteer, () => db.query("select private.can_receive_chat_broadcast($1) allowed", [`chat-room:${parentPrivateRoom}`]))).rows[0].allowed,
+    false,
+    "A member who leaves cannot receive future room signals",
+  );
+
+  await asUser(ids.parent, () =>
+    db.query("select public.remove_chat_room_member($1,$2,'Invitation withdrawn')", [parentPrivateRoom, ids.otherParent]),
+  );
+  await denied(
+    () => asUser(ids.otherParent, () => db.query("select * from public.list_chat_messages($1,null,100)", [parentPrivateRoom])),
+    "A removed member immediately loses message access",
+  );
+  await asUser(ids.otherParent, () =>
+    db.query("select public.set_my_chat_discovery_preference(false)"),
+  );
+  assert.equal(
+    (await asUser(ids.parent, () => db.query("select count(*)::int count from public.list_chat_member_candidates($1) where profile_id=$2", [parentPrivateRoom, ids.otherParent]))).rows[0].count,
+    0,
+    "Opting out removes a former member from future Parent invitation discovery",
+  );
+  await denied(
+    () => asUser(ids.parent, () => db.query("select public.add_chat_room_member($1,$2)", [parentPrivateRoom, ids.otherParent])),
+    "A crafted request cannot add a Parent who opted out",
+  );
+  assert.equal(
+    Number((await db.query("select count(*) count from public.chat_messages where room_id=$1", [parentPrivateRoom])).rows[0].count),
+    2,
+    "Membership changes preserve existing private-group messages",
+  );
+
+  await asUser(ids.parent, () => db.query("select public.rename_chat_room($1,'Renamed parent group')", [parentPrivateRoom]));
+  await asUser(ids.parent, () => db.query("select public.archive_chat_room($1)", [parentPrivateRoom]));
+  await denied(
+    () => asUser(ids.parent, () => db.query("select public.send_chat_message($1,'Denied after close',null)", [parentPrivateRoom])),
+    "A closed Parent group is retained as read-only history",
+  );
   await db.query("update public.profiles set status='suspended' where id=$1", [ids.parent]);
   await denied(
     () => asUser(ids.parent, () => db.query("select * from public.list_chat_messages($1,null,100)", [roomId])),

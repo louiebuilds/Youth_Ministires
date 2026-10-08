@@ -15,20 +15,23 @@ type AdministrationSection = {
 
 const sections: readonly AdministrationSection[] = [
   {
-    description: "Manage platform accounts and account access.",
+    description: "Manage accounts, lifecycle, effective access, and account support.",
     href: "/administration/accounts",
     title: "Accounts",
   },
   {
-    description: "Review effective roles and ministry access.",
-    title: "Access",
+    description: "Review invitations for ministry platform access.",
+    href: "/administration/invitations",
+    title: "Invitations",
   },
   {
-    description: "Review retained administrative activity.",
-    title: "Audit",
+    description: "Review the read-only record of administrative and system activity.",
+    href: "/administration/audit",
+    title: "Audit Log",
   },
   {
     description: "Manage ministry-wide administrative configuration.",
+    href: "/administration/ministry-settings",
     title: "Ministry Settings",
   },
 ];
@@ -41,6 +44,7 @@ export default async function AdministrationPage() {
           ...sections,
           {
             description: "Manage platform-level system configuration.",
+            href: "/administration/system-settings",
             title: "System Settings",
           },
         ]

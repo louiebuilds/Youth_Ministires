@@ -26,3 +26,12 @@ export const addChatMemberSchema = chatRoomIdSchema.extend({
 export const removeChatMemberSchema = addChatMemberSchema.extend({
   reason: z.string().trim().min(1).max(500),
 });
+
+export const leaveChatRoomSchema = chatRoomIdSchema;
+
+export const chatDiscoveryPreferenceSchema = z.object({
+  parentDiscoverable: z.preprocess(
+    (value) => value === "true" || value === "on",
+    z.boolean(),
+  ),
+});

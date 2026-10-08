@@ -1,6 +1,10 @@
 import type { EventStatus } from "@/lib/supabase/database.types";
 
-export type EventActionState = { success: boolean; message?: string };
+export type EventActionState = {
+  success: boolean;
+  message?: string;
+  registrationStatus?: EventRegistrationStatus;
+};
 
 export type EventCalendarEntry = {
   eventId: string;

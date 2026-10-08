@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { getDefaultCommunicationChannel } from "@/features/administration/services/ministry-settings-service";
 import { requireCapability } from "@/features/auth/services/authorization-service";
 import { CommunicationTemplateForm } from "@/features/communications/components/template-forms";
 
@@ -8,6 +9,7 @@ export const metadata: Metadata = { title: "New Communication Template" };
 
 export default async function NewCommunicationTemplatePage() {
   await requireCapability("communications.manage");
+  const defaultChannel = await getDefaultCommunicationChannel();
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -21,7 +23,7 @@ export default async function NewCommunicationTemplatePage() {
         </p>
       </header>
       <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
-        <CommunicationTemplateForm />
+        <CommunicationTemplateForm defaultChannel={defaultChannel} />
       </section>
     </div>
   );

@@ -6,6 +6,42 @@
 
 **v0.16.0**
 
+## Production Readiness Checkpoint — October 4, 2026
+
+Repository stabilization and the first production migration audit are
+complete. All 17 focused regression suites, the clean migration-chain check,
+ESLint, TypeScript, the optimized production build, and diff integrity pass.
+This is technical readiness evidence only; production deployment is not
+approved.
+
+The four reviewed migrations `202609290004`, `202609290005`, `202610040001`,
+and `202610040003` were backed up, applied individually in numeric order to the
+linked development project, and recorded successfully on October 5. Migration
+`202610040004` remains installed, verified, and reconciled and was not replayed.
+Historical blank migration-history entries through `202608160001` remain
+untouched. Do not run a blanket database push. A complete post-application gate
+then passed: all 17 regression suites, ESLint, TypeScript through the optimized
+production build, and `git diff --check`.
+
+Forward migration `202610060001_parent_document_operational_status.sql` was
+reviewed, applied individually to the linked development project, and recorded
+as applied on October 7. The related Administrator/Parent acceptance retest
+passed. It supplies only sanitized Parent document operational status; the
+known historical blank migration-history entries through `202608160001` remain
+untouched. Do not use a blanket database push.
+
+No dedicated staging Supabase project currently exists. The linked project is
+development, and the other visible inactive project is unrelated training
+infrastructure. Creating a dedicated staging project requires Product Owner
+approval for the hosted resource. The environment model, complete-chain
+rehearsal, smoke tests, Docker role, and production gates are documented in
+`docs/12_Ministry_Operations/01_Staging_and_Production_Release_Runbook.md`.
+
+The full audit, risk review, rollout order, and remaining release gates are in
+`docs/09_Testing/2026-10-04_Production_Readiness_Migration_Audit.md`. The work is
+also recorded in
+`docs/10_Project_Journal/2026-10-04_Production_Readiness.md`.
+
 ## Current Implementation — Native Group Chat Phases 1A–1D (September 25, 2026)
 
 Native Group Chat Phases 1A–1C are implemented and have passed Product Owner
@@ -241,6 +277,109 @@ After an Administrator registered a student for Fall Retreat 2026, the Event ros
 ### Live Acceptance Correction — Registration Action Message State
 
 Live retesting confirmed Administrator registration, cancellation, retained lifecycle, and re-registration, but the student card continued displaying the earlier green “Registration cancelled.” result after re-registration. The card maintained separate registration and cancellation `useActionState` values and always preferred the cancellation message once present. Registration and cancellation now share one intent-aware action-state channel, so each completed action replaces the previous result. Registration, waitlist, and cancellation messages remain action-specific. Database lifecycle, authorization, capacity, waitlisting, migrations, readiness, and generated types were unchanged. Verification passed; Milestone 15 remains active and unaccepted.
+
+### Live Acceptance Correction — Retained Roster Presentation State
+
+A later Administrator retest confirmed that the add-registration card was
+corrected, but exposed a separate retained state in the roster action panel.
+Because the roster row keeps the same registration ID across cancellation and
+reactivation, its cancellation action result survived the sibling Add
+registrations refresh and reappeared after the row returned to `registered`.
+The roster also counted every retained row as registered and displayed
+documentation readiness for cancelled rows.
+
+Action results now identify the lifecycle status that produced their message,
+and the retained roster row displays that result only while its current status
+matches. A successful re-registration therefore supersedes the stale
+cancellation message while preserving the genuine registration, waitlist, and
+cancellation messages. The registered badge counts only `registered` and
+`confirmed` rows. Cancelled rows display **Not applicable** for readiness and
+do not expose readiness actions.
+
+The existing registration row and cancellation history remain retained.
+Registration, capacity, waitlist, readiness, Parent relationship scope,
+authorization, database behavior, and generated types are unchanged; no
+migration was created or modified. The focused Attendance/Event and
+Forms/registration suites, all 17 repository regression suites, ESLint,
+TypeScript, and the optimized production build passed. `git diff --check`
+passed with informational Windows line-ending warnings only. Product Owner
+retesting is still required, and Milestone 15 remains active and unaccepted.
+
+### Live Acceptance Correction — Event Waiver Requirement Form State
+
+On the Halloween Party Event, Administrator acceptance successfully assigned a
+published Waiver / Permission Form version and displayed both the retained
+success message and assigned blank-form download link. The configuration
+controls nevertheless returned visually to “No waiver required” and the
+version placeholder. The protected requirement row and pinned version were
+correct; the two uncontrolled selects retained their one-time browser defaults
+across the server-action refresh instead of reflecting the refreshed projection.
+
+The controls are now controlled inside a boundary keyed by the authoritative
+required flag and pinned template-version ID. Assignment, replacement,
+removal, navigation, and full refresh therefore initialize from the protected
+requirement projection. Selecting “No waiver required” clears the version
+selection before submission, while the existing database workflow continues to
+archive prior requirements and retain history.
+
+Regression coverage confirms published-version pinning, route revalidation,
+authoritative displayed state, removal, retained history, and NOT READY
+readiness for active registrations without qualifying evidence. The focused
+Attendance/Event and Forms/registration suites, all 17 repository regression
+suites, ESLint, TypeScript, and the optimized production build passed. No
+migration or database contract changed. Manager authorization, Parent
+visibility, document downloads, readiness calculations, and audit behavior are
+unchanged. Product Owner retesting remains required; Milestone 15 is active and
+unaccepted.
+
+### Live Acceptance Correction — Parent Medical & Waivers Status
+
+Live comparison found that Administrator rows correctly showed COMPLETE while
+the linked Parent saw “Authorization: Needed,” NEEDS AUTHORIZATION, and two
+items needing attention. The Parent had no manager actions, confirming that the
+authorization boundary itself remained intact.
+
+The existing detailed submission projection deliberately suppresses protected
+medical authorization as `false` for Parents. The shared UI treated that
+privacy placeholder as missing authorization. Because the existing result
+cannot distinguish hidden authorization from genuinely pending authorization,
+new forward migration
+`202610060001_parent_document_operational_status.sql` adds a separate sanitized
+projection returning only submission ID and operational status. It preserves
+active-account, capability, linked-family, authorized-version, RLS, download,
+and manager boundaries and exposes no actor, reason, or medical review detail.
+
+Parent rows now use the sanitized state for COMPLETE, MINISTRY REVIEW PENDING,
+and ACTION REQUIRED. Ministry processing is not counted as Parent attention.
+Review and authorization details remain manager-only, while Parent actions stay
+limited to established upload/download and replacement operations. Manager
+detail and controls are unchanged.
+
+Forms headings and completed-document labels are now role-aware: manager views
+retain creation, management, review, and queue language; Parent views describe
+completing and viewing linked-family documents and use **Family documents** and
+**Completed forms and documents**. Template, assignment, response-review,
+Visitor, paper-confirmation, review, and authorization controls remain absent
+from the Parent experience.
+
+All 17 regression suites—including Forms/registration, privacy, security, and
+database verification—passed, along with ESLint, TypeScript, and the optimized
+production build. Migration `202610060001` was reviewed, applied individually,
+and recorded remotely on October 7, 2026 without changing the known historical
+blank entries through `202608160001`.
+
+Product Owner retesting passed. Administrator detail remained authoritative:
+Gillian's digital Medical Release showed Accepted review, Authorized, and
+COMPLETE; Katie's paper-only Medical Release showed Paper On file, Authorized,
+and COMPLETE. The linked Parent saw both as COMPLETE without an authorization
+warning or attention count, saw the approved family-oriented wording, and had
+only established self-service actions. Gillian's stored files remained
+available through secure download, while Katie's paper-only records correctly
+reported that no digital file was stored. No authorization actor, reason,
+medical-review detail, or manager control was exposed. This correction is
+accepted; Milestone 15 remains active and unaccepted pending the remaining
+role-based checklist.
+
 The approved documentation model requires explicit operational evidence rather
 than treating a digital upload alone as complete documentation.
 
@@ -428,31 +567,67 @@ unchanged as documented in the current migration-history checkpoint above.
 
 ### Milestone 15 Remaining Scope
 
-The following Milestone 15 work has not yet been completed:
+The October 4 closure review supersedes the older preliminary list. Protected
+Visitor Card operational workflows and the dedicated Visitors UI are
+implemented. Milestone 15 still requires:
 
-- Visitor Card operational workflows and UI
-- Anonymous/self-service Visitor Card intake
-- Communication Center reminder integration
-- Final Milestone 15 acceptance and closure documentation
+- Final role-based Product Owner acceptance of Forms, documentation readiness,
+  paper/digital completion paths, registration, Check-In enforcement, Custom
+  Forms, and Visitors
+- Public anonymous Visitor intake is deferred until after the initial release
+  by Product Owner decision on October 4, 2026; Version 1 retains staff-assisted
+  Visitor entry
+- Automated missing-document Communication reminders are deferred until after
+  the initial release by Product Owner decision on October 4, 2026; managers
+  retain the existing authorized Communications workflows
+- Final closure documentation and release evidence
+
+The detailed acceptance checklist, technical sequence, and recommendations are
+recorded in
+`docs/09_Testing/2026-10-04_Milestone15_Closure_Gap_Review.md`.
+
+An October 4 read-only migration dry run confirmed that a blanket development
+`db push` would also propose every known historical blank-history migration.
+No database change was made during that dry run. The four reviewed migrations
+were subsequently applied only through the approved individual-file process.
+
+The approved pre-migration backup was created outside the repository at
+`C:\Users\vande\Youth-Ministries-Platform-Backups\20261004-200239`. It includes
+schema and data dumps with SHA-256 checksums. Data-export circular foreign-key
+warnings require a controlled restore procedure but did not fail the backup.
+
+On October 5, the four reviewed pending migrations were applied individually in
+numeric order through the Supabase single-file query workflow. Each transaction
+completed successfully before its exact history entry was repaired. A final
+read-only migration list confirmed the four versions and the previously
+reconciled `202610040004` all match locally and remotely. Historical blank
+entries remain untouched. The complete post-application verification gate then
+passed: all 17 regression suites, ESLint, TypeScript in the optimized production
+build, and `git diff --check`. No in-scope implementation fix was required.
+Milestone 15 is technically ready for the documented Product Owner role-based
+acceptance checklist, but final acceptance and milestone closure remain pending
+that hands-on testing.
 
 Do not begin Milestone 17 until Milestone 15 is completed or the Product Owner
 and Technical Lead explicitly approve a sequencing change.
 
 ## Current Active Milestone
 
-**Feature development — remaining platform scope and approved workflow/UX
-improvements**
+**Milestone 15 — technical verification complete; Product Owner role-based
+acceptance pending**
 
-Milestone 15 remains active for its unfinished Forms & Registrations work. The
-broader acceptance campaign is paused by Product Owner decision until the
-feature set is complete.
+Milestone 15 remains active until Louie completes the documented hands-on
+role-based acceptance checklist and any genuine acceptance defect is corrected
+and retested. The automated gate is complete; do not mark final acceptance from
+technical verification alone.
 
 ## Next Step
 
-Plan and approve the next feature-development assignment from the documented
-backlog. Do not automatically start Administration, another milestone, or any
-new Prayer & Care workflow without Product Owner and Technical Lead scope
-approval.
+Louie performs the Milestone 15 role-based acceptance checklist in
+`docs/09_Testing/2026-10-04_Milestone15_Closure_Gap_Review.md` using clean
+synthetic records. Record the results, correct and retest any genuine defect,
+then complete final closure documentation. Do not begin another milestone
+without Product Owner and Technical Lead approval.
 
 ### Full Platform Acceptance Defect — Parent Account/Person Linking
 

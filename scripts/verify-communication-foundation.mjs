@@ -307,7 +307,7 @@ try {
   assert.doesNotMatch(
     announcementPage.slice(
       announcementPage.indexOf("{canManage && announcements.length"),
-      announcementPage.indexOf("{!canManage ? announcements.map"),
+      announcementPage.indexOf("{!canManage"),
     ),
     /messageBody/,
   );

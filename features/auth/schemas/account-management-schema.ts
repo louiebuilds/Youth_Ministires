@@ -31,3 +31,40 @@ export const updateManagedAccountSchema = z.object({
   primaryRole: z.enum(accountRoles),
   status: z.enum(accountStatuses),
 });
+
+export const managedAccountPasswordResetSchema = z.object({
+  profileId: z.string().uuid("The selected account is invalid."),
+});
+
+const staffGrantableCapabilities = [
+  "forms.medical.view",
+  "forms.medical.verify",
+  "forms.participation.override",
+] as const;
+
+const capabilityReason = z
+  .string()
+  .trim()
+  .min(5, "Enter a reason of at least 5 characters.")
+  .max(1000, "Reason must be 1000 characters or fewer.");
+
+export const grantManagedCapabilitySchema = z.object({
+  capability: z.enum(staffGrantableCapabilities, {
+    message: "Select an available capability.",
+  }),
+  expiresAt: z
+    .string()
+    .trim()
+    .refine(
+      (value) => !value || !Number.isNaN(new Date(value).getTime()),
+      "Enter a valid expiration date and time.",
+    ),
+  profileId: z.string().uuid("The selected account is invalid."),
+  reason: capabilityReason,
+});
+
+export const revokeManagedCapabilitySchema = z.object({
+  grantId: z.string().uuid("The selected grant is invalid."),
+  profileId: z.string().uuid("The selected account is invalid."),
+  reason: capabilityReason,
+});

@@ -8,7 +8,10 @@ export type ChatRoomSummary = {
   archivedAt: string | null;
   canManage: boolean;
   eventId: string | null;
+  isOwner: boolean;
+  isParentManaged: boolean;
   lastMessageAt: string | null;
+  ownerProfileId: string | null;
   roomId: string;
   roomName: string;
   roomType: ChatRoomType;

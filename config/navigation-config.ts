@@ -10,6 +10,7 @@ export type NavigationIcon =
   | "calendar"
   | "check-in"
   | "communications"
+  | "community"
   | "curriculum"
   | "dashboard"
   | "events"
@@ -112,6 +113,12 @@ export const primaryNavigation: readonly NavigationItem[] = [
     label: "Chat",
   },
   {
+    capability: "community.view",
+    href: "/community",
+    icon: "community",
+    label: "Community",
+  },
+  {
     capability: "prayer_care.view",
     href: "/prayer-care",
     icon: "prayer-care",
@@ -142,7 +149,7 @@ export const primaryNavigation: readonly NavigationItem[] = [
     label: "Administration",
   },
   {
-    capability: "settings.manage",
+    capability: "dashboard.view",
     href: "/settings",
     icon: "settings",
     label: "Settings",

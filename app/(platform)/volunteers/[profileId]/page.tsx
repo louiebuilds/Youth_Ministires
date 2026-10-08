@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import {
+  notFound,
+  redirect,
+} from "next/navigation";
 import { z } from "zod";
 
-import { requireCapability } from "@/features/auth/services/authorization-service";
+import { getAuthenticatedAccount } from "@/features/auth/services/session-service";
+import { hasCapability } from "@/features/auth/types/authorization";
 import {
   VolunteerAssignmentsSection,
   VolunteerAvailabilitySection,
-  VolunteerComplianceSection,
   VolunteerOverview,
   VolunteerSkillsSection,
   VolunteerWorkspaceNavigation,
-  volunteerSections,
 } from "@/features/volunteers/components/volunteer-workspace-sections";
 import {
   getVolunteerWorkspace,
@@ -22,93 +24,214 @@ import {
 
 import type { VolunteerSection } from "@/features/volunteers/components/volunteer-workspace-sections";
 
-export const metadata: Metadata = { title: "Volunteer workspace" };
+export const metadata: Metadata = {
+  title: "Volunteer workspace",
+};
 
-const sectionSchema = z.enum(volunteerSections.map(({ id }) => id));
+const visibleVolunteerSections = [
+  "overview",
+  "skills",
+  "availability",
+  "assignments",
+] as const;
+
+const sectionSchema = z.enum(
+  visibleVolunteerSections,
+);
 
 export default async function VolunteerWorkspacePage({
   params,
   searchParams,
 }: Readonly<{
-  params: Promise<{ profileId: string }>;
-  searchParams: Promise<{ section?: string | string[] }>;
+  params: Promise<{
+    profileId: string;
+  }>;
+  searchParams: Promise<{
+    section?: string | string[];
+  }>;
 }>) {
-  const account = await requireCapability("volunteers.view");
+  const account =
+    await getAuthenticatedAccount();
 
-  const parsed = z.string().uuid().safeParse((await params).profileId);
+  if (!account) {
+    redirect("/login");
+  }
 
+  const parsed = z
+    .string()
+    .uuid()
+    .safeParse(
+      (await params).profileId,
+    );
+
+  if (!parsed.success) {
+    notFound();
+  }
+
+  const targetProfileId =
+    parsed.data;
+
+  const canViewVolunteerManagement =
+    hasCapability(
+      account.role,
+      "volunteers.view",
+    );
+
+  const viewingOwnProfile =
+    account.id === targetProfileId;
+
+  /*
+   * Users without volunteer-management access
+   * may only attempt to open their own workspace.
+   */
   if (
-    !parsed.success ||
-    (account.role === "volunteer" && account.id !== parsed.data)
+    !canViewVolunteerManagement &&
+    !viewingOwnProfile
   ) {
     notFound();
   }
 
-  const result = await getVolunteerWorkspace(parsed.data);
+  /*
+   * Permanent Volunteer accounts are also
+   * self-service only.
+   */
+  if (
+    account.role === "volunteer" &&
+    !viewingOwnProfile
+  ) {
+    notFound();
+  }
+
+  const result =
+    await getVolunteerWorkspace(
+      targetProfileId,
+    );
 
   if (!result.success) {
     notFound();
   }
 
-  const volunteer = result.volunteer;
+  /*
+   * When someone is viewing their own volunteer
+   * workspace, use their editable account display
+   * name from the authenticated profile.
+   *
+   * Manager views of another volunteer keep the
+   * existing volunteer/person display name.
+   */
+  const volunteer = {
+    ...result.volunteer,
+    displayName: viewingOwnProfile
+      ? account.displayName
+      : result.volunteer.displayName,
+  };
 
   /*
-   * A Volunteer may view their own Volunteer workspace, but must never receive
-   * manager-only controls.
+   * Parent + Volunteer:
    *
-   * Preserve the backend canManage decision for every other role while
-   * explicitly enforcing Volunteer self-service behavior at the page boundary.
+   * A Parent keeps the Parent primary role,
+   * but may use Volunteer self-service when
+   * an active volunteer profile exists for
+   * their own account.
+   */
+  if (
+    account.role === "parent" &&
+    (!viewingOwnProfile ||
+      !volunteer.isActive)
+  ) {
+    notFound();
+  }
+
+  /*
+   * Volunteers and Parent+Volunteer users must
+   * never receive manager-only controls.
+   *
+   * Administrator / Youth Pastor / Staff Member
+   * retain the backend canManage decision.
    */
   const viewerCanManage =
-    account.role === "volunteer" ? false : volunteer.canManage;
+    account.role !== "volunteer" &&
+    account.role !== "parent" &&
+    volunteer.canManage;
 
   const volunteerForViewer = {
     ...volunteer,
     canManage: viewerCanManage,
   };
 
-  const requested = sectionSchema.safeParse((await searchParams).section);
+  const requested =
+    sectionSchema.safeParse(
+      (await searchParams).section,
+    );
 
-  const activeSection: VolunteerSection = requested.success
-    ? requested.data
-    : "overview";
+  const activeSection:
+    VolunteerSection =
+    requested.success
+      ? requested.data
+      : "overview";
 
   const needsAssignments =
-    activeSection === "overview" || activeSection === "assignments";
+    activeSection === "overview" ||
+    activeSection ===
+      "assignments";
 
-  const [skills, assignments, events] = await Promise.all([
+  const [
+    skills,
+    assignments,
+    events,
+  ] = await Promise.all([
     activeSection === "skills"
       ? listVolunteerSkills()
       : Promise.resolve([]),
 
     needsAssignments
-      ? listVolunteerAssignments(volunteer.profileId)
+      ? listVolunteerAssignments(
+          volunteer.profileId,
+        )
       : Promise.resolve([]),
 
-    activeSection === "assignments" && viewerCanManage
+    activeSection ===
+        "assignments" &&
+      viewerCanManage
       ? listSchedulableEvents()
       : Promise.resolve([]),
   ]);
+
+  const selfServiceViewer =
+    account.role === "volunteer" ||
+    account.role === "parent";
 
   return (
     <div className="space-y-7">
       <header>
         <Link
           className="text-sm font-semibold text-sky-700 hover:text-sky-900"
-          href="/volunteers"
+          href={
+            selfServiceViewer
+              ? "/dashboard"
+              : "/volunteers"
+          }
         >
-          ← Back to volunteers
+          {selfServiceViewer
+            ? "← Back to dashboard"
+            : "← Back to volunteers"}
         </Link>
 
         <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-950">
+            <p className="text-sm font-semibold text-sky-700">
+              {selfServiceViewer
+                ? "My volunteer profile"
+                : "Volunteer workspace"}
+            </p>
+
+            <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-950">
               {volunteer.displayName}
             </h1>
 
             <p className="mt-2 text-base text-slate-600">
-              {volunteer.ministryTitle ?? "Volunteer"} ·{" "}
-              {volunteer.primaryRole.replaceAll("_", " ")}
+              {volunteer.ministryTitle ??
+                "Volunteer"}
             </p>
           </div>
 
@@ -119,43 +242,59 @@ export default async function VolunteerWorkspacePage({
                 : "bg-slate-100 text-slate-700"
             }`}
           >
-            {volunteer.isActive ? "Active" : "Inactive"}
+            {volunteer.isActive
+              ? "Active"
+              : "Inactive"}
           </span>
         </div>
       </header>
 
       <VolunteerWorkspaceNavigation
         active={activeSection}
-        profileId={volunteer.profileId}
+        profileId={
+          volunteer.profileId
+        }
       />
 
-      {activeSection === "overview" ? (
+      {activeSection ===
+      "overview" ? (
         <VolunteerOverview
           assignments={assignments}
-          volunteer={volunteerForViewer}
+          volunteer={
+            volunteerForViewer
+          }
         />
       ) : null}
 
-      {activeSection === "compliance" ? (
-        <VolunteerComplianceSection volunteer={volunteerForViewer} />
-      ) : null}
-
-      {activeSection === "skills" ? (
+      {activeSection ===
+      "skills" ? (
         <VolunteerSkillsSection
           skills={skills}
-          volunteer={volunteerForViewer}
+          volunteer={
+            volunteerForViewer
+          }
         />
       ) : null}
 
-      {activeSection === "availability" ? (
-        <VolunteerAvailabilitySection volunteer={volunteerForViewer} />
+      {activeSection ===
+      "availability" ? (
+        <VolunteerAvailabilitySection
+          volunteer={
+            volunteerForViewer
+          }
+        />
       ) : null}
 
-      {activeSection === "assignments" ? (
+      {activeSection ===
+      "assignments" ? (
         <VolunteerAssignmentsSection
-          assignments={assignments}
+          assignments={
+            assignments
+          }
           events={events}
-          volunteer={volunteerForViewer}
+          volunteer={
+            volunteerForViewer
+          }
         />
       ) : null}
     </div>
