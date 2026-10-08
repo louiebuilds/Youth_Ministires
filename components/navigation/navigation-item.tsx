@@ -8,6 +8,7 @@ import {
   FileCheck2,
   FolderOpen,
   HeartHandshake,
+  CircleHelp,
   House,
   LayoutDashboard,
   MessagesSquare,
@@ -38,6 +39,7 @@ const navigationIcons: Record<
   dashboard: LayoutDashboard,
   events: CalendarDays,
   families: House,
+  help: CircleHelp,
   "permission-forms": FileCheck2,
   "prayer-care": HeartHandshake,
   reports: BarChart3,
@@ -51,6 +53,7 @@ const navigationIcons: Record<
 
 type NavigationItemProps = Readonly<{
   item: NavigationItemConfig;
+  onNavigate?: () => void;
 }>;
 
 function isNavigationItemActive(
@@ -69,6 +72,7 @@ function isNavigationItemActive(
 
 export function NavigationItem({
   item,
+  onNavigate,
 }: NavigationItemProps) {
   const pathname = usePathname();
 
@@ -86,13 +90,14 @@ export function NavigationItem({
           isActive ? "page" : undefined
         }
         className={[
-          "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+          "flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
           "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
           isActive
             ? "bg-white text-slate-950 shadow-sm"
             : "text-slate-300 hover:bg-slate-800 hover:text-white",
         ].join(" ")}
         href={item.href}
+        onClick={onNavigate}
       >
         <Icon
           aria-hidden="true"

@@ -20,6 +20,7 @@ export type PlatformCapability =
   | "forms.medical.view"
   | "forms.medical.verify"
   | "forms.participation.override"
+  | "help.view"
   | "custom_forms.manage"
   | "custom_forms.submit"
   | "visitor_cards.manage"
@@ -43,6 +44,7 @@ const roleCapabilities = {
     "custom_forms.submit",
     "prayer_care.view",
     "resource_library.view",
+    "help.view",
   ],
 
   platform_administrator: [
@@ -75,6 +77,7 @@ const roleCapabilities = {
     "curriculum.view",
     "reports.view",
     "settings.manage",
+    "help.view",
   ],
 
   staff_member: [
@@ -98,6 +101,7 @@ const roleCapabilities = {
     "communications.view",
     "curriculum.view",
     "reports.view",
+    "help.view",
   ],
 
   volunteer: [
@@ -109,6 +113,7 @@ const roleCapabilities = {
     "resource_library.view",
     "scheduling.view",
     "custom_forms.submit",
+    "help.view",
   ],
 
   youth_pastor: [
@@ -140,6 +145,7 @@ const roleCapabilities = {
     "community.moderate",
     "reports.view",
     "settings.manage",
+    "help.view",
   ],
 } as const satisfies Record<
   AccountRole,

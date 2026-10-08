@@ -15,6 +15,7 @@ export type NavigationIcon =
   | "dashboard"
   | "events"
   | "families"
+  | "help"
   | "permission-forms"
   | "prayer-care"
   | "reports"
@@ -153,6 +154,12 @@ export const primaryNavigation: readonly NavigationItem[] = [
     href: "/settings",
     icon: "settings",
     label: "Settings",
+  },
+  {
+    capability: "help.view",
+    href: "/help",
+    icon: "help",
+    label: "Help & Guide",
   },
 ];
 

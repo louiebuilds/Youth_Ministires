@@ -20,6 +20,88 @@ const initialState: CheckInActionState = {
 const inputClass =
   "min-h-11 w-full rounded-lg border border-slate-300 px-3 py-2 font-mono text-base outline-none focus:border-sky-600 focus:ring-3 focus:ring-sky-100";
 
+type CameraState =
+  | "closed"
+  | "ready"
+  | "starting"
+  | "active"
+  | "insecure"
+  | "unsupported"
+  | "permission-denied"
+  | "not-found"
+  | "unavailable"
+  | "failed";
+
+const cameraMessages: Record<CameraState, string> = {
+  closed: "",
+  ready:
+    "Camera access has not been requested. Tap Start camera when you are ready.",
+  starting: "Starting camera…",
+  active: "Point the camera at the family QR code.",
+  insecure:
+    "Camera scanning requires a secure HTTPS connection. Open this page using the secure site address.",
+  unsupported:
+    "This browser does not provide the camera features required for scanning.",
+  "permission-denied":
+    "Camera access was denied. On iPhone or iPad, allow Camera for this website or installed app. On Android, allow Camera in the site's permissions. Then return and try again.",
+  "not-found": "No available camera was found on this device.",
+  unavailable:
+    "The camera is busy or unavailable. Close other apps using the camera and try again.",
+  failed:
+    "The scanner could not start on this device. Reload the page and try again, or use the manual pass field below.",
+};
+
+function cameraFailureState(error: unknown): CameraState {
+  const detail =
+    error instanceof Error
+      ? `${error.name} ${error.message}`.toLowerCase()
+      : String(error).toLowerCase();
+
+  if (
+    detail.includes("notallowederror") ||
+    detail.includes("permission denied") ||
+    detail.includes("permissiondismissederror") ||
+    detail.includes("securityerror")
+  ) {
+    return "permission-denied";
+  }
+
+  if (
+    detail.includes("notfounderror") ||
+    detail.includes("devicesnotfounderror") ||
+    detail.includes("no cameras")
+  ) {
+    return "not-found";
+  }
+
+  if (
+    detail.includes("notreadableerror") ||
+    detail.includes("trackstarterror") ||
+    detail.includes("aborterror") ||
+    detail.includes("could not start video source")
+  ) {
+    return "unavailable";
+  }
+
+  return "failed";
+}
+
+function stopContainerMediaTracks() {
+  const video = document
+    .getElementById("family-qr-reader")
+    ?.querySelector("video");
+  const stream = video?.srcObject;
+
+  if (
+    video &&
+    typeof MediaStream !== "undefined" &&
+    stream instanceof MediaStream
+  ) {
+    stream.getTracks().forEach((track) => track.stop());
+    video.srcObject = null;
+  }
+}
+
 function extractFamilyPassToken(value: string) {
   const trimmed = value.trim();
 
@@ -78,10 +160,11 @@ export function ResolveFamilyPassForm({
   const [scannerOpen, setScannerOpen] =
     useState(false);
 
-  const [
-    scannerMessage,
-    setScannerMessage,
-  ] = useState<string | null>(null);
+  const [cameraState, setCameraState] =
+    useState<CameraState>("closed");
+
+  const [scanMessage, setScanMessage] =
+    useState<string | null>(null);
 
   const formRef =
     useRef<HTMLFormElement>(null);
@@ -92,216 +175,295 @@ export function ResolveFamilyPassForm({
   const handledScanRef =
     useRef(false);
 
+  const mountedRef =
+    useRef(true);
+
+  async function stopScanner() {
+    handledScanRef.current = true;
+
+    const scanner = scannerRef.current;
+    scannerRef.current = null;
+
+    try {
+      if (scanner?.isScanning) {
+        await scanner.stop();
+      }
+    } catch {
+      // Track cleanup below is the final fallback.
+    }
+
+    stopContainerMediaTracks();
+
+    try {
+      scanner?.clear();
+    } catch {
+      // The scanner may already have cleared its rendering surface.
+    }
+  }
+
   useEffect(() => {
-    if (!scannerOpen) {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+      void stopScanner();
+    };
+  }, []);
+
+  function openScanner() {
+    setScannerOpen(true);
+    setScanMessage(null);
+
+    if (!window.isSecureContext) {
+      setCameraState("insecure");
       return;
     }
 
-    let cancelled = false;
-
-    const scanner =
-      new Html5Qrcode(
-        "family-qr-reader",
-      );
-
-    scannerRef.current = scanner;
-    handledScanRef.current = false;
-
-    async function startScanner() {
-      try {
-        setScannerMessage(
-          "Starting camera…",
-        );
-
-        await scanner.start(
-          {
-            facingMode: "environment",
-          },
-          {
-            fps: 10,
-            qrbox: {
-              width: 250,
-              height: 250,
-            },
-          },
-          async (decodedText) => {
-            if (
-              handledScanRef.current ||
-              cancelled
-            ) {
-              return;
-            }
-
-            const pass =
-              extractFamilyPassToken(
-                decodedText,
-              );
-
-            if (!pass) {
-              setScannerMessage(
-                "That QR does not appear to be a valid family pass.",
-              );
-              return;
-            }
-
-            handledScanRef.current = true;
-
-            setScannerMessage(
-              "Family pass recognized. Opening family…",
-            );
-
-            setToken(pass);
-
-            try {
-              await scanner.stop();
-            } catch {
-              // Scanner may already be stopping.
-            }
-
-            setScannerOpen(false);
-
-            window.setTimeout(() => {
-              formRef.current?.requestSubmit();
-            }, 0);
-          },
-          () => {
-            // Ignore individual decode failures while
-            // the camera continues looking for a QR.
-          },
-        );
-
-        if (!cancelled) {
-          setScannerMessage(
-            "Point the camera at the family QR code.",
-          );
-        }
-      } catch (error) {
-        if (!cancelled) {
-          const errorName =
-            error instanceof DOMException
-              ? error.name
-              : "UnknownError";
-
-          console.error(
-            "Family QR camera start failed",
-            { errorName },
-          );
-
-          const detail =
-            errorName === "NotAllowedError" ||
-            errorName === "SecurityError"
-              ? "Camera access was denied by Safari. Allow camera access for this website and try again."
-              : errorName === "NotFoundError"
-                ? "No available camera was found on this device."
-                : errorName === "NotReadableError" ||
-                    errorName === "AbortError"
-                  ? "The camera is busy or unavailable. Close other apps using the camera and try again."
-                  : errorName === "OverconstrainedError"
-                    ? "The rear-camera request is not supported by this device."
-                    : "The camera could not be started on this device.";
-
-          setScannerMessage(
-            `${detail} You can use the manual pass field below.`,
-          );
-        }
-      }
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setCameraState("unsupported");
+      return;
     }
 
-    void startScanner();
-
-    return () => {
-      cancelled = true;
-
-      const current =
-        scannerRef.current;
-
-      scannerRef.current = null;
-
-      if (
-        current &&
-        current.isScanning
-      ) {
-        void current
-          .stop()
-          .catch(() => undefined);
-      }
-    };
-  }, [scannerOpen]);
-
-  async function closeScanner() {
-    handledScanRef.current = true;
-
-    const scanner =
-      scannerRef.current;
-
-    if (
-      scanner &&
-      scanner.isScanning
-    ) {
-      try {
-        await scanner.stop();
-      } catch {
-        // Ignore shutdown errors.
-      }
-    }
-
-    scannerRef.current = null;
-    setScannerOpen(false);
-    setScannerMessage(null);
+    setCameraState("ready");
   }
 
+  async function startScanner() {
+    if (!window.isSecureContext) {
+      setCameraState("insecure");
+      return;
+    }
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setCameraState("unsupported");
+      return;
+    }
+
+    handledScanRef.current = false;
+    setScanMessage(null);
+    setCameraState("starting");
+
+    const scanner = new Html5Qrcode(
+      "family-qr-reader",
+    );
+
+    scannerRef.current = scanner;
+
+    try {
+      // Start is invoked directly from this button handler so mobile
+      // browsers retain the user-gesture permission context.
+      const startPromise = scanner.start(
+        {
+          facingMode: "environment",
+        },
+        {
+          fps: 10,
+          qrbox: (width, height) => {
+            const edge = Math.max(
+              140,
+              Math.min(
+                250,
+                width - 32,
+                height - 32,
+              ),
+            );
+
+            return {
+              width: edge,
+              height: edge,
+            };
+          },
+          videoConstraints: {
+            facingMode: {
+              ideal: "environment",
+            },
+          },
+        },
+        async (decodedText) => {
+          if (
+            handledScanRef.current ||
+            !mountedRef.current
+          ) {
+            return;
+          }
+
+          const pass =
+            extractFamilyPassToken(
+              decodedText,
+            );
+
+          if (!pass) {
+            setScanMessage(
+              "That QR does not appear to be a valid family pass.",
+            );
+            return;
+          }
+
+          handledScanRef.current = true;
+          setScanMessage(
+            "Family pass recognized. Opening family…",
+          );
+          setToken(pass);
+
+          await stopScanner();
+
+          if (!mountedRef.current) {
+            return;
+          }
+
+          setScannerOpen(false);
+          setCameraState("closed");
+
+          window.setTimeout(() => {
+            formRef.current?.requestSubmit();
+          }, 0);
+        },
+        () => {
+          // Individual decode misses are expected while scanning.
+        },
+      );
+
+      await startPromise;
+
+      if (
+        !mountedRef.current ||
+        scannerRef.current !== scanner
+      ) {
+        try {
+          if (scanner.isScanning) {
+            await scanner.stop();
+          }
+        } catch {
+          stopContainerMediaTracks();
+        }
+
+        return;
+      }
+
+      setCameraState("active");
+    } catch (error) {
+      const failureState =
+        cameraFailureState(error);
+
+      console.error(
+        "Family QR camera start failed",
+        {
+          errorName: failureState,
+        },
+      );
+
+      await stopScanner();
+
+      if (mountedRef.current) {
+        setCameraState(failureState);
+      }
+    }
+  }
+  async function closeScanner() {
+    await stopScanner();
+
+    if (!mountedRef.current) {
+      return;
+    }
+
+    setScannerOpen(false);
+    setCameraState("closed");
+    setScanMessage(null);
+  }
+
+  const canStart = [
+    "ready",
+    "permission-denied",
+    "not-found",
+    "unavailable",
+    "failed",
+  ].includes(cameraState);
+
   return (
-    <div className="mt-3 space-y-4">
+    <div className="mt-3 min-w-0 space-y-4">
       <button
         className="min-h-11 w-full rounded-lg bg-sky-700 px-4 font-semibold text-white"
-        onClick={() => {
-          setScannerMessage(null);
-          setScannerOpen(true);
-        }}
+        onClick={openScanner}
         type="button"
       >
         Scan family QR
       </button>
 
       {scannerOpen ? (
-        <div className="rounded-xl border border-sky-200 bg-sky-50 p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
+        <div className="min-w-0 max-w-full rounded-xl border border-sky-200 bg-sky-50 p-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
               <h3 className="font-bold text-slate-950">
                 Scan family QR
               </h3>
 
-              <p className="mt-1 text-sm text-slate-600">
-                Point this device&apos;s
-                camera at the family&apos;s
-                QR pass.
+              <p className="mt-1 text-sm leading-6 text-slate-600">
+                Camera access starts only after you tap Start camera. The QR
+                identifies the household but never authorizes pickup or
+                release.
               </p>
             </div>
 
             <button
-              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700"
+              className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700"
               onClick={() => {
                 void closeScanner();
               }}
               type="button"
             >
-              Cancel
+              Close
             </button>
           </div>
 
           <div
-            className="mt-4 overflow-hidden rounded-xl bg-black"
+            className="mt-4 min-h-40 w-full max-w-full overflow-hidden rounded-xl bg-black [&_canvas]:!max-w-full [&_video]:!h-auto [&_video]:!max-w-full [&_video]:!w-full"
             id="family-qr-reader"
           />
 
-          {scannerMessage ? (
-            <p
-              className="mt-3 text-sm font-semibold text-slate-700"
-              role="status"
-            >
-              {scannerMessage}
-            </p>
-          ) : null}
+          <p
+            className={`mt-3 rounded-lg p-3 text-sm font-semibold leading-6 ${
+              cameraState === "active"
+                ? "bg-emerald-100 text-emerald-900"
+                : cameraState === "ready" || cameraState === "starting"
+                  ? "bg-white text-slate-700"
+                  : "bg-amber-100 text-amber-950"
+            }`}
+            role={
+              [
+                "permission-denied",
+                "not-found",
+                "unavailable",
+                "failed",
+              ].includes(cameraState)
+                ? "alert"
+                : "status"
+            }
+          >
+            {scanMessage ?? cameraMessages[cameraState]}
+          </p>
+
+          <div className="mt-3 flex flex-wrap gap-3">
+            {canStart ? (
+              <button
+                className="min-h-11 rounded-lg bg-sky-700 px-4 font-semibold text-white"
+                onClick={() => void startScanner()}
+                type="button"
+              >
+                {cameraState === "ready"
+                  ? "Start camera"
+                  : "Try camera again"}
+              </button>
+            ) : null}
+
+            {cameraState === "active" ? (
+              <button
+                className="min-h-11 rounded-lg border border-slate-300 bg-white px-4 font-semibold text-slate-800"
+                onClick={() => void closeScanner()}
+                type="button"
+              >
+                Stop camera
+              </button>
+            ) : null}
+          </div>
         </div>
       ) : null}
 
@@ -371,11 +533,9 @@ export function ResolveFamilyPassForm({
       </form>
 
       <p className="text-xs leading-5 text-slate-500">
-        Manual entry remains available if
-        the camera is unavailable. A family
-        QR only identifies the household;
-        staff still confirm every check-in
-        and pickup action.
+        Manual family search and pass entry remain available if the camera is
+        unavailable. A family QR only identifies the household; staff still
+        confirm every check-in and pickup action.
       </p>
     </div>
   );

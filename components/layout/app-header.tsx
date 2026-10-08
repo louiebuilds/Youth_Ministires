@@ -17,8 +17,11 @@ export async function AppHeader({
   const ministryDisplayName = await getMinistryDisplayName();
 
   return (
-    <header className="relative z-30 border-b border-slate-200 bg-white">
-      <div className="flex min-h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+    <header
+      className="relative z-30 border-b border-slate-200 bg-white pt-[env(safe-area-inset-top)]"
+      data-app-header
+    >
+      <div className="flex min-h-16 items-center justify-between gap-2 px-3 sm:gap-4 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <MobileNavigation navigation={navigation} />
           <div className="min-w-0">

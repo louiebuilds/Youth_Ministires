@@ -12,7 +12,7 @@ export function AppShell({
   sidebar,
 }: AppShellProps) {
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-950">
+    <div className="min-h-dvh bg-slate-100 text-slate-950">
       <a
         className="sr-only fixed left-4 top-4 z-50 rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white shadow-lg focus:not-sr-only"
         href="#main-content"
@@ -20,14 +20,14 @@ export function AppShell({
         Skip to main content
       </a>
 
-      <div className="flex min-h-screen">
+      <div className="flex min-h-dvh">
         {sidebar}
 
         <div className="flex min-w-0 flex-1 flex-col">
           {header}
 
           <main className="flex-1" id="main-content" tabIndex={-1}>
-            <div className="mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-6 lg:px-8">
+            <div className="mx-auto w-full min-w-0 max-w-screen-2xl px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
               {children}
             </div>
           </main>

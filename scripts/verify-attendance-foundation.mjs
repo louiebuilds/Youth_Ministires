@@ -75,6 +75,24 @@ async function expectDatabaseError(operation, description) {
 }
 
 try {
+  const scannerComponent = await readFile(
+    "features/check-in/components/resolve-family-pass-form.tsx",
+    "utf8",
+  );
+  assert.match(scannerComponent, /^"use client";/);
+  assert.match(scannerComponent, /window\.isSecureContext/);
+  assert.match(scannerComponent, /navigator\.mediaDevices\?\.getUserMedia/);
+  assert.match(scannerComponent, /Camera access has not been requested/);
+  assert.match(scannerComponent, /onClick=\{\(\) => void startScanner\(\)\}/);
+  assert.match(scannerComponent, /Start camera/);
+  assert.match(
+    scannerComponent,
+    /videoConstraints:\s*\{\s*facingMode:\s*\{\s*ideal:\s*"environment"/,
+  );
+  assert.match(scannerComponent, /getTracks\(\)\.forEach/);
+  assert.match(scannerComponent, /Manual family search and pass entry remain available/);
+  assert.match(scannerComponent, /never authorizes pickup or\s+release/);
+
   await db.exec(`
     create schema auth;
     create schema extensions;
