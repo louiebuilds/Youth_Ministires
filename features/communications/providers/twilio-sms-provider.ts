@@ -13,29 +13,40 @@ type TwilioFailure = {
   status?: number;
 };
 
-function safeFailure(error: unknown): Extract<OutboundSmsResult, { success: false }> {
-  const failure = typeof error === "object" && error !== null
-    ? error as TwilioFailure
-    : {};
-  const classification = failure.status === 429 || failure.code === 20429
-    ? "rate_limit"
-    : failure.status && failure.status >= 400 && failure.status < 500
-      ? "validation"
-      : failure.status && failure.status >= 500
-        ? "provider"
-        : "network";
+function safeFailure(
+  error: unknown,
+): Extract<OutboundSmsResult, { success: false }> {
+  const failure =
+    typeof error === "object" && error !== null
+      ? (error as TwilioFailure)
+      : {};
+
+  const classification =
+    failure.status === 429 || failure.code === 20429
+      ? "rate_limit"
+      : failure.status && failure.status >= 400 && failure.status < 500
+        ? "validation"
+        : failure.status && failure.status >= 500
+          ? "provider"
+          : "network";
+
+  const codeSuffix =
+    typeof failure.code === "number"
+      ? ` (Twilio code ${failure.code})`
+      : "";
 
   return {
     success: false,
     provider: "twilio",
     classification,
-    message: classification === "rate_limit"
-      ? "The text messaging service rate limit was reached."
-      : classification === "validation"
-        ? "The text messaging service rejected the message details."
-        : classification === "network"
-          ? "The text messaging service could not be reached."
-          : "The text messaging service did not accept the message.",
+    message:
+      classification === "rate_limit"
+        ? `The text messaging service rate limit was reached${codeSuffix}.`
+        : classification === "validation"
+          ? `The text messaging service rejected the message details${codeSuffix}.`
+          : classification === "network"
+            ? `The text messaging service could not be reached${codeSuffix}.`
+            : `The text messaging service did not accept the message${codeSuffix}.`,
   };
 }
 
