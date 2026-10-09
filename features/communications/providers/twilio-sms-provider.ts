@@ -9,7 +9,7 @@ import type {
 } from "@/features/communications/providers/sms-provider";
 
 type TwilioFailure = {
-  code?: number;
+  code?: number | string;
   status?: number;
 };
 
@@ -22,7 +22,7 @@ function safeFailure(
       : {};
 
   const classification =
-    failure.status === 429 || failure.code === 20429
+    failure.status === 429 || String(failure.code ?? "") === "20429"
       ? "rate_limit"
       : failure.status && failure.status >= 400 && failure.status < 500
         ? "validation"
@@ -30,9 +30,22 @@ function safeFailure(
           ? "provider"
           : "network";
 
-  const codeSuffix =
-    typeof failure.code === "number"
-      ? ` (Twilio code ${failure.code})`
+  const diagnosticParts: string[] = [];
+
+  if (typeof failure.status === "number") {
+    diagnosticParts.push(`HTTP ${failure.status}`);
+  }
+
+  if (
+    typeof failure.code === "number" ||
+    (typeof failure.code === "string" && failure.code.trim() !== "")
+  ) {
+    diagnosticParts.push(`Twilio code ${String(failure.code).trim()}`);
+  }
+
+  const diagnosticSuffix =
+    diagnosticParts.length > 0
+      ? ` (${diagnosticParts.join(", ")})`
       : "";
 
   return {
@@ -41,12 +54,12 @@ function safeFailure(
     classification,
     message:
       classification === "rate_limit"
-        ? `The text messaging service rate limit was reached${codeSuffix}.`
+        ? `The text messaging service rate limit was reached${diagnosticSuffix}.`
         : classification === "validation"
-          ? `The text messaging service rejected the message details${codeSuffix}.`
+          ? `The text messaging service rejected the message details${diagnosticSuffix}.`
           : classification === "network"
-            ? `The text messaging service could not be reached${codeSuffix}.`
-            : `The text messaging service did not accept the message${codeSuffix}.`,
+            ? `The text messaging service could not be reached${diagnosticSuffix}.`
+            : `The text messaging service did not accept the message${diagnosticSuffix}.`,
   };
 }
 
