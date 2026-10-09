@@ -108,12 +108,6 @@ export const primaryNavigation: readonly NavigationItem[] = [
     label: "Communications",
   },
   {
-    capability: "communications.view",
-    href: "/communications/chat",
-    icon: "communications",
-    label: "Chat",
-  },
-  {
     capability: "community.view",
     href: "/community",
     icon: "community",
