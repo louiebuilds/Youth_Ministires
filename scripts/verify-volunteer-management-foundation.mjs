@@ -12,6 +12,8 @@ const migrationPaths = [
   "supabase/migrations/202607240004_volunteer_management_workflows.sql",
   "supabase/migrations/202607260001_volunteer_scheduling.sql",
   "supabase/migrations/202608030004_volunteer_proper_display_names.sql",
+  "supabase/migrations/202610090003_parent_volunteer_candidate_picker.sql",
+  "supabase/migrations/202610090004_parent_volunteer_directory.sql",
 ];
 
 const ids = {
@@ -463,6 +465,114 @@ try {
     directWriteRejected,
     true,
     "Direct authenticated writes remain closed until audited service functions are added",
+  );
+
+  const candidatesBeforeParentLink = await asAuthenticated(ids.admin, () =>
+    db.query("select * from public.list_volunteer_candidates()"),
+  );
+  assert.equal(
+    candidatesBeforeParentLink.rows.some(
+      (candidate) => candidate.profile_id === ids.parent &&
+        candidate.primary_role === "parent",
+    ),
+    true,
+    "An active Parent without a volunteer profile is a volunteer candidate",
+  );
+  assert.equal(
+    candidatesBeforeParentLink.rows.some(
+      (candidate) => candidate.profile_id === ids.volunteer,
+    ),
+    false,
+    "An account with a volunteer profile is excluded from candidates",
+  );
+
+  await asAuthenticated(ids.admin, () =>
+    db.query(
+      `select public.upsert_volunteer_profile(
+        $1, 'Parent Volunteer', 'pending', null, null, null, true
+      )`,
+      [ids.parent],
+    ),
+  );
+  const linkedParent = await db.query(
+    `select profiles.primary_role, volunteer_profiles.is_active
+     from public.profiles
+     join public.volunteer_profiles
+       on volunteer_profiles.profile_id = profiles.id
+     where profiles.id = $1`,
+    [ids.parent],
+  );
+  assert.deepEqual(
+    linkedParent.rows[0],
+    { primary_role: "parent", is_active: true },
+    "Linking a Parent creates an active volunteer profile without changing primary role",
+  );
+  const candidatesAfterParentLink = await asAuthenticated(ids.admin, () =>
+    db.query("select * from public.list_volunteer_candidates()"),
+  );
+  assert.equal(
+    candidatesAfterParentLink.rows.some(
+      (candidate) => candidate.profile_id === ids.parent,
+    ),
+    false,
+    "A Parent with a volunteer profile is excluded from candidates",
+  );
+
+  const dualRoleDirectory = await asAuthenticated(ids.admin, () =>
+    db.query("select * from public.list_volunteer_directory(null)"),
+  );
+  assert.equal(
+    dualRoleDirectory.rows.some(
+      (volunteer) => volunteer.profile_id === ids.parent &&
+        volunteer.primary_role === "parent" && volunteer.is_active,
+    ),
+    true,
+    "A Parent with an active volunteer profile appears in the directory",
+  );
+  assert.equal(
+    dualRoleDirectory.rows.some(
+      (volunteer) => volunteer.profile_id === ids.volunteer &&
+        volunteer.primary_role === "volunteer" && volunteer.is_active,
+    ),
+    true,
+    "A Volunteer-primary active profile remains in the directory",
+  );
+
+  await asAuthenticated(ids.admin, () =>
+    db.query(
+      `select public.upsert_volunteer_profile(
+        $1, 'Inactive Volunteer', 'pending', null, null, null, false
+      )`,
+      [ids.otherVolunteer],
+    ),
+  );
+  const activeDirectory = await asAuthenticated(ids.admin, () =>
+    db.query("select * from public.list_volunteer_directory(null)"),
+  );
+  assert.equal(
+    activeDirectory.rows.some(
+      (volunteer) => volunteer.profile_id === ids.otherVolunteer,
+    ),
+    false,
+    "An inactive volunteer profile is excluded from the directory",
+  );
+  const dualRoleIdentity = await db.query(
+    `select profiles.primary_role,
+      (select count(*)::integer from auth.users where id = profiles.id)
+        as account_count,
+      (select count(*)::integer from public.volunteer_profiles
+       where profile_id = profiles.id) as volunteer_profile_count
+     from public.profiles where profiles.id = $1`,
+    [ids.parent],
+  );
+  assert.deepEqual(
+    dualRoleIdentity.rows[0],
+    {
+      primary_role: "parent",
+      account_count: 1,
+      volunteer_profile_count: 1,
+    },
+    "Directory eligibility does not change roles or duplicate accounts or profiles",
   );
 
   const [
