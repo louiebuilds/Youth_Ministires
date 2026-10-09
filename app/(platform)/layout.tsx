@@ -3,10 +3,7 @@ import { redirect } from "next/navigation";
 import { AppHeader } from "@/components/layout/app-header";
 import { AppShell } from "@/components/layout/app-shell";
 import { AppSidebar } from "@/components/layout/app-sidebar";
-import {
-  getNavigationForRole,
-  type NavigationItem,
-} from "@/config/navigation-config";
+import { getNavigationForRole } from "@/config/navigation-config";
 import { getAuthenticatedAccount } from "@/features/auth/services/session-service";
 import { roleLabels } from "@/features/auth/types/authorization";
 
@@ -22,33 +19,11 @@ export default async function PlatformLayout({
     redirect("/login");
   }
 
-  const baseNavigation =
+  const navigation =
     getNavigationForRole(
       account.role,
       account.hasActiveVolunteerProfile,
     );
-
-  const myVolunteerItem:
-    | NavigationItem
-    | null =
-    account.role === "parent" &&
-    account.hasActiveVolunteerProfile
-      ? {
-          capability: "dashboard.view",
-          href: `/volunteers/${account.id}`,
-          icon: "volunteers",
-          label: "My Volunteer",
-        }
-      : null;
-
-  const navigation =
-    myVolunteerItem
-      ? [
-          ...baseNavigation.slice(0, 3),
-          myVolunteerItem,
-          ...baseNavigation.slice(3),
-        ]
-      : baseNavigation;
 
   return (
     <AppShell
