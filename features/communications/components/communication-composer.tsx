@@ -19,6 +19,8 @@ export function CommunicationComposer({
   channel,
   templates,
   emailMode,
+  smsMode,
+  totalRecipientCount,
   liveSendCount,
   suppressedCount,
   idempotencyKey,
@@ -27,6 +29,8 @@ export function CommunicationComposer({
   channel: "in_app" | "email" | "sms";
   templates: CommunicationTemplate[];
   emailMode: "synthetic" | "live" | "disabled";
+  smsMode: "synthetic" | "live" | "disabled";
+  totalRecipientCount: number;
   liveSendCount: number;
   suppressedCount: number;
   idempotencyKey: string;
@@ -49,6 +53,10 @@ export function CommunicationComposer({
   );
   const isLiveEmail = channel === "email" && emailMode === "live";
   const isDisabledLiveEmail = channel === "email" && emailMode === "disabled";
+  const isLiveSms = channel === "sms" && smsMode === "live";
+  const isDisabledLiveSms = channel === "sms" && smsMode === "disabled";
+  const isLiveSend = isLiveEmail || isLiveSms;
+  const isDisabledLiveSend = isDisabledLiveEmail || isDisabledLiveSms;
 
   const selectTemplate = useCallback((templateId: string) => {
     const input = {
@@ -157,35 +165,52 @@ export function CommunicationComposer({
           Email setup is not complete. Please try again after setup is finished.
         </p>
       ) : null}
-      {isLiveEmail && reviewingLiveSend ? (
+      {isLiveSms ? (
+        <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-950">
+          <p className="font-bold">Live text message ready</p>
+          <p className="mt-1">Channel: SMS</p>
+          <p className="mt-1">Selected audience: {audienceType}</p>
+          <p className="mt-1">Total recipients found: {totalRecipientCount}</p>
+          <p className="mt-1">Available for live SMS: {liveSendCount} · Not included: {suppressedCount}</p>
+          <p className="mt-2 font-semibold">This sends a real text message.</p>
+        </div>
+      ) : null}
+      {isDisabledLiveSms ? (
+        <p className="rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-950">
+          Text message setup is not complete. Please try again after setup is finished.
+        </p>
+      ) : null}
+      {isLiveSend && reviewingLiveSend ? (
         <div className="space-y-3 rounded-lg border-2 border-red-400 p-4">
           <p className="font-bold text-red-900">Final confirmation</p>
-          <p>This will send an email to {liveSendCount} recipient{liveSendCount === 1 ? "" : "s"}. Other recipients will not be included.</p>
+          <p>This will send a real {isLiveSms ? "text message" : "email"} to {liveSendCount} recipient{liveSendCount === 1 ? "" : "s"}. Other recipients will not be included.</p>
           <input name="confirmedRecipientCount" type="hidden" value={liveSendCount} />
           <label className="flex items-start gap-2 font-semibold">
             <input className="mt-1 size-4" name="liveConfirmation"
               onChange={(event) => setLiveConfirmed(event.target.checked)}
               type="checkbox" value="confirmed" />
-            <span>Send real email to {liveSendCount} recipient{liveSendCount === 1 ? "" : "s"}</span>
+            <span>Send real {isLiveSms ? "text message" : "email"} to {liveSendCount} recipient{liveSendCount === 1 ? "" : "s"}</span>
           </label>
         </div>
       ) : null}
       {state.message ? (
         <p className={state.success ? "text-emerald-700" : "text-red-700"}>
-          {communicationResultMessage(state, channel, isLiveEmail)}
+          {communicationResultMessage(state, channel, isLiveEmail, isLiveSms)}
         </p>
       ) : null}
-      {isLiveEmail && !reviewingLiveSend ? (
+      {isLiveSend && !reviewingLiveSend ? (
         <button className="min-h-11 rounded-lg bg-red-700 px-5 font-semibold text-white"
           disabled={liveSendCount === 0} onClick={() => setReviewingLiveSend(true)}
           type="button">
-          Review email
+          Review {isLiveSms ? "text message" : "email"}
         </button>
       ) : (
         <button className="min-h-11 rounded-lg bg-sky-700 px-5 font-semibold text-white"
-          disabled={pending || isDisabledLiveEmail || (isLiveEmail && !liveConfirmed)}>
+          disabled={pending || isDisabledLiveSend || (isLiveSend && !liveConfirmed)}>
           {pending ? "Submitting…" : isLiveEmail
             ? `Send email to ${liveSendCount} recipient${liveSendCount === 1 ? "" : "s"}`
+            : isLiveSms
+              ? `Send text message to ${liveSendCount} recipient${liveSendCount === 1 ? "" : "s"}`
             : channel === "email"
               ? "Save email preview"
               : channel === "sms"
@@ -201,9 +226,13 @@ function communicationResultMessage(
   state: CommunicationActionState,
   channel: "in_app" | "email" | "sms",
   isLiveEmail: boolean,
+  isLiveSms: boolean,
 ) {
   if (state.success && isLiveEmail && state.sentCount !== undefined) {
     return `${state.sentCount} email${state.sentCount === 1 ? "" : "s"} sent to the email service; ${state.failedCount ?? 0} failed; ${state.suppressedCount ?? 0} not included.`;
+  }
+  if (state.success && isLiveSms && state.sentCount !== undefined) {
+    return `${state.sentCount} text message${state.sentCount === 1 ? "" : "s"} submitted; ${state.failedCount ?? 0} failed; ${state.suppressedCount ?? 0} not included.`;
   }
   if (state.success) {
     if (channel === "email") return "Email preview saved. No email was sent.";

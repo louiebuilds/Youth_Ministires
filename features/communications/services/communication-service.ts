@@ -1,9 +1,15 @@
 import "server-only";
 
-import { getCommunicationsEmailEnvironment } from "@/config/env";
+import {
+  getCommunicationsEmailEnvironment,
+  getCommunicationsSmsEnvironment,
+} from "@/config/env";
 import type { EmailProvider } from "@/features/communications/providers/email-provider";
 import { ResendEmailProvider } from "@/features/communications/providers/resend-email-provider";
+import type { SmsProvider } from "@/features/communications/providers/sms-provider";
+import { TwilioSmsProvider } from "@/features/communications/providers/twilio-sms-provider";
 import { submitOutboundEmail } from "@/features/communications/services/outbound-email-service.mjs";
+import { submitOutboundSms } from "@/features/communications/services/outbound-sms-service.mjs";
 import { createClient } from "@/lib/supabase/server";
 
 import type {
@@ -13,6 +19,7 @@ import type {
   CommunicationRecipientPreview,
   InAppNotification,
   LiveEmailRecipientPreview,
+  LiveSmsRecipientPreview,
 } from "@/features/communications/types/communications";
 import type {
   CommunicationAudienceType,
@@ -265,6 +272,26 @@ export async function previewLiveEmailRecipients(input: {
   }));
 }
 
+export async function previewLiveSmsRecipients(input: {
+  audienceType: "parents" | "volunteers";
+  allowlist: readonly string[];
+}): Promise<LiveSmsRecipientPreview[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("preview_live_sms_recipients", {
+    p_audience_type: input.audienceType,
+    p_allowlist: [...input.allowlist],
+  });
+  if (error) return [];
+  return (data ?? []).map((item) => ({
+    recipientProfileId: item.recipient_profile_id,
+    displayName: item.display_name,
+    destinationMasked: item.destination_masked,
+    preferenceAuthorized: item.preference_authorized,
+    liveSendAllowed: item.live_send_allowed,
+    suppressionReason: item.suppression_reason,
+  }));
+}
+
 export async function sendSyntheticCommunication(input: {
   title: string;
   subject: string | null;
@@ -385,6 +412,120 @@ export async function sendLiveEmailCommunication(
     return {
       success: false as const,
       reason: "This live email operation is already in progress. Do not resend.",
+    };
+  }
+
+  return {
+    success: true as const,
+    communicationId,
+    sentCount: Number(summary.sent_count),
+    failedCount: Number(summary.failed_count),
+    suppressedCount: Number(summary.suppressed_count),
+  };
+}
+
+type LiveSmsInput = {
+  title: string;
+  messageBody: string;
+  audienceType: "parents" | "volunteers";
+  templateId: string | null;
+  idempotencyKey: string;
+  confirmedRecipientCount: number;
+};
+
+export async function sendLiveSmsCommunication(
+  input: LiveSmsInput,
+  providerOverride?: SmsProvider,
+) {
+  const environment = getCommunicationsSmsEnvironment();
+  if (!environment.liveEnabled || !environment.accountSid ||
+      !environment.authToken ||
+      (!environment.fromPhoneNumber && !environment.messagingServiceSid)) {
+    return {
+      success: false as const,
+      reason: environment.disabledReason ?? "Live SMS is not enabled.",
+    };
+  }
+
+  const supabase = await createClient();
+  const { data: communicationId, error: createError } = await supabase.rpc(
+    "create_live_sms_communication",
+    {
+      p_title: input.title,
+      p_message_body: input.messageBody,
+      p_audience_type: input.audienceType,
+      p_template_id: input.templateId,
+      p_allowlist: [...environment.allowlist],
+      p_confirmed_recipient_count: input.confirmedRecipientCount,
+      p_idempotency_key: input.idempotencyKey,
+    },
+  );
+  if (createError || !communicationId) {
+    return {
+      success: false as const,
+      reason: createError?.code === "42501"
+        ? "This account is not authorized to send live SMS."
+        : "The recipient confirmation is stale or the live SMS could not be created.",
+    };
+  }
+
+  const provider = providerOverride ?? new TwilioSmsProvider(
+    environment.accountSid,
+    environment.authToken,
+  );
+
+  while (true) {
+    const { data, error } = await supabase.rpc("claim_live_sms_delivery", {
+      p_communication_id: communicationId,
+    });
+    if (error) {
+      return {
+        success: false as const,
+        reason: "A live SMS delivery could not be claimed.",
+      };
+    }
+    const delivery = data?.[0];
+    if (!delivery) break;
+
+    const result = await submitOutboundSms(provider, {
+      to: delivery.phone_number,
+      text: delivery.message_body,
+      fromPhoneNumber: environment.fromPhoneNumber ?? undefined,
+      messagingServiceSid: environment.messagingServiceSid ?? undefined,
+      idempotencyKey: delivery.submission_key,
+    });
+    const { error: finalizeError } = await supabase.rpc(
+      "finalize_live_sms_delivery",
+      {
+        p_delivery_id: delivery.delivery_id,
+        p_success: result.success,
+        p_provider_reference: result.success ? result.providerReference : null,
+        p_failure_reason: result.success ? null : result.message,
+      },
+    );
+    if (finalizeError) {
+      return {
+        success: false as const,
+        reason: "Provider submission occurred, but its status could not be finalized. Do not resend.",
+      };
+    }
+  }
+
+  const { data: totals, error: totalsError } = await supabase.rpc(
+    "get_live_sms_send_result",
+    { p_communication_id: communicationId },
+  );
+  const summary = totals?.[0];
+  if (totalsError || !summary) {
+    return {
+      success: false as const,
+      reason: "The live SMS was processed, but its summary is unavailable. Do not resend.",
+    };
+  }
+  if (Number(summary.pending_count) > 0) {
+    return {
+      success: false as const,
+      reason: "This live SMS operation is already in progress. Do not resend.",
     };
   }
 

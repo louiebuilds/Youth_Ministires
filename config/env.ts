@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { resolveCommunicationsEmailEnvironment } from "@/config/communications-email-environment.mjs";
+import { resolveCommunicationsSmsEnvironment } from "@/config/communications-sms-environment.mjs";
 
 const requiredValue = z
   .string()
@@ -62,4 +63,19 @@ export type CommunicationsEmailEnvironment = {
 
 export function getCommunicationsEmailEnvironment(): CommunicationsEmailEnvironment {
   return resolveCommunicationsEmailEnvironment(process.env);
+}
+
+export type CommunicationsSmsEnvironment = {
+  mode: "synthetic" | "live";
+  liveEnabled: boolean;
+  disabledReason: string | null;
+  accountSid: string | null;
+  authToken: string | null;
+  fromPhoneNumber: string | null;
+  messagingServiceSid: string | null;
+  allowlist: readonly string[];
+};
+
+export function getCommunicationsSmsEnvironment(): CommunicationsSmsEnvironment {
+  return resolveCommunicationsSmsEnvironment(process.env);
 }

@@ -6529,6 +6529,20 @@ export type Database = {
           suppression_reason: string
         }[]
       }
+      preview_live_sms_recipients: {
+        Args: {
+          p_allowlist: string[]
+          p_audience_type: Database["public"]["Enums"]["communication_audience_type"]
+        }
+        Returns: {
+          destination_masked: string
+          display_name: string
+          live_send_allowed: boolean
+          preference_authorized: boolean
+          recipient_profile_id: string
+          suppression_reason: string
+        }[]
+      }
       promote_waitlisted_registration: {
         Args: { p_registration_id: string }
         Returns: undefined
@@ -6792,6 +6806,45 @@ export type Database = {
         Returns: undefined
       }
       get_live_email_send_result: {
+        Args: { p_communication_id: string }
+        Returns: {
+          failed_count: number
+          pending_count: number
+          sent_count: number
+          suppressed_count: number
+        }[]
+      }
+      create_live_sms_communication: {
+        Args: {
+          p_allowlist: string[]
+          p_audience_type: Database["public"]["Enums"]["communication_audience_type"]
+          p_confirmed_recipient_count: number
+          p_idempotency_key: string
+          p_message_body: string
+          p_template_id: string
+          p_title: string
+        }
+        Returns: string
+      }
+      claim_live_sms_delivery: {
+        Args: { p_communication_id: string }
+        Returns: {
+          delivery_id: string
+          message_body: string
+          phone_number: string
+          submission_key: string
+        }[]
+      }
+      finalize_live_sms_delivery: {
+        Args: {
+          p_delivery_id: string
+          p_failure_reason: string
+          p_provider_reference: string
+          p_success: boolean
+        }
+        Returns: undefined
+      }
+      get_live_sms_send_result: {
         Args: { p_communication_id: string }
         Returns: {
           failed_count: number

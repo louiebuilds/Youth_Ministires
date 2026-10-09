@@ -67,6 +67,10 @@ export type LiveEmailRecipientPreview = CommunicationRecipientPreview & {
   liveSendAllowed: boolean;
 };
 
+export type LiveSmsRecipientPreview = CommunicationRecipientPreview & {
+  liveSendAllowed: boolean;
+};
+
 export type InAppNotification = {
   notificationId: string;
   title: string;

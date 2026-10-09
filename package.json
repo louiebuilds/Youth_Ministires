@@ -8,6 +8,7 @@
     "calendar:test": "node scripts/verify-platform-calendar.mjs",
     "communication-management:test": "node scripts/verify-communication-foundation.mjs",
     "live-email:test": "node scripts/verify-live-email-foundation.mjs",
+    "live-sms:test": "node scripts/verify-live-sms-foundation.mjs",
     "chat:test": "node scripts/verify-native-group-chat.mjs",
     "prayer-care:test": "node scripts/verify-prayer-care-foundation.mjs",
     "resource-library:test": "node scripts/verify-resource-library-foundation.mjs",
@@ -32,6 +33,7 @@
     "@supabase/supabase-js": "^2.110.8",
     "exceljs": "^4.4.0",
     "html5-qrcode": "^2.3.8",
+    "libphonenumber-js": "^1.13.15",
     "lucide-react": "^1.25.0",
     "next": "16.2.11",
     "qrcode": "^1.5.4",
@@ -40,6 +42,7 @@
     "react-dom": "19.2.4",
     "resend": "^6.32.1",
     "sonner": "^2.0.7",
+    "twilio": "^6.1.2",
     "zod": "^4.4.3"
   },
   "devDependencies": {

@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { randomUUID } from "node:crypto";
 
-import { getCommunicationsEmailEnvironment } from "@/config/env";
+import {
+  getCommunicationsEmailEnvironment,
+  getCommunicationsSmsEnvironment,
+} from "@/config/env";
 import { getDefaultCommunicationChannel } from "@/features/administration/services/ministry-settings-service";
 import { requireCapability } from "@/features/auth/services/authorization-service";
 import { hasCapability } from "@/features/auth/types/authorization";
@@ -12,6 +15,7 @@ import {
   listCommunicationTemplates,
   previewCommunicationRecipients,
   previewLiveEmailRecipients,
+  previewLiveSmsRecipients,
 } from "@/features/communications/services/communication-service";
 
 export const metadata: Metadata = { title: "Compose Communication" };
@@ -35,30 +39,47 @@ export default async function ComposeCommunicationPage({
   const search = typeof params.q === "string" && params.q.trim().length <= 100
     ? params.q.trim() || null : null;
   const emailEnvironment = getCommunicationsEmailEnvironment();
+  const smsEnvironment = getCommunicationsSmsEnvironment();
   const canSendLiveEmail = hasCapability(account.role, "communications.send_live_email");
   const liveEmailAvailable = emailEnvironment.mode === "live"
     && canSendLiveEmail && emailEnvironment.liveEnabled;
   const liveEmailRequested = channel === "email"
     && emailEnvironment.mode === "live" && canSendLiveEmail;
   const liveEmailEnabled = channel === "email" && liveEmailAvailable;
+  const canSendLiveSms = hasCapability(account.role, "communications.send_live_sms");
+  const liveSmsAvailable = smsEnvironment.mode === "live"
+    && canSendLiveSms && smsEnvironment.liveEnabled;
+  const liveSmsRequested = channel === "sms"
+    && smsEnvironment.mode === "live" && canSendLiveSms;
+  const liveSmsEnabled = channel === "sms" && liveSmsAvailable;
   const [recipients, templates, history] = await Promise.all([
     liveEmailEnabled
       ? previewLiveEmailRecipients({
           audienceType,
           allowlist: emailEnvironment.allowlist,
         })
+      : liveSmsEnabled
+        ? previewLiveSmsRecipients({
+            audienceType,
+            allowlist: smsEnvironment.allowlist,
+          })
       : previewCommunicationRecipients({ audienceType, channel }),
     listCommunicationTemplates(null, false),
     listCommunicationHistory(search),
   ]);
   const eligible = recipients.filter((item) => item.preferenceAuthorized);
-  const liveSendCount = liveEmailEnabled
+  const liveSendCount = liveEmailEnabled || liveSmsEnabled
     ? recipients.filter((item) => "liveSendAllowed" in item && item.liveSendAllowed).length
     : 0;
-  const availableCount = liveEmailEnabled ? liveSendCount : eligible.length;
+  const availableCount = liveEmailEnabled || liveSmsEnabled
+    ? liveSendCount
+    : eligible.length;
   const unavailableCount = recipients.length - availableCount;
   const emailMode = liveEmailRequested
     ? emailEnvironment.liveEnabled ? "live" : "disabled"
+    : "synthetic";
+  const smsMode = liveSmsRequested
+    ? smsEnvironment.liveEnabled ? "live" : "disabled"
     : "synthetic";
   return (
     <div className="space-y-8">
@@ -85,7 +106,9 @@ export default async function ComposeCommunicationPage({
               <option value="email">
                 {liveEmailAvailable ? "Email" : "Email — Setup pending"}
               </option>
-              <option value="sms">SMS — Setup pending</option>
+              <option value="sms">
+                {liveSmsAvailable ? "SMS" : "SMS — Setup pending"}
+              </option>
             </select>
           </label>
           <button className="min-h-11 self-end rounded-lg bg-slate-900 px-5 font-semibold text-white">
@@ -101,7 +124,7 @@ export default async function ComposeCommunicationPage({
           </p>
         </section>
       ) : null}
-      {channel === "sms" ? (
+      {channel === "sms" && !liveSmsEnabled ? (
         <section className="rounded-xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-950">
           <h2 className="font-bold">SMS setup pending</h2>
           <p className="mt-1">
@@ -116,7 +139,8 @@ export default async function ComposeCommunicationPage({
             {recipients.length} {audienceType} found
           </p>
           <p className="mt-1 text-sm font-semibold text-slate-700">
-            {channel === "sms" || (channel === "email" && !liveEmailEnabled)
+            {(channel === "sms" && !liveSmsEnabled) ||
+              (channel === "email" && !liveEmailEnabled)
               ? `${eligible.length} ready when setup is complete · ${unavailableCount} unavailable`
               : `${availableCount} available · ${unavailableCount} unavailable`}
           </p>
@@ -133,9 +157,19 @@ export default async function ComposeCommunicationPage({
                   ) : null}
                 </span>
                 <span className={recipientStatusClass(
-                  recipientStatusLabel(recipient, channel, liveEmailEnabled),
+                  recipientStatusLabel(
+                    recipient,
+                    channel,
+                    liveEmailEnabled,
+                    liveSmsEnabled,
+                  ),
                 )}>
-                  {recipientStatusLabel(recipient, channel, liveEmailEnabled)}
+                  {recipientStatusLabel(
+                    recipient,
+                    channel,
+                    liveEmailEnabled,
+                    liveSmsEnabled,
+                  )}
                 </span>
               </li>
             ))}
@@ -146,6 +180,8 @@ export default async function ComposeCommunicationPage({
           <h2 className="mb-4 text-xl font-bold">Message</h2>
           <CommunicationComposer audienceType={audienceType} channel={channel}
             templates={templates} emailMode={emailMode}
+            smsMode={smsMode}
+            totalRecipientCount={recipients.length}
             liveSendCount={liveSendCount}
             suppressedCount={recipients.length - liveSendCount}
             idempotencyKey={randomUUID()} />
@@ -184,12 +220,14 @@ const field =
   "mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2";
 
 type RecipientPreview = Awaited<ReturnType<typeof previewCommunicationRecipients>>[number]
-  | Awaited<ReturnType<typeof previewLiveEmailRecipients>>[number];
+  | Awaited<ReturnType<typeof previewLiveEmailRecipients>>[number]
+  | Awaited<ReturnType<typeof previewLiveSmsRecipients>>[number];
 
 function recipientStatusLabel(
   recipient: RecipientPreview,
   channel: typeof channels[number],
   liveEmailEnabled: boolean,
+  liveSmsEnabled: boolean,
 ) {
   if (!recipient.preferenceAuthorized) {
     const reason = recipient.suppressionReason?.toLowerCase() ?? "";
@@ -200,7 +238,7 @@ function recipientStatusLabel(
     if (channel === "sms") return "Text unavailable";
     return "Unavailable";
   }
-  if ("liveSendAllowed" in recipient && liveEmailEnabled) {
+  if ("liveSendAllowed" in recipient && (liveEmailEnabled || liveSmsEnabled)) {
     return recipient.liveSendAllowed ? "Available" : "Not included";
   }
   if (channel === "email" || channel === "sms") return "Setup pending";

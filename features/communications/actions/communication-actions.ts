@@ -3,7 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { getCommunicationsEmailEnvironment } from "@/config/env";
+import {
+  getCommunicationsEmailEnvironment,
+  getCommunicationsSmsEnvironment,
+} from "@/config/env";
 import { requireCapability } from "@/features/auth/services/authorization-service";
 import { hasCapability } from "@/features/auth/types/authorization";
 import {
@@ -13,6 +16,7 @@ import {
   communicationTemplateSchema,
   syntheticCommunicationSchema,
   liveEmailCommunicationSchema,
+  liveSmsCommunicationSchema,
   notificationIdSchema,
 } from "@/features/communications/schemas/announcement-schema";
 import {
@@ -26,6 +30,8 @@ import {
   sendSyntheticCommunication,
   sendLiveEmailCommunication,
   previewLiveEmailRecipients,
+  previewLiveSmsRecipients,
+  sendLiveSmsCommunication,
   markAllMyNotificationsRead,
   markMyNotificationRead,
 } from "@/features/communications/services/communication-service";
@@ -138,10 +144,15 @@ export async function sendCommunicationAction(
   formData: FormData,
 ): Promise<CommunicationActionState> {
   const emailEnvironment = getCommunicationsEmailEnvironment();
+  const smsEnvironment = getCommunicationsSmsEnvironment();
   const account = await requireCapability("communications.manage");
   const canSendLiveEmail = hasCapability(
     account.role,
     "communications.send_live_email",
+  );
+  const canSendLiveSms = hasCapability(
+    account.role,
+    "communications.send_live_sms",
   );
   if (formData.get("channel") === "email" && emailEnvironment.mode === "live"
     && canSendLiveEmail) {
@@ -179,6 +190,44 @@ export async function sendCommunicationAction(
       sentCount: result.sentCount,
       failedCount: result.failedCount,
       suppressedCount,
+    };
+  }
+
+  if (formData.get("channel") === "sms" && smsEnvironment.mode === "live"
+    && canSendLiveSms) {
+    if (!smsEnvironment.liveEnabled) {
+      return {
+        success: false,
+        message: smsEnvironment.disabledReason ?? "Live SMS is disabled.",
+      };
+    }
+    const parsedLive = liveSmsCommunicationSchema.safeParse(
+      Object.fromEntries(formData),
+    );
+    if (!parsedLive.success) {
+      return { success: false, message: "Review and confirm the live text message." };
+    }
+    const preview = await previewLiveSmsRecipients({
+      audienceType: parsedLive.data.audienceType,
+      allowlist: smsEnvironment.allowlist,
+    });
+    const liveSendCount = preview.filter((item) => item.liveSendAllowed).length;
+    if (liveSendCount !== parsedLive.data.confirmedRecipientCount) {
+      return {
+        success: false,
+        message: "The recipient list changed. Refresh and confirm the new count.",
+      };
+    }
+    const result = await sendLiveSmsCommunication(parsedLive.data);
+    if (!result.success) return { success: false, message: result.reason };
+    revalidatePath("/communications");
+    revalidatePath("/communications/compose");
+    return {
+      success: result.failedCount === 0,
+      message: `${result.sentCount} text message${result.sentCount === 1 ? "" : "s"} accepted for delivery; ${result.failedCount} failed; ${result.suppressedCount} not included.`,
+      sentCount: result.sentCount,
+      failedCount: result.failedCount,
+      suppressedCount: result.suppressedCount,
     };
   }
 

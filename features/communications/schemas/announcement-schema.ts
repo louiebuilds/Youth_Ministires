@@ -81,6 +81,27 @@ export const liveEmailCommunicationSchema = z.object({
   liveConfirmation: z.literal("confirmed"),
 });
 
+export const liveSmsCommunicationSchema = z.object({
+  title: z.string().trim().min(1).max(200),
+  subject: z.string().trim().max(200).transform((value) => value || null),
+  messageBody: z.string().trim().min(1).max(10000),
+  channel: z.literal("sms"),
+  audienceType: z.enum(["parents", "volunteers"]),
+  templateId: z.string().trim().transform((value) => value || null)
+    .refine((value) => value === null || z.string().uuid().safeParse(value).success),
+  idempotencyKey: z.string().uuid(),
+  confirmedRecipientCount: z.coerce.number().int().positive(),
+  liveConfirmation: z.literal("confirmed"),
+}).superRefine((value, context) => {
+  if (value.subject) {
+    context.addIssue({
+      code: "custom",
+      message: "SMS messages do not use a subject.",
+      path: ["subject"],
+    });
+  }
+});
+
 export const notificationIdSchema = z.object({
   notificationId: z.string().uuid(),
 });
