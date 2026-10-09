@@ -21,7 +21,6 @@ export function CommunicationComposer({
   emailMode,
   liveSendCount,
   suppressedCount,
-  liveDisabledReason,
   idempotencyKey,
 }: Readonly<{
   audienceType: "parents" | "volunteers";
@@ -30,7 +29,6 @@ export function CommunicationComposer({
   emailMode: "synthetic" | "live" | "disabled";
   liveSendCount: number;
   suppressedCount: number;
-  liveDisabledReason: string | null;
   idempotencyKey: string;
 }>) {
   const [state, action, pending] = useActionState(
@@ -109,8 +107,15 @@ export function CommunicationComposer({
       <label className="block text-sm font-semibold">Title
         <input className={field} maxLength={200} name="title" required />
       </label>
+      {channel === "email" ? (
+        <label className="block text-sm font-semibold" htmlFor="compose-subject">Email subject
+          <input className={field} id="compose-subject" maxLength={200}
+            name="subject" onChange={(event) => setSubject(event.target.value)}
+            required value={subject} />
+        </label>
+      ) : <input name="subject" type="hidden" value="" />}
       <label className="block text-sm font-semibold" htmlFor="compose-template">
-        Template reference (optional)
+        Template (optional)
         <select className={field} id="compose-template" name="templateId"
           onChange={(event) => selectTemplate(event.target.value)}
           ref={templateSelect}
@@ -123,13 +128,6 @@ export function CommunicationComposer({
           ))}
         </select>
       </label>
-      {channel === "email" ? (
-        <label className="block text-sm font-semibold" htmlFor="compose-subject">Email subject
-          <input className={field} id="compose-subject" maxLength={200}
-            name="subject" onChange={(event) => setSubject(event.target.value)}
-            required value={subject} />
-        </label>
-      ) : <input name="subject" type="hidden" value="" />}
       <label className="block text-sm font-semibold" htmlFor="compose-message">Message
         <textarea className={field} id="compose-message" maxLength={10000}
           name="messageBody"
@@ -139,26 +137,30 @@ export function CommunicationComposer({
       <p className="text-sm text-slate-600">
         Template content is copied into these fields and can be edited before delivery.
       </p>
+      {channel === "in_app" ? (
+        <div className="rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-950">
+          <p className="font-bold">In-app message</p>
+          <p className="mt-1">
+            This message will appear inside the Youth Ministries Platform for the selected recipients.
+          </p>
+        </div>
+      ) : null}
       {isLiveEmail ? (
         <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-950">
-          <p className="font-bold">Live Email · beta allowlist only</p>
-          <p className="mt-1">Channel: Email · Audience: {audienceType}</p>
-          <p className="mt-1">{liveSendCount} allowlisted live recipient{liveSendCount === 1 ? "" : "s"} · {suppressedCount} suppressed</p>
+          <p className="font-bold">Live email ready</p>
+          <p className="mt-1">Audience: {audienceType}</p>
+          <p className="mt-1">{liveSendCount} recipient{liveSendCount === 1 ? "" : "s"} will receive this email · {suppressedCount} not included</p>
         </div>
-      ) : (
-        <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm font-semibold text-amber-900">
-          Test mode: this records a synthetic delivery. No email or SMS is sent.
-        </p>
-      )}
+      ) : null}
       {isDisabledLiveEmail ? (
-        <p className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm font-semibold text-red-900" role="alert">
-          Live email is disabled: {liveDisabledReason ?? "configuration is incomplete"}
+        <p className="rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-950">
+          Email setup is not complete. Please try again after setup is finished.
         </p>
       ) : null}
       {isLiveEmail && reviewingLiveSend ? (
         <div className="space-y-3 rounded-lg border-2 border-red-400 p-4">
           <p className="font-bold text-red-900">Final confirmation</p>
-          <p>This will submit a real email through Resend to {liveSendCount} allowlisted recipient{liveSendCount === 1 ? "" : "s"}. Non-allowlisted recipients remain suppressed.</p>
+          <p>This will send an email to {liveSendCount} recipient{liveSendCount === 1 ? "" : "s"}. Other recipients will not be included.</p>
           <input name="confirmedRecipientCount" type="hidden" value={liveSendCount} />
           <label className="flex items-start gap-2 font-semibold">
             <input className="mt-1 size-4" name="liveConfirmation"
@@ -170,23 +172,46 @@ export function CommunicationComposer({
       ) : null}
       {state.message ? (
         <p className={state.success ? "text-emerald-700" : "text-red-700"}>
-          {state.message}
+          {communicationResultMessage(state, channel, isLiveEmail)}
         </p>
       ) : null}
       {isLiveEmail && !reviewingLiveSend ? (
         <button className="min-h-11 rounded-lg bg-red-700 px-5 font-semibold text-white"
           disabled={liveSendCount === 0} onClick={() => setReviewingLiveSend(true)}
           type="button">
-          Review live email send
+          Review email
         </button>
       ) : (
         <button className="min-h-11 rounded-lg bg-sky-700 px-5 font-semibold text-white"
           disabled={pending || isDisabledLiveEmail || (isLiveEmail && !liveConfirmed)}>
           {pending ? "Submitting…" : isLiveEmail
-            ? `Send real email to ${liveSendCount} recipient${liveSendCount === 1 ? "" : "s"}`
-            : "Complete synthetic delivery"}
+            ? `Send email to ${liveSendCount} recipient${liveSendCount === 1 ? "" : "s"}`
+            : channel === "email"
+              ? "Save email preview"
+              : channel === "sms"
+                ? "Save text message preview"
+                : "Review message"}
         </button>
       )}
     </form>
   );
+}
+
+function communicationResultMessage(
+  state: CommunicationActionState,
+  channel: "in_app" | "email" | "sms",
+  isLiveEmail: boolean,
+) {
+  if (state.success && isLiveEmail && state.sentCount !== undefined) {
+    return `${state.sentCount} email${state.sentCount === 1 ? "" : "s"} sent to the email service; ${state.failedCount ?? 0} failed; ${state.suppressedCount ?? 0} not included.`;
+  }
+  if (state.success) {
+    if (channel === "email") return "Email preview saved. No email was sent.";
+    if (channel === "sms") return "Text message preview saved. No text message was sent.";
+    return "Message preview completed and recorded. No message was sent.";
+  }
+  if (state.message === "The synthetic delivery failed.") {
+    return "The message preview could not be saved.";
+  }
+  return state.message;
 }
