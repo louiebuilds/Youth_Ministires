@@ -77,38 +77,38 @@ export default async function CommunicationsPage({
   return (
     <div className="space-y-8">
       <header>
-        <p className="text-sm font-semibold text-sky-700">
-          Communication Center
-        </p>
+        <div className="max-w-4xl">
+          <p className="text-sm font-semibold text-sky-700">
+            Communication Center
+          </p>
 
-        <h1 className="mt-1 text-3xl font-bold text-slate-950">
-          Announcements
-        </h1>
+          <h1 className="mt-1 text-3xl font-bold text-slate-950">
+            Announcements
+          </h1>
 
-        <p className="mt-2 text-slate-600">
-          {canManage
-            ? "Create and manage ministry announcements."
-            : "Published ministry updates for parents, volunteers, and staff."}
-        </p>
+          <p className="mt-2 text-slate-600">
+            Create and manage ministry announcements.
+          </p>
+        </div>
 
         <nav
-          className="mt-4 flex flex-wrap gap-3"
           aria-label="Communications workspaces"
+          className="mt-8 flex flex-wrap border-b border-slate-200"
         >
-          <span className="inline-flex min-h-11 items-center rounded-lg bg-slate-900 px-4 font-semibold text-white">
+          <span className="inline-flex min-h-12 items-center border-b-2 border-sky-700 px-4 font-semibold text-sky-800">
             Announcements
           </span>
 
           <Link
-            className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 px-4 font-semibold text-slate-700"
+            className="inline-flex min-h-12 items-center border-b-2 border-transparent px-4 font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-950"
             href="/communications/chat"
           >
-            Group chat
+            Group Chat
           </Link>
         </nav>
 
         {canManage ? (
-          <div className="mt-4 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-wrap gap-3">
             <Link
               className="inline-flex min-h-11 items-center rounded-lg bg-sky-700 px-4 font-semibold text-white"
               href="/communications/new"
@@ -117,17 +117,17 @@ export default async function CommunicationsPage({
             </Link>
 
             <Link
-              className="inline-flex min-h-11 items-center rounded-lg border border-sky-700 px-4 font-semibold text-sky-800"
+              className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 bg-white px-4 font-semibold text-slate-700"
               href="/communications/templates"
             >
               Manage templates
             </Link>
 
             <Link
-              className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 px-4 font-semibold text-slate-700"
+              className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 bg-white px-4 font-semibold text-slate-700"
               href="/communications/compose"
             >
-              Compose test message
+              Compose message
             </Link>
           </div>
         ) : null}
