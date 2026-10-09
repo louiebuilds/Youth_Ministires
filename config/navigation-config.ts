@@ -1,5 +1,5 @@
 import {
-  hasCapability,
+  hasEffectiveCapability,
   type PlatformCapability,
 } from "@/features/auth/types/authorization";
 import type { AccountRole } from "@/lib/supabase/database.types";
@@ -157,10 +157,17 @@ export const primaryNavigation: readonly NavigationItem[] = [
   },
 ];
 
-export function getNavigationForRole(role: AccountRole) {
+export function getNavigationForRole(
+  role: AccountRole,
+  hasActiveVolunteerProfile = false,
+) {
   return primaryNavigation.filter(
     (item) =>
-      hasCapability(role, item.capability) ||
+      hasEffectiveCapability(
+        role,
+        item.capability,
+        hasActiveVolunteerProfile,
+      ) ||
       item.roles?.includes(role),
   );
 }

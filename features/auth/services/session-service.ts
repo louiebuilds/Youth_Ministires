@@ -10,6 +10,7 @@ export type AuthenticatedAccount = Readonly<{
   email: string;
   id: string;
   role: AccountRole;
+  hasActiveVolunteerProfile: boolean;
 }>;
 
 export const getAuthenticatedAccount = cache(
@@ -52,12 +53,27 @@ export const getAuthenticatedAccount = cache(
         return null;
       }
 
+      const {
+        data: volunteerProfile,
+        error: volunteerProfileError,
+      } = await supabase
+        .from("volunteer_profiles")
+        .select("is_active")
+        .eq("profile_id", id)
+        .maybeSingle();
+
+      if (volunteerProfileError) {
+        return null;
+      }
+
       return {
         displayName:
           profile.display_name,
         email,
         id,
         role: profile.primary_role,
+        hasActiveVolunteerProfile:
+          volunteerProfile?.is_active === true,
       };
     } catch {
       return null;

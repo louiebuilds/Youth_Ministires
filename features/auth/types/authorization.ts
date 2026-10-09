@@ -181,3 +181,31 @@ export function getRoleCapabilities(role: AccountRole) {
     role
   ] as readonly PlatformCapability[];
 }
+
+export function getEffectiveCapabilities(
+  primaryRole: AccountRole,
+  hasActiveVolunteerProfile = false,
+): readonly PlatformCapability[] {
+  const capabilities = new Set<PlatformCapability>(
+    getRoleCapabilities(primaryRole),
+  );
+
+  if (hasActiveVolunteerProfile) {
+    for (const capability of getRoleCapabilities("volunteer")) {
+      capabilities.add(capability);
+    }
+  }
+
+  return [...capabilities];
+}
+
+export function hasEffectiveCapability(
+  primaryRole: AccountRole,
+  capability: PlatformCapability,
+  hasActiveVolunteerProfile = false,
+) {
+  return getEffectiveCapabilities(
+    primaryRole,
+    hasActiveVolunteerProfile,
+  ).includes(capability);
+}

@@ -4,7 +4,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { getAuthenticatedAccount } from "@/features/auth/services/session-service";
 import {
-  hasCapability,
+  hasEffectiveCapability,
   type PlatformCapability,
 } from "@/features/auth/types/authorization";
 
@@ -15,7 +15,13 @@ export async function requireCapability(capability: PlatformCapability) {
     redirect("/login");
   }
 
-  if (!hasCapability(account.role, capability)) {
+  if (
+    !hasEffectiveCapability(
+      account.role,
+      capability,
+      account.hasActiveVolunteerProfile,
+    )
+  ) {
     notFound();
   }
 

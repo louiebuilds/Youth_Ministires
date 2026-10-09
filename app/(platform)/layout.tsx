@@ -1,15 +1,14 @@
 import { redirect } from "next/navigation";
 
 import { AppHeader } from "@/components/layout/app-header";
-import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppShell } from "@/components/layout/app-shell";
+import { AppSidebar } from "@/components/layout/app-sidebar";
 import {
   getNavigationForRole,
   type NavigationItem,
 } from "@/config/navigation-config";
 import { getAuthenticatedAccount } from "@/features/auth/services/session-service";
 import { roleLabels } from "@/features/auth/types/authorization";
-import { getOwnActiveVolunteerProfile } from "@/features/volunteers/services/volunteer-management-service";
 
 export default async function PlatformLayout({
   children,
@@ -24,25 +23,23 @@ export default async function PlatformLayout({
   }
 
   const baseNavigation =
-    getNavigationForRole(account.role);
-
-  const volunteerProfile =
-    account.role === "parent"
-      ? await getOwnActiveVolunteerProfile(
-          account.id,
-        )
-      : null;
+    getNavigationForRole(
+      account.role,
+      account.hasActiveVolunteerProfile,
+    );
 
   const myVolunteerItem:
     | NavigationItem
-    | null = volunteerProfile
-    ? {
-        capability: "dashboard.view",
-        href: `/volunteers/${account.id}`,
-        icon: "volunteers",
-        label: "My Volunteer",
-      }
-    : null;
+    | null =
+    account.role === "parent" &&
+    account.hasActiveVolunteerProfile
+      ? {
+          capability: "dashboard.view",
+          href: `/volunteers/${account.id}`,
+          icon: "volunteers",
+          label: "My Volunteer",
+        }
+      : null;
 
   const navigation =
     myVolunteerItem
