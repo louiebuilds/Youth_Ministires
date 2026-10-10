@@ -58,7 +58,7 @@ export function NewVolunteerForm({
       action={action}
       className="grid gap-4 rounded-xl border border-sky-200 bg-sky-50/50 p-5 md:grid-cols-2"
     >
-      <input name="backgroundCheckStatus" type="hidden" value="pending" />
+      <input name="backgroundCheckStatus" type="hidden" value="not_required" />
       <input name="backgroundCheckCompletedAt" type="hidden" value="" />
       <input name="backgroundCheckExpiresAt" type="hidden" value="" />
       <input name="backgroundCheckReference" type="hidden" value="" />

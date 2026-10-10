@@ -277,20 +277,6 @@ export default async function VolunteersPage({
                       </span>
                     </div>
 
-                    <p className="mt-4 text-sm text-slate-700">
-                      Background check:{" "}
-                      <strong>
-                        {volunteer.backgroundCheckStatus.replaceAll(
-                          "_",
-                          " ",
-                        )}
-                      </strong>
-
-                      {volunteer.backgroundCheckExpiresAt
-                        ? ` · expires ${volunteer.backgroundCheckExpiresAt}`
-                        : ""}
-                    </p>
-
                     {volunteer.skills.length >
                     0 ? (
                       <ul className="mt-3 flex flex-wrap gap-2">
