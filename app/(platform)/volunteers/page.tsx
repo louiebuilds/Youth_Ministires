@@ -68,7 +68,10 @@ export default async function VolunteersPage({
       "volunteers.view",
     );
 
-  if (account.role === "volunteer") {
+  if (
+    account.role === "volunteer" ||
+    account.role === "parent"
+  ) {
     redirect(
       `/volunteers/${account.id}`,
     );
