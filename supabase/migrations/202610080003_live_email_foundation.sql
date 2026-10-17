@@ -1,15 +1,22 @@
 begin;
 
 alter table public.communications
-  drop constraint communications_provider_safety_check;
+  drop constraint if exists communications_provider_safety_check;
 
 alter table public.communications
-  add column delivery_mode text not null default 'synthetic'
+  add column if not exists delivery_mode text not null default 'synthetic'
     check (delivery_mode in ('synthetic', 'live')),
-  add column provider_name text
+  add column if not exists provider_name text
     check (provider_name is null or length(provider_name) between 1 and 50),
-  add column idempotency_key uuid,
-  add column provider_submission_completed_at timestamp with time zone,
+  add column if not exists idempotency_key uuid,
+  add column if not exists provider_submission_completed_at timestamp with time zone;
+
+alter table public.communications
+  drop constraint if exists communications_live_channel_check,
+  drop constraint if exists communications_mode_consistency_check,
+  drop constraint if exists communications_idempotency_key_unique;
+
+alter table public.communications
   add constraint communications_live_channel_check check (
     synthetic_delivery
     or (channel = 'email' and delivery_mode = 'live')
@@ -21,16 +28,21 @@ alter table public.communications
   add constraint communications_idempotency_key_unique unique (idempotency_key);
 
 alter table public.communication_deliveries
-  add column provider_name text
+  add column if not exists provider_name text
     check (provider_name is null or length(provider_name) between 1 and 50),
-  add column submission_key text
+  add column if not exists submission_key text
     check (submission_key is null or length(submission_key) between 1 and 255),
-  add column submitted_at timestamp with time zone,
+  add column if not exists submitted_at timestamp with time zone;
+
+alter table public.communication_deliveries
+  drop constraint if exists communication_deliveries_submission_key_unique;
+
+alter table public.communication_deliveries
   add constraint communication_deliveries_submission_key_unique
     unique (submission_key);
 
 alter table public.communication_recipients
-  add column destination_address text
+  add column if not exists destination_address text
     check (destination_address is null or length(destination_address) between 3 and 320);
 
 create or replace function private.can_send_live_email()

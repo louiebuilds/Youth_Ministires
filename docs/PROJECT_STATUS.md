@@ -181,6 +181,15 @@ acceptance. Forward migration
 `202610170001_leadership_calendar_notifications.sql` was applied individually
 and recorded remotely on October 17; no other pending migration was applied.
 
+Migration `202610080003_live_email_foundation.sql` was subsequently applied
+individually and recorded remotely on October 17. Its first attempt failed
+transactionally because the live database already contained the additive email
+columns but not the migration-history entry. Read-only inspection confirmed the
+partial schema state. Because the migration was still unapplied, its schema
+setup was made idempotent, the focused live-email verification passed, and the
+retry completed successfully. No live email was sent. Migrations
+`202610090001` through `202610090004` remain pending and were not touched.
+
 The existing role-aware calendar remains intact. A new purple **Leadership
 only** entry type is visible only to active Youth Pastors and Platform
 Administrators. Youth Pastors alone may create, edit, or delete these entries;
