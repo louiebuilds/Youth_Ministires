@@ -72,17 +72,19 @@ try {
     await db.exec(sql);
   }
 
-  const [page, service, navigation, migration] = await Promise.all([
+  const [page, service, navigation, migration, enhancement] = await Promise.all([
     readFile("app/(platform)/calendar/page.tsx", "utf8"),
     readFile("features/calendar/services/platform-calendar-service.ts", "utf8"),
     readFile("config/navigation-config.ts", "utf8"),
     readFile("supabase/migrations/202609240001_platform_calendar.sql", "utf8"),
+    readFile("supabase/migrations/202610170001_leadership_calendar_notifications.sql", "utf8"),
   ]);
 
   assert.match(page, /Month/);
   assert.match(page, /Week/);
   assert.match(page, /Agenda/);
-  assert.match(page, /href=\{item\.href\}/u, "Calendar items must deep-link to their authoritative source.");
+  assert.match(page, /item\.itemType === "leadership"/u, "Leadership entries retain their selected calendar range.");
+  assert.match(page, /href=\{href\}/u, "Calendar items must deep-link to their authoritative source.");
   assert.match(page, /overflow-x-auto/u, "Month view must remain usable at narrow widths.");
   assert.match(service, /list_platform_calendar/u);
   assert.match(service, /return \{ success: false \}/u);
@@ -91,6 +93,15 @@ try {
   assert.match(migration, /security definer/u);
   assert.match(migration, /set search_path = '' set row_security = off/u);
   assert.match(migration, /revoke all on function public\.list_platform_calendar\(date, date\)/u);
+  assert.match(page, /Leadership only/u);
+  assert.match(page, /bg-purple-100/u);
+  assert.match(enhancement, /create table public\.leadership_calendar_entries/u);
+  assert.match(enhancement, /private\.can_manage_leadership_calendar\(\)/u);
+  assert.match(enhancement, /array\['youth_pastor'\]/u, "Only the Youth Director may manage leadership entries.");
+  assert.match(enhancement, /'platform_administrator', 'youth_pastor'/u, "Administrator and Youth Director may view leadership entries.");
+  assert.match(enhancement, /'leadership'::text/u);
+  assert.match(enhancement, /list_header_notifications/u);
+  assert.match(enhancement, /announcement_read_states/u);
 
   await db.query(
     `insert into auth.users(id,email,raw_user_meta_data) values

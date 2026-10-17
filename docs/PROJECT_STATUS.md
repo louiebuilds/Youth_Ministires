@@ -173,6 +173,39 @@ registrations with deep links—not a new scheduling engine. Migration
 pending. Future Communications work must retain official
 announcements while separately designing moderated group/channel conversations.
 
+### Leadership Calendar and Header Notifications — October 17, 2026
+
+The approved leadership-calendar and global-notification enhancements are
+deployed to the live Vercel application and await Product Owner behavioral
+acceptance. Forward migration
+`202610170001_leadership_calendar_notifications.sql` was applied individually
+and recorded remotely on October 17; no other pending migration was applied.
+
+The existing role-aware calendar remains intact. A new purple **Leadership
+only** entry type is visible only to active Youth Pastors and Platform
+Administrators. Youth Pastors alone may create, edit, or delete these entries;
+Platform Administrators receive read-only visibility. Every mutation is
+audited, and the protected calendar projection prevents Staff, Volunteers, and
+Parents from receiving private leadership entries.
+
+The application header now includes a notification bell next to the signed-in
+account. Its protected projection combines eligible published announcements,
+existing in-app notifications, and authorized unread chat rooms. Announcement
+read state is per profile; existing in-app and chat read-state authority is
+retained. Opening an item deep-links to its authorized workspace, the badge is
+capped at `99+`, and visible tabs refresh every 25 seconds and upon return.
+Only announcements published from this feature's rollout date forward enter
+the new header backlog, preventing historical announcements from appearing as
+new. No browser push, email, SMS, direct messaging, or message-body Realtime
+broadcast was added.
+
+Local verification passed: `npm run calendar:test`, `npm run lint`, TypeScript,
+the optimized `npm run build`, and `git diff --check`. Vercel production build
+`dpl_CukaELoBPYiEP4ytQwc8unTowvTF` completed in READY state and was aliased to
+`https://youth-ministries.vercel.app`; an authenticated deployment check
+returned the expected unauthenticated redirect to `/login`. Live role testing
+and final Product Owner acceptance remain pending.
+
 No release notes or milestone commit have been created for this checkpoint.
 Known historical migration drift must not be casually repaired. If Supabase
 types are regenerated, preserve the application compatibility footer/overlay.

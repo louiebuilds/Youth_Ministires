@@ -9,8 +9,9 @@ import {
 } from "@/features/communications/components/announcement-forms";
 import { announcementIdSchema } from "@/features/communications/schemas/announcement-schema";
 import { listAnnouncements } from "@/features/communications/services/communication-service";
+import { markHeaderNotificationRead } from "@/features/notifications/services/header-notification-service";
 
-export const metadata: Metadata = { title: "Manage announcement" };
+export const metadata: Metadata = { title: "Announcement" };
 
 const audienceLabels = {
   ministry: "Entire ministry",
@@ -31,13 +32,11 @@ export default async function AnnouncementDetailPage({
   params,
 }: Readonly<{ params: Promise<{ announcementId: string }> }>) {
   const account = await requireCapability("communications.view");
-  if (!["platform_administrator", "youth_pastor", "staff_member"].includes(
-    account.role,
-  )) notFound();
+  const canManage = ["platform_administrator", "youth_pastor", "staff_member"].includes(account.role);
 
   const parsed = announcementIdSchema.safeParse(await params);
   if (!parsed.success) notFound();
-  const result = await listAnnouncements(null, true);
+  const result = await listAnnouncements(null, canManage);
   if (!result.success) {
     return (
       <div className="space-y-5">
@@ -54,6 +53,7 @@ export default async function AnnouncementDetailPage({
     (item) => item.announcementId === parsed.data.announcementId,
   );
   if (!announcement) notFound();
+  if (announcement.publishedAt) await markHeaderNotificationRead("announcement", announcement.announcementId);
   const status = announcement.archivedAt ? "Archived" :
     announcement.publishedAt && announcement.expiresAt &&
       new Date(announcement.expiresAt) <= new Date() ? "Expired" :
@@ -83,7 +83,7 @@ export default async function AnnouncementDetailPage({
           <p className="mt-3 whitespace-pre-wrap text-slate-700">{announcement.messageBody}</p>
         </div>
       </section>
-      {!announcement.archivedAt ? (
+      {canManage && !announcement.archivedAt ? (
         <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <h2 className="text-xl font-bold">Edit announcement</h2>
           <div className="mt-4"><AnnouncementForm announcement={announcement} /></div>

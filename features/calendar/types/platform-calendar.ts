@@ -1,7 +1,7 @@
 export type CalendarView = "month" | "week" | "agenda";
 
 export type CalendarItem = {
-  itemType: "event" | "schedule";
+  itemType: "event" | "schedule" | "leadership";
   itemId: string;
   title: string;
   startsAt: string;
@@ -13,6 +13,11 @@ export type CalendarItem = {
   href: string;
   isPersonal: boolean;
   sourceEventId: string | null;
+};
+
+export type CalendarActionState = {
+  success: boolean;
+  message?: string;
 };
 
 export type CalendarResult =
