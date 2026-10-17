@@ -1,9 +1,13 @@
+
 import { MobileNavigation } from "@/components/layout/mobile-navigation";
 import { UserMenu } from "@/components/layout/user-menu";
 import type { NavigationItem } from "@/config/navigation-config";
 import { getMinistryDisplayName } from "@/features/administration/services/ministry-settings-service";
 import { NotificationCenter } from "@/features/notifications/components/notification-center";
-import { listHeaderNotifications } from "@/features/notifications/services/header-notification-service";
+import {
+  getHeaderUnreadCount,
+  listHeaderNotifications,
+} from "@/features/notifications/services/header-notification-service";
 
 type AppHeaderProps = Readonly<{
   email: string;
@@ -16,8 +20,12 @@ export async function AppHeader({
   navigation,
   roleLabel,
 }: AppHeaderProps) {
-  const ministryDisplayName = await getMinistryDisplayName();
-  const notifications = await listHeaderNotifications();
+  const [ministryDisplayName, notifications, unreadCount] =
+    await Promise.all([
+      getMinistryDisplayName(),
+      listHeaderNotifications(),
+      getHeaderUnreadCount(),
+    ]);
 
   return (
     <header
@@ -38,7 +46,10 @@ export async function AppHeader({
         </div>
 
         <div className="flex items-center gap-1">
-          <NotificationCenter notifications={notifications} />
+          <NotificationCenter
+            notifications={notifications}
+            unreadCount={unreadCount}
+          />
           <UserMenu email={email} roleLabel={roleLabel} />
         </div>
       </div>
