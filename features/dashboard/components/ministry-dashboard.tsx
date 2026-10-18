@@ -1,19 +1,16 @@
-import Link from "next/link";
-
 import {
-  ArrowRight,
   BellRing,
   Cake,
   CalendarDays,
   CheckCircle2,
   ClipboardCheck,
   HeartHandshake,
-  Megaphone,
-  Sparkles,
   UserRoundCheck,
   UsersRound,
 } from "lucide-react";
 
+import { DashboardHomeTop } from "@/features/dashboard/components/dashboard-home-top";
+import type { DashboardAnnouncementSpotlight } from "@/features/dashboard/types/dashboard-home";
 import type {
   DashboardMetricTone,
   MinistryDashboardData,
@@ -22,6 +19,8 @@ import type { LucideIcon } from "lucide-react";
 
 type MinistryDashboardProps = Readonly<{
   data: MinistryDashboardData;
+  displayName: string;
+  spotlight: DashboardAnnouncementSpotlight | null;
 }>;
 
 const metricIcons: readonly LucideIcon[] = [
@@ -42,56 +41,20 @@ const metricToneClasses: Record<DashboardMetricTone, string> = {
   violet: "bg-violet-50 text-violet-700",
 };
 
-export function MinistryDashboard({ data }: MinistryDashboardProps) {
+export function MinistryDashboard({ data, displayName, spotlight }: MinistryDashboardProps) {
   const isFamilyDashboard = data.audience === "family";
 
   return (
     <div className="space-y-8">
-      <section
-        aria-labelledby="dashboard-heading"
-        className="overflow-hidden rounded-2xl bg-slate-950 px-6 py-7 text-white shadow-sm sm:px-8"
-      >
-        <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-          <div>
-            <p className="text-sm font-semibold text-sky-300">
-              {isFamilyDashboard ? "Family dashboard" : "Ministry dashboard"}
-            </p>
-            <h1
-              className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl"
-              id="dashboard-heading"
-            >
-              {isFamilyDashboard ? "Your family at a glance" : "Ministry at a glance"}
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
-              {isFamilyDashboard
-                ? "Review household-related events, forms, and updates from one secure workspace."
-                : "Review what needs attention and move into today’s ministry work from one calm, focused workspace."}
-            </p>
-          </div>
-          <div className="flex max-w-md gap-3 rounded-xl border border-amber-300/30 bg-amber-300/10 p-4">
-            <Sparkles
-              aria-hidden="true"
-              className="mt-0.5 size-5 shrink-0 text-amber-300"
-            />
-            <div>
-              <p className="text-sm font-semibold text-amber-100">
-                {data.dataSource === "live"
-                  ? "Live ministry data"
-                  : data.dataSource === "hybrid"
-                    ? "Live summary metrics"
-                    : "Synthetic preview data"}
-              </p>
-              <p className="mt-1 text-xs leading-5 text-amber-50/80">
-                {data.dataSource === "live"
-                  ? "Summary metrics, events, volunteer coverage, Prayer & Care counts, birthdays, and announcements use authorized operational records."
-                  : data.dataSource === "hybrid"
-                    ? "Summary metrics and volunteer coverage are live and authorized. Upcoming events, announcements, birthdays, and Prayer & Care cards remain clearly separated preview content."
-                    : "Every value and name on this dashboard is fictional. Live connections will replace these previews in their approved feature milestones."}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <DashboardHomeTop
+        actions={data.quickActions}
+        displayName={displayName}
+        eyebrow={isFamilyDashboard ? "Family dashboard" : "Ministry dashboard"}
+        spotlight={spotlight}
+        summary={isFamilyDashboard
+          ? "Your family’s important updates and upcoming commitments, all in one place."
+          : "Here’s what matters most in the ministry today."}
+      />
 
       <section aria-labelledby="summary-heading">
         <div className="flex flex-wrap items-end justify-between gap-3">
@@ -112,8 +75,8 @@ export function MinistryDashboard({ data }: MinistryDashboardProps) {
           </span>
         </div>
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {data.metrics.map((metric, index) => {
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          {data.metrics.slice(0, 3).map((metric, index) => {
             const Icon = metricIcons[index] ?? BellRing;
 
             return (
@@ -168,7 +131,7 @@ export function MinistryDashboard({ data }: MinistryDashboardProps) {
             <CalendarDays aria-hidden="true" className="size-5 text-sky-700" />
           </div>
           <ul className="mt-5 divide-y divide-slate-200">
-            {data.upcomingEvents.map((event) => (
+            {data.upcomingEvents.slice(0, 3).map((event) => (
               <li
                 className="grid gap-3 py-4 first:pt-0 last:pb-0 sm:grid-cols-[5rem_minmax(0,1fr)_auto] sm:items-center"
                 key={`${event.dateLabel}-${event.name}`}
@@ -236,9 +199,7 @@ export function MinistryDashboard({ data }: MinistryDashboardProps) {
       </div>
 
       <div
-        className={
-          isFamilyDashboard ? "grid gap-6" : "grid gap-6 lg:grid-cols-3"
-        }
+        className={isFamilyDashboard ? "grid gap-6" : "grid gap-6 lg:grid-cols-2"}
       >
         {!isFamilyDashboard && (
         <section
@@ -300,64 +261,7 @@ export function MinistryDashboard({ data }: MinistryDashboardProps) {
         </section>
         )}
 
-        <section
-          aria-labelledby="announcements-heading"
-          className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
-        >
-          <div className="flex items-center gap-3">
-            <Megaphone aria-hidden="true" className="size-5 text-sky-700" />
-            <h2 className="font-semibold text-slate-950" id="announcements-heading">
-              Announcements
-            </h2>
-          </div>
-          <ul className="mt-4 space-y-4">
-            {data.announcements.map((announcement) => (
-              <li key={announcement.title}>
-                <h3 className="text-sm font-medium text-slate-950">
-                  {announcement.title}
-                </h3>
-                <p className="mt-1 text-xs leading-5 text-slate-600">
-                  {announcement.audience} · {announcement.publishedLabel}
-                </p>
-              </li>
-            ))}
-          </ul>
-          {!data.announcements.length ? (
-            <p className="mt-4 text-sm text-slate-600">
-              No current announcements.
-            </p>
-          ) : null}
-        </section>
       </div>
-
-      <section aria-labelledby="actions-heading">
-        <h2 className="text-lg font-semibold text-slate-950" id="actions-heading">
-          Quick actions
-        </h2>
-        <p className="mt-1 text-sm text-slate-600">
-          Move directly into common ministry workspaces.
-        </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {data.quickActions.map((action) => (
-            <Link
-              className="group rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-sky-300 hover:bg-sky-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700"
-              href={action.href}
-              key={action.href}
-            >
-              <span className="flex items-center justify-between gap-3">
-                <span className="font-semibold text-slate-950">{action.label}</span>
-                <ArrowRight
-                  aria-hidden="true"
-                  className="size-4 text-sky-700 transition group-hover:translate-x-0.5"
-                />
-              </span>
-              <span className="mt-2 block text-sm leading-6 text-slate-600">
-                {action.description}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
 
       {data.dataSource !== "live" ? (
         <section

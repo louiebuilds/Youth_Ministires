@@ -44,6 +44,35 @@ also recorded in
 
 ## Current Implementation — Native Group Chat Phases 1A–1D (September 25, 2026)
 
+## Dashboard First-Screen Redesign — October 18, 2026
+
+The approved dashboard simplification and announcement-visibility work is
+implemented locally and awaits deployment and Product Owner live acceptance.
+Leadership, Parent, and Volunteer dashboards now share a welcoming first-screen
+experience with a time-aware greeting, the signed-in display name, the current
+Central date, a branded gradient hero, and no operational details embedded in
+the decoration.
+
+Role-authorized Quick Actions moved directly below the welcome area and are
+limited to four responsive, visually distinct destinations. The dashboard
+reuses the protected header-notification and announcement projections to show
+one prominent unread-announcement spotlight with a bounded message preview,
+remaining unread count, and server-validated Read announcement action. Reading
+the spotlight uses the existing per-profile read lifecycle and keeps the header
+bell synchronized. Expired, archived, unauthorized, and already-read
+announcements remain excluded.
+
+Duplicate announcement cards were removed from the lower Parent, Volunteer,
+and ministry layouts. Leadership summary metrics and upcoming activities are
+limited to three first-screen items; Volunteer assignments are similarly
+limited to the next three. Existing workspaces, role permissions, direct-route
+authorization, underlying records, and full lists remain unchanged. No database
+migration or Vercel environment change is required.
+
+Local verification passed: `npm run dashboard:test`, `npm run lint`, TypeScript,
+the optimized `npm run build`, and `git diff --check`. Live responsive and
+role-by-role Product Owner acceptance remains pending.
+
 Native Group Chat Phases 1A–1C are implemented and have passed Product Owner
 live acceptance. Migration `202609250001_native_group_chat_phase1.sql` is
 applied to development and must not be modified. No milestone or final platform

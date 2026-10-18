@@ -1,7 +1,6 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  BellRing,
   CalendarDays,
   ClipboardCheck,
   HeartHandshake,
@@ -10,9 +9,13 @@ import {
 } from "lucide-react";
 
 import type { ParentDashboardData } from "@/features/dashboard/types/parent-dashboard";
+import { DashboardHomeTop } from "@/features/dashboard/components/dashboard-home-top";
+import type { DashboardAnnouncementSpotlight } from "@/features/dashboard/types/dashboard-home";
 
 type ParentDashboardProps = Readonly<{
   data: ParentDashboardData;
+  displayName: string;
+  spotlight: DashboardAnnouncementSpotlight | null;
 }>;
 
 const quickActions = [
@@ -30,13 +33,10 @@ const displayDateTime = (value: string, timezone: string) =>
     timeZone: timezone,
   }).format(new Date(value));
 
-const displayDate = (value: string) =>
-  new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(new Date(value));
-
 const titleCase = (value: string) =>
   value.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 
-export function ParentDashboard({ data }: ParentDashboardProps) {
+export function ParentDashboard({ data, displayName, spotlight }: ParentDashboardProps) {
   const youthCount = data.families.reduce((total, family) => total + family.children.length, 0);
   const registrationCount = data.upcomingEvents.reduce(
     (total, event) => total + event.registrations.length,
@@ -45,16 +45,13 @@ export function ParentDashboard({ data }: ParentDashboardProps) {
 
   return (
     <div className="space-y-8">
-      <section className="overflow-hidden rounded-2xl bg-slate-950 px-6 py-7 text-white shadow-sm sm:px-8">
-        <p className="text-sm font-semibold text-sky-300">Family dashboard</p>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
-          Your family at a glance
-        </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
-          See your linked youth, upcoming registrations, forms that need attention,
-          and recent ministry updates.
-        </p>
-      </section>
+      <DashboardHomeTop
+        actions={quickActions}
+        displayName={displayName}
+        eyebrow="Family dashboard"
+        spotlight={spotlight}
+        summary="Your family’s important updates, forms, and upcoming commitments are gathered here."
+      />
 
       <section aria-labelledby="family-summary-heading">
         <div>
@@ -155,30 +152,8 @@ export function ParentDashboard({ data }: ParentDashboardProps) {
         </DashboardSection>
       </div>
 
-      <div className={`grid gap-6 ${data.volunteer ? "xl:grid-cols-2" : ""}`}>
-        <DashboardSection
-          description="The latest published updates available to your account."
-          icon={BellRing}
-          title="Announcements"
-        >
-          {data.announcements.length ? (
-            <ul className="space-y-4">
-              {data.announcements.map((announcement) => (
-                <li key={announcement.announcementId}>
-                  <Link className="font-semibold text-slate-950 hover:text-sky-800" href="/communications">
-                    {announcement.title}
-                  </Link>
-                  <p className="mt-1 text-xs text-slate-600">
-                    {announcement.audienceLabel} · {displayDate(announcement.publishedAt)}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <EmptyState message="There are no current announcements for your account." />
-          )}
-        </DashboardSection>
-
+      {data.volunteer ? (
+      <div className="grid gap-6">
         {data.volunteer ? (
           <DashboardSection
             description="Your next active volunteer assignments."
@@ -211,26 +186,7 @@ export function ParentDashboard({ data }: ParentDashboardProps) {
           </DashboardSection>
         ) : null}
       </div>
-
-      <section aria-labelledby="quick-actions-heading">
-        <h2 className="text-lg font-semibold text-slate-950" id="quick-actions-heading">Quick actions</h2>
-        <p className="mt-1 text-sm text-slate-600">Go directly to common family tasks.</p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-          {quickActions.map((action) => (
-            <Link
-              className="group rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-sky-300 hover:bg-sky-50"
-              href={action.href}
-              key={action.href}
-            >
-              <span className="flex items-center justify-between gap-3 font-semibold text-slate-950">
-                {action.label}
-                <ArrowRight aria-hidden="true" className="size-4 text-sky-700 transition group-hover:translate-x-0.5" />
-              </span>
-              <span className="mt-2 block text-sm leading-6 text-slate-600">{action.description}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
+      ) : null}
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { VolunteerDashboard } from "@/features/dashboard/components/volunteer-da
 import { getLiveMinistryDashboard } from "@/features/dashboard/services/ministry-dashboard-service";
 import { getParentDashboardData } from "@/features/dashboard/services/parent-dashboard-service";
 import { getVolunteerDashboardData } from "@/features/dashboard/services/volunteer-dashboard-service";
+import { getDashboardAnnouncementSpotlight } from "@/features/dashboard/services/dashboard-announcement-service";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -15,14 +16,15 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   const account = await requireCapability("dashboard.view");
+  const announcementSpotlight = await getDashboardAnnouncementSpotlight();
   if (account.role === "parent") {
     const parentDashboard = await getParentDashboardData(account.id);
-    return <ParentDashboard data={parentDashboard} />;
+    return <ParentDashboard data={parentDashboard} displayName={account.displayName} spotlight={announcementSpotlight} />;
   }
 
   if (account.role === "volunteer") {
     const volunteerDashboard = await getVolunteerDashboardData(account.id);
-    return <VolunteerDashboard data={volunteerDashboard} />;
+    return <VolunteerDashboard data={volunteerDashboard} displayName={account.displayName} spotlight={announcementSpotlight} />;
   }
 
   let dashboard = await getLiveMinistryDashboard();
@@ -37,5 +39,5 @@ export default async function DashboardPage() {
     ),
   };
 
-  return <MinistryDashboard data={dashboard} />;
+  return <MinistryDashboard data={dashboard} displayName={account.displayName} spotlight={announcementSpotlight} />;
 }

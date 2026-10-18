@@ -12,6 +12,13 @@ const dashboardComponent = await readFile(
   ),
   "utf8",
 );
+const dashboardHomeTop = await readFile(
+  new URL(
+    "../features/dashboard/components/dashboard-home-top.tsx",
+    import.meta.url,
+  ),
+  "utf8",
+);
 const syntheticData = await readFile(
   new URL(
     "../features/dashboard/data/synthetic-ministry-dashboard.ts",
@@ -26,8 +33,6 @@ const requiredDashboardAreas = [
   "Volunteer status",
   "Prayer requests",
   "Birthdays",
-  "Announcements",
-  "Quick actions",
 ];
 
 for (const area of requiredDashboardAreas) {
@@ -39,9 +44,19 @@ for (const area of requiredDashboardAreas) {
 }
 
 assert.match(
-  dashboardComponent,
-  /Synthetic preview data/u,
-  "Dashboard must clearly identify synthetic preview data.",
+  dashboardHomeTop,
+  /Quick actions/u,
+  "The first-screen experience must place Quick actions near the top.",
+);
+assert.match(
+  dashboardHomeTop,
+  /New announcement/u,
+  "The dashboard must prominently spotlight an unread announcement.",
+);
+assert.match(
+  dashboardHomeTop,
+  /Good morning|Good afternoon|Good evening/u,
+  "The dashboard must use a welcoming time-aware greeting.",
 );
 assert.match(
   dashboardPage,
@@ -69,7 +84,7 @@ assert.match(
   "Dashboard route must enforce the dashboard.view capability.",
 );
 assert.doesNotMatch(
-  `${dashboardPage}\n${dashboardComponent}`,
+  `${dashboardPage}\n${dashboardComponent}\n${dashboardHomeTop}`,
   /supabase|createClient|from\(/iu,
   "Dashboard presentation must not access Supabase directly.",
 );
