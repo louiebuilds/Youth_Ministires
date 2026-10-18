@@ -38,3 +38,11 @@ second notification system or making the page busier.
 - Confirm the two-column mobile Quick Actions remain readable.
 - Open an unread spotlight and confirm both the spotlight and bell update.
 - Confirm read, expired, archived, and unauthorized announcements do not appear.
+
+## Live deployment
+
+Vercel production deployment `dpl_HcsWUi3CT9cNLVBzd4BA7hg49KNP` completed in
+READY state and was aliased to `https://youth-ministries.vercel.app`. The
+post-deployment endpoint check returned the expected unauthenticated redirect
+to `/login`. No Supabase migration or Vercel environment-variable change was
+required for this release.
