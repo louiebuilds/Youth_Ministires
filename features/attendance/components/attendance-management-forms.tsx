@@ -63,6 +63,7 @@ export function CreateAttendanceSessionForm({
           className={inputClass}
           name="eventId"
           required
+          defaultValue=""
         >
           <option value="">
             Select an event
@@ -93,17 +94,15 @@ export function CreateAttendanceSessionForm({
         />
       </label>
 
-      <label className="text-sm font-medium text-slate-800 md:col-span-2">
-        Class or group
-
-        <input
-          className={inputClass}
-          maxLength={100}
-          name="className"
-          placeholder="Grade 8 Small Group"
-          required
-        />
-      </label>
+      {/*
+        The database retains class_name for compatibility.
+        Each event now uses one general attendance session.
+      */}
+      <input
+        type="hidden"
+        name="className"
+        value="General Attendance"
+      />
 
       <label className="text-sm font-medium text-slate-800">
         Starts (optional)
@@ -127,7 +126,10 @@ export function CreateAttendanceSessionForm({
 
       <div className="space-y-3 md:col-span-2">
         <p className="text-sm text-slate-500">
-          Attendance sessions are linked to existing ministry events.
+          Each ministry event has one attendance
+          session for all eligible students.
+          If a session already exists, the
+          platform will open its existing roster.
         </p>
 
         <Message state={state} />
@@ -140,10 +142,10 @@ export function CreateAttendanceSessionForm({
           }
         >
           {pending
-            ? "Creating…"
+            ? "Opening attendance…"
             : events.length === 0
               ? "No authorized events"
-              : "Create attendance session"}
+              : "Create or open attendance"}
         </button>
       </div>
     </form>
