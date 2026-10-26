@@ -40,3 +40,9 @@ export type ChatQueryResult<T> =
   | {
       success: false;
     };
+
+export type ChatFamilyCandidate = {
+  familyId: string;
+  familyName: string;
+  adults: { profileId: string; displayName: string; isMember: boolean }[];
+};

@@ -1,3 +1,4 @@
+
 "use server";
 
 import { revalidatePath } from "next/cache";
@@ -5,6 +6,7 @@ import { redirect } from "next/navigation";
 
 import {
   addChatMemberSchema,
+  addPrivateChatAdultsSchema,
   chatDiscoveryPreferenceSchema,
   chatRoomIdSchema,
   createChatRoomSchema,
@@ -14,7 +16,9 @@ import {
 } from "@/features/communications/chat/schemas/chat-room-schema";
 import {
   addChatRoomMember,
+  addPrivateChatAdults,
   archiveChatRoom,
+  createAllParentsChatRoom,
   createChatRoom,
   leaveChatRoom,
   removeChatRoomMember,
@@ -41,16 +45,26 @@ export async function createChatRoomAction(
   );
 
   if (!parsed.success) {
-    return failure("Review the room details.");
+    return failure("Review the room details and membership selection.");
   }
 
-  const roomId = await createChatRoom(
-    parsed.data.name,
-    parsed.data.roomType,
-  );
+  const {
+    name,
+    roomType,
+    membershipSelection,
+  } = parsed.data;
+
+  const roomId =
+    membershipSelection === "all_parents"
+      ? await createAllParentsChatRoom(name)
+      : await createChatRoom(name, roomType);
 
   if (!roomId) {
-    return failure("The room could not be created.");
+    return failure(
+      membershipSelection === "all_parents"
+        ? "The All Parents group could not be created. Refresh and review current eligibility."
+        : "The room could not be created.",
+    );
   }
 
   revalidatePath("/communications/chat");
@@ -219,5 +233,39 @@ export async function setChatDiscoveryPreferenceAction(
     message: parsed.data.parentDiscoverable
       ? "Other Parents can now find your display name when inviting members."
       : "Your display name is no longer available for new Parent group invitations.",
+  };
+}
+
+export async function addPrivateChatAdultsAction(
+  _state: ChatRoomActionState,
+  formData: FormData,
+): Promise<ChatRoomActionState> {
+  const parsed = addPrivateChatAdultsSchema.safeParse({
+    roomId: formData.get("roomId"),
+    profileIds: formData.getAll("profileIds"),
+    familyIds: formData.getAll("familyIds"),
+  });
+
+  if (!parsed.success) {
+    return failure("Select between 1 and 100 eligible adults.");
+  }
+
+  const success = await addPrivateChatAdults(
+    parsed.data.roomId,
+    parsed.data.profileIds,
+    parsed.data.familyIds,
+  );
+
+  if (!success) {
+    return failure(
+      "Adults could not be added. Refresh and review current eligibility.",
+    );
+  }
+
+  revalidatePath(`/communications/chat/${parsed.data.roomId}`);
+
+  return {
+    success: true,
+    message: "Selected adults added. Existing memberships were preserved.",
   };
 }

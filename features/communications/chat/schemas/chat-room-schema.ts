@@ -1,3 +1,4 @@
+
 import { z } from "zod";
 
 export const chatRoomIdSchema = z.object({
@@ -13,6 +14,37 @@ export const createChatRoomSchema = z.object({
     "parent",
     "custom",
   ]),
+  membershipSelection: z
+    .enum(["individual", "all_parents"])
+    .default("individual"),
+  confirmAllParents: z
+    .preprocess(
+      (value) => value === "true" || value === "on",
+      z.boolean(),
+    )
+    .default(false),
+}).superRefine((data, context) => {
+  if (
+    data.membershipSelection === "all_parents" &&
+    data.roomType !== "parent"
+  ) {
+    context.addIssue({
+      code: "custom",
+      path: ["roomType"],
+      message: "All Parents groups must use the Parent room type.",
+    });
+  }
+
+  if (
+    data.membershipSelection === "all_parents" &&
+    !data.confirmAllParents
+  ) {
+    context.addIssue({
+      code: "custom",
+      path: ["confirmAllParents"],
+      message: "Confirm before creating an All Parents group.",
+    });
+  }
 });
 
 export const renameChatRoomSchema = chatRoomIdSchema.extend({
@@ -34,4 +66,9 @@ export const chatDiscoveryPreferenceSchema = z.object({
     (value) => value === "true" || value === "on",
     z.boolean(),
   ),
+});
+
+export const addPrivateChatAdultsSchema = chatRoomIdSchema.extend({
+  profileIds: z.array(z.uuid()).min(1).max(100),
+  familyIds: z.array(z.uuid()).max(100),
 });

@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
 import { PGlite } from "@electric-sql/pglite";
@@ -13,6 +13,9 @@ const migrations = [
   "supabase/migrations/202609250002_native_group_chat_realtime.sql",
   "supabase/migrations/202610080001_parent_private_group_chat.sql",
   "supabase/migrations/202610080002_parent_chat_discovery.sql",
+  "supabase/migrations/202610250001_private_chat_family_adults.sql",
+  "supabase/migrations/202610250002_exclude_student_chat_membership.sql",
+  "supabase/migrations/202610260001_create_all_parents_chat_room.sql",
 ];
 
 const ids = {
@@ -90,10 +93,10 @@ try {
     await db.exec(sql);
   }
 
-  const foundationMigration = await readFile(migrations.at(-4), "utf8");
-  const realtimeMigration = await readFile(migrations.at(-3), "utf8");
-  const parentPrivateGroupMigration = await readFile(migrations.at(-2), "utf8");
-  const parentDiscoveryMigration = await readFile(migrations.at(-1), "utf8");
+  const foundationMigration = await readFile(migrations.at(-7), "utf8");
+  const realtimeMigration = await readFile(migrations.at(-6), "utf8");
+  const parentPrivateGroupMigration = await readFile(migrations.at(-5), "utf8");
+  const parentDiscoveryMigration = await readFile(migrations.at(-4), "utf8");
   assert.match(foundationMigration, /private\.can_manage_chat\(\)/);
   assert.doesNotMatch(foundationMigration, /can_manage_communications/);
   assert.match(foundationMigration, /alter table public\.chat_messages force row level security/);
@@ -133,8 +136,12 @@ try {
   const unreadBadge = await readFile("features/communications/chat/components/chat-unread-badge.tsx", "utf8");
   assert.match(chatListPage, /requireCapability\("communications\.view"\)/);
   assert.match(chatListPage, /managerRoles\.has\(account\.role\)/);
-  assert.match(chatListPage, /canManage \? <CreateChatRoomForm \/>/);
-  assert.match(chatListPage, /account\.role === "parent" \? <ParentCreateChatRoomForm \/>/);
+  assert.match(
+  chatListPage,
+  /canManage\s*\?\s*\(\s*<CreateChatRoomForm\s+eligibleParentCount=\{eligibleParentCount\}/,
+);
+assert.match(chatListPage, /countAllParentsChatCandidates\(\)/);
+  assert.match(chatListPage, /account\.role === "parent"\s*\?\s*\(\s*<ParentCreateChatRoomForm\s*\/>/);
   assert.match(chatListPage, /Private group/);
   assert.match(chatListPage, /ParentChatDiscoveryForm/);
   assert.match(chatListPage, /Archived/);
@@ -206,6 +213,18 @@ assert.match(
   assert.match(unreadBadge, /aria-label=\{label\}/);
   assert.match(unreadBadge, /\$\{count\} unread \$\{count === 1 \? "message" : "messages"\}/);
 
+  const allParentsMigration = await readFile(migrations.at(-1), "utf8");
+  assert.match(
+    allParentsMigration,
+    /create or replace function public\.count_all_parents_chat_candidates/,
+  );
+  assert.match(
+    allParentsMigration,
+    /create or replace function public\.create_all_parents_chat_room/,
+  );
+  assert.match(roomActions, /createAllParentsChatRoom/);
+  assert.match(roomManagement, /eligibleParentCount/);
+  assert.match(roomManagement, /all_parents/);
   const users = Object.entries(ids).filter(([key]) =>
     ["admin", "pastor", "staff", "volunteer", "otherVolunteer", "parent", "otherParent"].includes(key),
   );
@@ -232,6 +251,54 @@ assert.match(
     "Staff must not manage chat rooms",
   );
 
+  assert.equal(
+    (await asUser(ids.admin, () =>
+      db.query("select public.count_all_parents_chat_candidates() count")
+    )).rows[0].count,
+    2,
+    "Both eligible Parents should be counted",
+  );
+
+  await denied(
+    () => asUser(ids.parent, () =>
+      db.query("select public.count_all_parents_chat_candidates()")
+    ),
+    "Parents cannot enumerate the official Parent count",
+  );
+
+  await denied(
+    () => asUser(ids.staff, () =>
+      db.query("select public.create_all_parents_chat_room('Denied')")
+    ),
+    "Staff cannot create All Parents rooms",
+  );
+
+  await denied(
+    () => asUser(ids.parent, () =>
+      db.query("select public.create_all_parents_chat_room('Denied')")
+    ),
+    "Parents cannot create official All Parents rooms",
+  );
+
+  const allParentsRoom = (await asUser(ids.admin, () =>
+    db.query("select public.create_all_parents_chat_room('All Parents snapshot test') id")
+  )).rows[0].id;
+
+  const allParentsMembers = await db.query(
+    "select profile_id, membership_source from public.chat_room_members where room_id=$1 and removed_at is null",
+    [allParentsRoom],
+  );
+
+  assert.deepEqual(
+    allParentsMembers.rows.map(row => row.profile_id).sort(),
+    [ids.parent, ids.otherParent].sort(),
+    "All eligible Parents are included at creation",
+  );
+
+  assert.ok(
+    allParentsMembers.rows.every(row => row.membership_source === "explicit"),
+    "All Parents membership must be explicit",
+  );
   await db.query("insert into public.events(id,name,event_type,status,starts_at,ends_at) values($1,'Chat Event','Youth Night','published','2026-10-01 22:00+00','2026-10-02 00:00+00')", [ids.event]);
   const parentRoom = (await asUser(ids.admin, () => db.query("select public.create_chat_room('Event parents','parent','event_parents',$1,null) id", [ids.event]))).rows[0].id;
   await asUser(ids.admin, () => db.query("select public.add_chat_room_member($1,$2)", [parentRoom, ids.parent]));
@@ -480,6 +547,56 @@ assert.match(
     "Membership changes preserve existing private-group messages",
   );
 
+  await db.query("insert into public.people(id,first_name,last_name) values($1,'Adult','Guardian'),($2,'Student','Record')", [ids.parentPerson, ids.studentPerson]);
+  await db.query("insert into public.households(id,name) values($1,'Authorized family')", [ids.household]);
+  await db.query("insert into public.household_memberships(household_id,person_id,relationship_label,is_responsible_adult) values($1,$2,'Guardian',true)", [ids.household, ids.parentPerson]);
+  await db.query("update public.profiles set person_id=$1 where id=$2", [ids.parentPerson, ids.parent]);
+  await db.query("insert into public.students(id,person_id,primary_household_id,birth_date,grade) values($1,$2,$3,'2012-01-01','8')", [ids.student, ids.studentPerson, ids.household]);
+  const familyRoom = (await asUser(ids.parent, () => db.query("select public.create_chat_room('Family selection','custom','explicit',null,null) id"))).rows[0].id;
+  await asUser(ids.otherParent, () => db.query("select public.set_my_chat_discovery_preference(true)"));
+  await db.query("update public.profiles set person_id=$1 where id=$2", [ids.studentPerson, ids.otherParent]);
+  assert.equal((await asUser(ids.parent, () => db.query("select * from public.list_private_chat_adults($1) where profile_id=$2", [familyRoom, ids.otherParent]))).rows.length, 0, "Student-linked accounts are excluded");
+  await denied(() => asUser(ids.parent, () => db.query("select public.add_private_chat_adults($1,$2::uuid[])", [familyRoom, [ids.otherParent]])), "Student batch rejected");
+  await denied(() => asUser(ids.parent, () => db.query("select public.add_chat_room_member($1,$2)", [familyRoom, ids.otherParent])), "Legacy single endpoint rejects students too");
+  const beforeStudentCreate = (await db.query("select (select count(*)::int from public.chat_rooms) rooms, (select count(*)::int from public.chat_room_members) memberships")).rows[0];
+  await denied(() => asUser(ids.otherParent, () => db.query("select public.create_chat_room('Student owner rejected','custom','explicit',null,null)")), "Student-linked Parent cannot create private group");
+  assert.deepEqual((await db.query("select (select count(*)::int from public.chat_rooms) rooms, (select count(*)::int from public.chat_room_members) memberships")).rows[0], beforeStudentCreate, "Rejected creation leaves no room or membership");
+  const officialSecurityRoom = (await asUser(ids.admin, () => db.query("select public.create_chat_room('Official security regression','custom','explicit',null,null) id"))).rows[0].id;
+  await denied(() => asUser(ids.admin, () => db.query("select public.add_chat_room_member($1,$2)", [officialSecurityRoom, ids.otherParent])), "Administrator cannot add student to official room");
+  await denied(() => asUser(ids.pastor, () => db.query("select public.add_chat_room_member($1,$2)", [officialSecurityRoom, ids.otherParent])), "Pastor cannot add student to official room");
+  assert.equal((await db.query("select count(*)::int n from public.chat_room_members where room_id=$1", [officialSecurityRoom])).rows[0].n, 0, "Rejected official additions leave no membership");
+  await db.query("update public.students set status='archived', archived_at=now() where id=$1", [ids.student]);
+  await denied(() => asUser(ids.admin, () => db.query("select public.add_chat_room_member($1,$2)", [officialSecurityRoom, ids.otherParent])), "Archived student records do not bypass membership exclusion");
+  await denied(() => asUser(ids.otherParent, () => db.query("select public.create_chat_room('Archived student owner rejected','custom','explicit',null,null)")), "Archived student cannot become group owner");
+  await db.query("update public.students set status='prospective', archived_at=null where id=$1", [ids.student]);
+  await asUser(ids.admin, () => db.query("select public.add_chat_room_member($1,$2)", [officialSecurityRoom, ids.parent]));
+  assert.equal((await db.query("select count(*)::int n from public.chat_room_members where room_id=$1 and profile_id=$2 and removed_at is null", [officialSecurityRoom, ids.parent])).rows[0].n, 1, "Adult official membership remains allowed");
+  assert.equal((await db.query("select count(*)::int n from public.chat_room_members where room_id=$1 and profile_id=$2 and removed_at is null", [familyRoom, ids.parent])).rows[0].n, 1, "Adult private owner retains automatic membership");
+  await db.query("update public.profiles set person_id=null where id=$1", [ids.otherParent]);
+  await db.query("update public.profiles set person_id=$1 where id=$2", [ids.parentPerson, ids.otherParent]);
+  await db.query("update public.household_memberships set is_responsible_adult=true where household_id=$1 and person_id=$2", [ids.household, ids.parentPerson]);
+  const secondFamily = (await db.query("insert into public.households(name) values('Second authorized family') returning id")).rows[0].id;
+  const emptyFamily = (await db.query("insert into public.households(name) values('No registered adults') returning id")).rows[0].id;
+  const hiddenFamily = (await db.query("insert into public.households(name) values('Hidden family') returning id")).rows[0].id;
+  await db.query("insert into public.household_memberships(household_id,person_id,relationship_label,is_responsible_adult) values($1,$2,'Guardian',true),($3,$2,'Guardian',true)", [secondFamily, ids.parentPerson, emptyFamily]);
+  const familyProjection = await asUser(ids.parent, () => db.query("select * from public.list_private_chat_families($1)", [familyRoom]));
+  assert.ok(familyProjection.rows.find(f => f.family_id === ids.household).adults.some(a => a.profileId === ids.otherParent));
+  assert.ok(!familyProjection.rows.some(f => f.family_id === hiddenFamily), "Other families remain hidden even when invitation discovery is enabled");
+  // Non-responsible adults must never be derived merely from household membership.
+  await db.query("update public.household_memberships set is_responsible_adult=false where household_id=$1", [emptyFamily]);
+  assert.deepEqual((await asUser(ids.parent, () => db.query("select adults from public.list_private_chat_families($1) where family_id=$2", [familyRoom, emptyFamily]))).rows[0].adults, []);
+  const visibleFamilies = await asUser(ids.parent, () => db.query("select * from public.list_private_chat_families($1)", [familyRoom]));
+  assert.ok(visibleFamilies.rows.some(f => f.family_id === ids.household));
+  await denied(() => asUser(ids.otherParent, () => db.query("select * from public.list_private_chat_families($1)", [familyRoom])), "Nonowner family discovery rejected");
+  await denied(() => asUser(ids.parent, () => db.query("select public.add_private_chat_adults($1,$2::uuid[],$3::uuid[])", [familyRoom, [ids.otherParent], [ids.event]])), "Unknown family rejected atomically");
+  await db.query("update public.profiles set person_id=$1 where id=$2", [ids.parentPerson, ids.staff]);
+  await asUser(ids.parent, () => db.query("select public.add_private_chat_adults($1,$2::uuid[],$3::uuid[])", [familyRoom, [ids.otherParent, ids.otherParent, ids.staff], [ids.household, secondFamily]]));
+  await asUser(ids.parent, () => db.query("select public.add_private_chat_adults($1,$2::uuid[])", [familyRoom, [ids.otherParent]]));
+  assert.equal((await db.query("select count(*)::int n from public.chat_room_members where room_id=$1 and profile_id=$2 and removed_at is null", [familyRoom, ids.otherParent])).rows[0].n, 1, "Repeated and duplicate selection is idempotent");
+  await asUser(ids.parent, () => db.query("select public.remove_chat_room_member($1,$2,'Individual removal')", [familyRoom, ids.otherParent]));
+  assert.equal((await db.query("select count(*)::int n from public.chat_room_members where room_id=$1 and profile_id=$2 and removed_at is null", [familyRoom, ids.staff])).rows[0].n, 1, "Removing one family adult retains the other adult");
+  await denied(() => asUser(ids.parent, () => db.query("select public.add_private_chat_adults($1,$2::uuid[])", [parentRoom, [ids.otherParent]])), "Family batch cannot mutate official rooms");
+
   await asUser(ids.parent, () => db.query("select public.rename_chat_room($1,'Renamed parent group')", [parentPrivateRoom]));
   await asUser(ids.parent, () => db.query("select public.archive_chat_room($1)", [parentPrivateRoom]));
   await denied(
@@ -524,6 +641,34 @@ assert.match(
   );
   assert.equal(Number((await asUser(ids.parent, () => db.query("select unread_count from public.list_chat_rooms() where room_id=$1", [roomId]))).rows[0].unread_count), 0);
 
+  const laterParent = "95000000-0000-4000-8000-000000000015";
+
+  await db.query(
+    "insert into auth.users(id,email,raw_user_meta_data) values($1,'later-parent@example.test','{}'::jsonb)",
+    [laterParent],
+  );
+
+  await db.query(
+    "update public.profiles set primary_role='parent'::public.account_role where id=$1",
+    [laterParent],
+  );
+
+  assert.equal(
+    (await asUser(ids.admin, () =>
+      db.query("select public.count_all_parents_chat_candidates() count")
+    )).rows[0].count,
+    3,
+    "New eligible Parent must appear in the current count",
+  );
+
+  assert.equal(
+    (await db.query(
+      "select count(*)::int count from public.chat_room_members where room_id=$1 and profile_id=$2 and removed_at is null",
+      [allParentsRoom, laterParent],
+    )).rows[0].count,
+    0,
+    "New Parent must not automatically join the earlier snapshot",
+  );
   const audited = await db.query("select metadata::text metadata from public.audit_events where action like 'communication.chat_%'");
   assert.ok(audited.rows.length >= 5);
   assert.equal(audited.rows.some((row) => row.metadata.includes("Staff update")), false, "Audit metadata must never contain message bodies");

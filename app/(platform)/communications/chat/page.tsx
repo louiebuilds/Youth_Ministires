@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -9,6 +10,7 @@ import {
 } from "@/features/communications/chat/components/chat-room-management";
 import { ChatUnreadBadge } from "@/features/communications/chat/components/chat-unread-badge";
 import {
+  countAllParentsChatCandidates,
   getParentChatDiscoverability,
   listChatRooms,
 } from "@/features/communications/chat/services/chat-room-service";
@@ -17,9 +19,13 @@ export const metadata: Metadata = {
   title: "Group Chat",
 };
 
-const managerRoles = new Set(["platform_administrator", "youth_pastor"]);
+const managerRoles = new Set([
+  "platform_administrator",
+  "youth_pastor",
+]);
 
-const roomTypeLabel = (value: string) => value.replaceAll("_", " ");
+const roomTypeLabel = (value: string) =>
+  value.replaceAll("_", " ");
 
 export default async function ChatRoomsPage({
   searchParams,
@@ -28,12 +34,25 @@ export default async function ChatRoomsPage({
 }>) {
   const account = await requireCapability("communications.view");
   const query = await searchParams;
-  const result = await listChatRooms();
-  const rooms = result.success ? result.data : [];
+
   const canManage = managerRoles.has(account.role);
-  const discoveryResult =
-    account.role === "parent"
-      ? await getParentChatDiscoverability()
+
+  const [result, parentCountResult, discoveryResult] =
+    await Promise.all([
+      listChatRooms(),
+      canManage
+        ? countAllParentsChatCandidates()
+        : Promise.resolve(null),
+      account.role === "parent"
+        ? getParentChatDiscoverability()
+        : Promise.resolve(null),
+    ]);
+
+  const rooms = result.success ? result.data : [];
+
+  const eligibleParentCount =
+    parentCountResult?.success
+      ? parentCountResult.data
       : null;
 
   return (
@@ -69,16 +88,27 @@ export default async function ChatRoomsPage({
         </nav>
       </header>
 
-      {canManage ? <CreateChatRoomForm /> : null}
+      {canManage ? (
+        <CreateChatRoomForm
+          eligibleParentCount={eligibleParentCount}
+        />
+      ) : null}
 
-      {account.role === "parent" ? <ParentCreateChatRoomForm /> : null}
+      {account.role === "parent" ? (
+        <ParentCreateChatRoomForm />
+      ) : null}
 
       {account.role === "parent" && discoveryResult?.success ? (
-        <ParentChatDiscoveryForm discoverable={discoveryResult.data} />
+        <ParentChatDiscoveryForm
+          discoverable={discoveryResult.data}
+        />
       ) : null}
 
       {query.left === "1" ? (
-        <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900" role="status">
+        <p
+          className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900"
+          role="status"
+        >
           You left the private group.
         </p>
       ) : null}
@@ -113,6 +143,7 @@ export default async function ChatRoomsPage({
                     archived={Boolean(room.archivedAt)}
                     count={room.unreadCount}
                   />
+
                   <span
                     className={`rounded-full px-2.5 py-1 text-xs font-bold ${
                       room.archivedAt

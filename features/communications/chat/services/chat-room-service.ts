@@ -1,7 +1,9 @@
+
 import "server-only";
 
 import type {
   ChatMemberCandidate,
+  ChatFamilyCandidate,
   ChatQueryResult,
   ChatRoom,
   ChatRoomSummary,
@@ -136,9 +138,10 @@ export async function getChatRoom(
 
 export async function listChatMemberCandidates(
   roomId: string,
+  privateGroup = false,
 ): Promise<ChatQueryResult<ChatMemberCandidate[]>> {
   const { data, error } = await rpc(
-    "list_chat_member_candidates",
+    privateGroup ? "list_private_chat_adults" : "list_chat_member_candidates",
     {
       p_room_id: roomId,
     },
@@ -200,6 +203,58 @@ export async function createChatRoom(
   }
 
   return String(result.data);
+}
+
+export async function countAllParentsChatCandidates(): Promise<
+  ChatQueryResult<number>
+> {
+  const { data, error } = await rpc(
+    "count_all_parents_chat_candidates",
+  );
+
+  if (error) {
+    logFailure(
+      "count_all_parents_chat_candidates",
+      error.code,
+    );
+    return { success: false };
+  }
+
+  const count = Number(data);
+
+  if (!Number.isSafeInteger(count) || count < 0) {
+    return { success: false };
+  }
+
+  return {
+    success: true,
+    data: count,
+  };
+}
+
+export async function createAllParentsChatRoom(
+  name: string,
+): Promise<string | null> {
+  const { data, error } = await rpc(
+    "create_all_parents_chat_room",
+    {
+      p_name: name,
+    },
+  );
+
+  if (error) {
+    logFailure(
+      "create_all_parents_chat_room",
+      error.code,
+    );
+    return null;
+  }
+
+  if (!data || typeof data !== "string") {
+    return null;
+  }
+
+  return data;
 }
 
 async function mutate(
@@ -295,4 +350,39 @@ export async function setParentChatDiscoverability(
       p_parent_discoverable: parentDiscoverable,
     },
   );
+}
+
+export async function listChatFamilyCandidates(
+  roomId: string,
+): Promise<ChatQueryResult<ChatFamilyCandidate[]>> {
+  const { data, error } = await rpc(
+    "list_private_chat_families",
+    { p_room_id: roomId },
+  );
+
+  if (error) {
+    logFailure("list_private_chat_families", error.code);
+    return { success: false };
+  }
+
+  return {
+    success: true,
+    data: ((data ?? []) as Record<string, unknown>[]).map((row) => ({
+      familyId: String(row.family_id),
+      familyName: String(row.family_name),
+      adults: row.adults as ChatFamilyCandidate["adults"],
+    })),
+  };
+}
+
+export async function addPrivateChatAdults(
+  roomId: string,
+  profileIds: string[],
+  familyIds: string[],
+): Promise<boolean> {
+  return mutate("add_private_chat_adults", {
+    p_room_id: roomId,
+    p_profile_ids: profileIds,
+    p_family_ids: familyIds,
+  });
 }

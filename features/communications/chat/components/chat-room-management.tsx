@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 
 import {
   addChatRoomMemberAction,
@@ -14,8 +14,11 @@ import {
 } from "@/features/communications/chat/actions/chat-room-actions";
 import type {
   ChatMemberCandidate,
+  ChatFamilyCandidate,
   ChatRoom,
 } from "@/features/communications/chat/types/chat";
+
+import { PrivateChatAdultPicker } from "./private-chat-adult-picker";
 
 const initialState: ChatRoomActionState = {
   success: false,
@@ -47,11 +50,23 @@ function Result({
   );
 }
 
-export function CreateChatRoomForm() {
+export function CreateChatRoomForm({
+  eligibleParentCount,
+}: Readonly<{
+  eligibleParentCount: number | null;
+}>) {
   const [state, action, pending] = useActionState(
     createChatRoomAction,
     initialState,
   );
+  const [membershipSelection, setMembershipSelection] = useState<
+    "individual" | "all_parents"
+  >("individual");
+  const [roomType, setRoomType] = useState("custom");
+  const [confirmed, setConfirmed] = useState(false);
+
+  const allParents = membershipSelection === "all_parents";
+  const canUseAllParents = eligibleParentCount !== null && eligibleParentCount > 0;
 
   return (
     <details className="rounded-xl border border-slate-200 bg-white p-5">
@@ -59,18 +74,10 @@ export function CreateChatRoomForm() {
         Create room
       </summary>
 
-      <form
-        action={action}
-        className="mt-4 grid gap-4 md:grid-cols-2"
-      >
+      <form action={action} className="mt-4 grid gap-4 md:grid-cols-2">
         <label className="text-sm font-semibold">
           Room name
-          <input
-            className={inputClass}
-            name="name"
-            maxLength={150}
-            required
-          />
+          <input className={inputClass} name="name" maxLength={150} required />
         </label>
 
         <label className="text-sm font-semibold">
@@ -78,39 +85,94 @@ export function CreateChatRoomForm() {
           <select
             className={inputClass}
             name="roomType"
-            defaultValue="custom"
+            value={allParents ? "parent" : roomType}
+            onChange={(event) => setRoomType(event.target.value)}
+            disabled={allParents}
           >
-            <option value="ministry">
-              Ministry
-            </option>
-            <option value="volunteer_team">
-              Volunteer team
-            </option>
-            <option value="staff_leadership">
-              Staff leadership
-            </option>
-            <option value="parent">
-              Parent
-            </option>
-            <option value="custom">
-              Custom
-            </option>
+            <option value="ministry">Ministry</option>
+            <option value="volunteer_team">Volunteer team</option>
+            <option value="staff_leadership">Staff leadership</option>
+            <option value="parent">Parent</option>
+            <option value="custom">Custom</option>
           </select>
+          {allParents ? <input type="hidden" name="roomType" value="parent" /> : null}
         </label>
 
+        <fieldset className="space-y-3 md:col-span-2">
+          <legend className="text-sm font-semibold text-slate-950">Initial members</legend>
+          <label className="flex items-start gap-3 rounded-lg border border-slate-200 p-3">
+            <input
+              type="radio"
+              name="membershipSelection"
+              value="individual"
+              checked={!allParents}
+              onChange={() => {
+                setMembershipSelection("individual");
+                setConfirmed(false);
+              }}
+              className="mt-1 h-4 w-4"
+            />
+            <span className="text-sm text-slate-700">
+              <strong className="block text-slate-950">Add individuals later</strong>
+              Create the room first, then select eligible members individually.
+            </span>
+          </label>
+          <label className="flex items-start gap-3 rounded-lg border border-slate-200 p-3">
+            <input
+              type="radio"
+              name="membershipSelection"
+              value="all_parents"
+              checked={allParents}
+              disabled={!canUseAllParents}
+              onChange={() => {
+                setMembershipSelection("all_parents");
+                setConfirmed(false);
+              }}
+              className="mt-1 h-4 w-4"
+            />
+            <span className="text-sm text-slate-700">
+              <strong className="block text-slate-950">All Parents / Guardians</strong>
+              {eligibleParentCount === null
+                ? "The eligible-parent count is unavailable. Try refreshing."
+                : `${eligibleParentCount} eligible account${eligibleParentCount === 1 ? "" : "s"} currently available.`}
+              <span className="mt-1 block text-xs text-slate-500">
+                This creates an official Parent room and adds the eligible accounts once.
+                Future Parent accounts are not automatically added. Students are excluded.
+              </span>
+            </span>
+          </label>
+        </fieldset>
+
+        {allParents ? (
+          <label className="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950 md:col-span-2">
+            <input
+              type="checkbox"
+              name="confirmAllParents"
+              value="true"
+              checked={confirmed}
+              onChange={(event) => setConfirmed(event.target.checked)}
+              className="mt-1 h-4 w-4"
+              required
+            />
+            <span>
+              I confirm that this official room should add all currently eligible
+              Parents / Guardians. The final count may change before creation.
+            </span>
+          </label>
+        ) : null}
+
         <p className="text-sm text-slate-600 md:col-span-2">
-          Event-linked room creation is intentionally
-          deferred. Members can be added after this room
-          is created.
+          Event-linked room creation is intentionally deferred.
+          Individual members can be added after creating a room.
         </p>
 
-        <Result state={state} />
+        <div className="md:col-span-2"><Result state={state} /></div>
 
         <button
           className="min-h-11 rounded-lg bg-sky-700 px-4 font-semibold text-white disabled:opacity-60"
-          disabled={pending}
+          disabled={pending || (allParents && (!canUseAllParents || !confirmed))}
         >
-          {pending ? "Creating…" : "Create room"}
+          {pending ? "Creating…" : allParents ? "Create All Parents room" : "Create room"}
         </button>
       </form>
     </details>
@@ -255,9 +317,11 @@ export function LeaveChatRoomForm({
 export function ChatRoomManagement({
   room,
   candidates,
+  families,
 }: Readonly<{
   room: ChatRoom;
   candidates: ChatMemberCandidate[];
+  families?: ChatFamilyCandidate[];
 }>) {
   const [renameState, renameAction, renamePending] =
     useActionState(
@@ -404,6 +468,9 @@ export function ChatRoomManagement({
             ownerProfileId={room.ownerProfileId}
           />
 
+          {room.isParentManaged ? (
+            <PrivateChatAdultPicker key={room.roomId} roomId={room.roomId} candidates={candidates} families={families} />
+          ) : (
           <form
             action={addAction}
             className="mt-5 flex flex-wrap items-end gap-3"
@@ -457,6 +524,8 @@ export function ChatRoomManagement({
                 : "Add member"}
             </button>
           </form>
+
+          )}
 
           {room.isParentManaged ? (
             <p className="mt-2 text-xs leading-5 text-slate-500">

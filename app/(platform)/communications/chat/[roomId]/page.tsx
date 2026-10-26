@@ -14,6 +14,7 @@ import { listChatMessages } from "@/features/communications/chat/services/chat-m
 import {
   getChatRoom,
   listChatMemberCandidates,
+  listChatFamilyCandidates,
   listChatRooms,
 } from "@/features/communications/chat/services/chat-room-service";
 
@@ -59,9 +60,12 @@ export default async function ChatRoomPage({
     await Promise.all([
       listChatMessages(room.roomId),
       room.canManage
-        ? listChatMemberCandidates(room.roomId)
+        ? listChatMemberCandidates(room.roomId, room.isParentManaged)
         : Promise.resolve(null),
     ]);
+
+  const familiesResult = room.canManage && room.isParentManaged && !room.archivedAt
+    ? await listChatFamilyCandidates(room.roomId) : null;
 
   return (
     <div className="space-y-6">
@@ -178,6 +182,7 @@ export default async function ChatRoomPage({
             <ChatRoomManagement
               room={room}
               candidates={candidatesResult.data}
+              families={familiesResult?.success ? familiesResult.data : undefined}
             />
           ) : null}
 
