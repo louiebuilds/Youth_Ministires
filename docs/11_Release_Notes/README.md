@@ -5,6 +5,8 @@ Platform.
 
 ## Releases
 
+- [Event Completion — October 31, 2026](2026-10-31_Event_Completion.md)
+
 - [v0.16.0 — Milestone 16 Reporting & Analytics](v0.16.0_Milestone16_Reporting_and_Analytics.md)
 - [v0.15.0 — Milestone 14 Scheduling](v0.15.0_Milestone14_Scheduling.md)
 - [v0.14.0 — Milestone 13 Resource Library](v0.14.0_Milestone13_Resource_Library.md)

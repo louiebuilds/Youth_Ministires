@@ -1224,18 +1224,29 @@ requires separate approval after all documented gates pass. See
 and its `_Read_Only_Checks.sql` companion.
 
 
-## Step 31AT — Authorized Production Release — October 31, 2026
+## Step 31AT — Production Release Deployed — October 31, 2026
 
-Product Owner authorized the controlled release. HOSTED migrations 202610290001,
-202610300001 and 202610310001 committed atomically, including real history
-entries. Restricted lifecycle ownership/grants, the ALWAYS invoker guard, no
-client owner membership and legacy preservation passed independent checks.
-All 79 recorded table fingerprints match; existing history and Live SMS are
-unchanged. Fall Costume Party remains Completed with NULL original lifecycle
-metadata. Protected logical backup is retained outside the repository; restore
-was not rehearsed and Storage bytes/full configuration are excluded.
+HOSTED migrations 202610290001, 202610300001 and 202610310001 applied atomically
+with accurate history. Restricted lifecycle ownership/grants, no client owner
+membership and the ALWAYS invoker guard passed independent verification. Earlier
+history and Live SMS remain unchanged. All 79 recorded fingerprints matched
+immediately after migration; Fall Costume Party remains Completed with no
+fabricated completion history or reopening metadata.
 
-The isolated application release passed lint, TypeScript and production build.
-Application deployment and focused production smoke test are in progress.
-No Docker operations or DSCC/UPS modifications were performed. See
-`docs/09_Testing/2026-10-31_Event_Completion_Production_Deployment.md`.
+Application release `2a023572c30067b37f1301db57b7e9f5c7756ef3` is pushed on
+`checkpoint/2026-10-08-church-beta`. Vercel deployment
+`dpl_B9crnkne6FufTmGrPSeMB4NTuk24` is READY and independently verified on
+`https://youth-ministries.vercel.app`. The isolated release passed lint,
+TypeScript and build; 20 focused production REST/page-response checks passed.
+Louie also confirmed live Administrator completion and undo/reopening.
+
+All synthetic accounts/events and their scoped audit fixtures were removed.
+Post-cleanup differences in Events, Audit Events and Auth users correspond to
+Louie's confirmed concurrent acceptance actions and sign-in; those records were
+preserved. The other 76 fingerprints and all 233 original audit rows match.
+DSCC/UPS were not modified; no Docker mutations occurred. The protected logical
+backup remains available, with acknowledged untested restoration and exclusions.
+
+Desktop/mobile visual navigation and Technical Lead review remain pending:
+browser safety controls stopped UI automation. No milestone closure is claimed.
+See `docs/09_Testing/2026-10-31_Event_Completion_Production_Deployment.md`.
