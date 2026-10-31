@@ -8,9 +8,12 @@ import {
   archiveEventSchema,
   eventDetailsSchema,
   eventRegistrationSettingsSchema,
+  eventLifecycleSchema,
+  legacyEventReopenSchema,
 } from "@/features/events/schemas/event-management-schema";
 import {
   archiveEvent,
+  completeEvent,
   cancelMyEventRegistration,
   createEventChecklistItem,
   createEventReminder,
@@ -22,6 +25,8 @@ import {
   setEventReminderStatus,
   updateEvent,
   updateEventRegistrationSettings,
+  reopenEvent,
+  reopenLegacyEvent,
 } from "@/features/events/services/event-management-service";
 import {
   scheduleVolunteer,
@@ -73,6 +78,45 @@ export async function archiveEventAction(
   }
   revalidatePath("/events");
   redirect("/events");
+}
+
+export async function completeEventAction(
+  _state: EventActionState,
+  formData: FormData,
+): Promise<EventActionState> {
+  const parsed = eventLifecycleSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success || !await completeEvent(parsed.data.eventId)) {
+    return { success: false, message: "This event could not be completed." };
+  }
+  revalidatePath("/events");
+  revalidatePath(`/events/${parsed.data.eventId}`);
+  return { success: true, message: "Event completed and recorded in the audit log." };
+}
+
+export async function reopenLegacyEventAction(
+  _state: EventActionState,
+  formData: FormData,
+): Promise<EventActionState> {
+  const parsed = legacyEventReopenSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success || !await reopenLegacyEvent(parsed.data.eventId, parsed.data.targetStatus)) {
+    return { success: false, message: "Select a target status. This legacy event could not be reopened." };
+  }
+  revalidatePath("/events");
+  revalidatePath(`/events/${parsed.data.eventId}`);
+  return { success: true, message: "Legacy event reopened with the selected status and recorded in the audit log." };
+}
+
+export async function reopenEventAction(
+  _state: EventActionState,
+  formData: FormData,
+): Promise<EventActionState> {
+  const parsed = eventLifecycleSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success || !await reopenEvent(parsed.data.eventId)) {
+    return { success: false, message: "This event could not be reopened." };
+  }
+  revalidatePath("/events");
+  revalidatePath(`/events/${parsed.data.eventId}`);
+  return { success: true, message: "Event reopened and recorded in the audit log." };
 }
 
 export async function updateEventRegistrationSettingsAction(

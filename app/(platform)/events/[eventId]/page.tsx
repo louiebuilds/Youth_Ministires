@@ -14,8 +14,10 @@ import { EventRegistrationRoster } from "@/features/events/components/event-regi
 import { EventRegistrationSettingsForm } from "@/features/events/components/event-registration-settings-form";
 import { EventVolunteerAssignments } from "@/features/events/components/event-volunteer-assignments";
 import { FamilyEventRegistration } from "@/features/events/components/family-event-registration";
+import { EventLifecycleForm } from "@/features/events/components/event-lifecycle-form";
 import {
   getEventRegistrationSettings,
+  getEventCompletionSummary,
   getEventWorkspace,
   listEventChecklistItems,
   listEventRegistrationReadiness,
@@ -33,6 +35,7 @@ import {
 } from "@/features/forms/services/document-template-service";
 
 import type { EventWorkspace } from "@/features/events/types/event-management";
+import { eventDisplayStatus, eventHasEnded } from "@/features/events/utils/event-lifecycle";
 
 export const metadata: Metadata = {
   title: "Event Workspace",
@@ -146,7 +149,8 @@ export default async function EventWorkspacePage({
   const managementAvailable =
     !isVolunteer &&
     event.canManage &&
-    event.status !== "archived";
+    event.status !== "archived" &&
+    event.status !== "completed";
 
   const visible = new Set<EventSection>([
     "overview",
@@ -204,7 +208,7 @@ export default async function EventWorkspacePage({
             </h1>
 
             <span className="mt-3 inline-flex rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold capitalize">
-              {event.status}
+              {eventDisplayStatus(event.status, event.endsAt)}
             </span>
           </div>
 
@@ -224,6 +228,7 @@ export default async function EventWorkspacePage({
       {active === "overview" ? (
         <Overview
           event={event}
+          canManageLifecycle={permissionManager && event.canManage}
           registrationSettings={
             registrationSettings
           }
@@ -306,9 +311,11 @@ export default async function EventWorkspacePage({
 
 function Overview({
   event,
+  canManageLifecycle,
   registrationSettings,
 }: Readonly<{
   event: EventWorkspace;
+  canManageLifecycle: boolean;
   registrationSettings: Awaited<
     ReturnType<
       typeof getEventRegistrationSettings
@@ -323,6 +330,7 @@ function Overview({
     }).format(new Date(value));
 
   return (
+    <div className="space-y-5">
     <section className="grid gap-5 lg:grid-cols-3">
       <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2">
         <h2 className="text-lg font-bold text-slate-950">
@@ -453,6 +461,30 @@ function Overview({
         )}
       </aside>
     </section>
+    {canManageLifecycle ? <EventCompletionPanel event={event} /> : null}
+    </div>
+  );
+}
+
+async function EventCompletionPanel({ event }: Readonly<{ event: EventWorkspace }>) {
+  const summary = await getEventCompletionSummary(event.eventId);
+  if (!summary) return null;
+  const completed = event.status === "completed";
+  const mayComplete = eventHasEnded(event.endsAt) && !completed && event.status !== "archived";
+  if (!completed && !mayComplete) return null;
+  return (
+    <section className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-5">
+      <p className="text-sm font-semibold text-emerald-800">Event lifecycle</p>
+      <h2 className="mt-1 text-xl font-bold text-slate-950">{completed ? "Completed event" : "Review before completion"}</h2>
+      <p className="mt-2 text-sm text-slate-700">{event.name} · {new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: event.timezone }).format(new Date(event.startsAt))}</p>
+      <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+        <div><dt className="text-slate-500">Attendance</dt><dd className="font-semibold">{summary.attendancePresent} present · {summary.attendanceTotal} records</dd></div>
+        <div><dt className="text-slate-500">Registration</dt><dd className="font-semibold">{summary.registeredCount} registered · {summary.waitlistedCount} waitlisted</dd></div>
+        <div><dt className="text-slate-500">Volunteers</dt><dd className="font-semibold">{summary.volunteerCount} assigned</dd></div>
+        <div><dt className="text-slate-500">Outstanding</dt><dd className="font-semibold">{summary.outstandingChecklistCount} checklist · {summary.scheduledReminderCount} reminders</dd></div>
+      </dl>
+      <div className="mt-5"><EventLifecycleForm eventId={event.eventId} mode={completed ? event.isLegacyCompleted ? "legacy-reopen" : "reopen" : "complete"} /></div>
+    </section>
   );
 }
 
@@ -471,7 +503,8 @@ async function RegistrationSection({
 }>) {
   const managerWorkspace =
     event.canManage &&
-    event.status !== "archived";
+    event.status !== "archived" &&
+    event.status !== "completed";
 
   const [
     options,
@@ -639,7 +672,8 @@ async function FormsSection({
     permissionManager &&
     requirement &&
     event.canManage &&
-    event.status !== "archived"
+    event.status !== "archived" &&
+    event.status !== "completed"
   ) {
     return (
       <EventPermissionSlipForm

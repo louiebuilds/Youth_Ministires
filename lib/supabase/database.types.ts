@@ -2469,6 +2469,9 @@ export type Database = {
           building: string | null
           campus: string | null
           capacity: number | null
+          completed_at: string | null
+          completed_by_profile_id: string | null
+          completed_from_status: Database["public"]["Enums"]["event_status"] | null
           created_at: string
           description: string | null
           ends_at: string
@@ -2479,6 +2482,8 @@ export type Database = {
           registration_closes_at: string | null
           registration_opens_at: string | null
           room: string | null
+          reopened_at: string | null
+          reopened_by_profile_id: string | null
           starts_at: string
           status: Database["public"]["Enums"]["event_status"]
           timezone: string
@@ -2491,6 +2496,9 @@ export type Database = {
           building?: string | null
           campus?: string | null
           capacity?: number | null
+          completed_at?: string | null
+          completed_by_profile_id?: string | null
+          completed_from_status?: Database["public"]["Enums"]["event_status"] | null
           created_at?: string
           description?: string | null
           ends_at: string
@@ -2501,6 +2509,8 @@ export type Database = {
           registration_closes_at?: string | null
           registration_opens_at?: string | null
           room?: string | null
+          reopened_at?: string | null
+          reopened_by_profile_id?: string | null
           starts_at: string
           status?: Database["public"]["Enums"]["event_status"]
           timezone?: string
@@ -2513,6 +2523,9 @@ export type Database = {
           building?: string | null
           campus?: string | null
           capacity?: number | null
+          completed_at?: string | null
+          completed_by_profile_id?: string | null
+          completed_from_status?: Database["public"]["Enums"]["event_status"] | null
           created_at?: string
           description?: string | null
           ends_at?: string
@@ -2523,6 +2536,8 @@ export type Database = {
           registration_closes_at?: string | null
           registration_opens_at?: string | null
           room?: string | null
+          reopened_at?: string | null
+          reopened_by_profile_id?: string | null
           starts_at?: string
           status?: Database["public"]["Enums"]["event_status"]
           timezone?: string
@@ -5275,6 +5290,22 @@ export type Database = {
         Returns: Json
       }
       get_event_workspace: { Args: { p_event_id: string }; Returns: Json }
+      get_event_completion_summary: {
+        Args: { p_event_id: string }
+        Returns: Json
+      }
+      complete_event: {
+        Args: { p_event_id: string }
+        Returns: undefined
+      }
+      reopen_legacy_event: {
+        Args: { p_event_id: string; p_target_status: Database["public"]["Enums"]["event_status"] }
+        Returns: undefined
+      }
+      reopen_event: {
+        Args: { p_event_id: string }
+        Returns: undefined
+      }
       get_family_checkin_pass: {
         Args: { p_household_id: string }
         Returns: {

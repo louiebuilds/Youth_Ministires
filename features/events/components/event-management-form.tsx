@@ -60,7 +60,6 @@ export function EventManagementForm({
             <option value="draft">Draft</option>
             <option value="published">Published</option>
             <option value="active">Active</option>
-            <option value="completed">Completed</option>
           </select>
         </label>
         <label className="text-sm font-semibold text-slate-700">

@@ -16,4 +16,9 @@ export const eventWorkspaceSchema = z.object({
   address: z.string().nullable(),
   meetingInstructions: z.string().nullable(),
   canManage: z.boolean(),
+  isLegacyCompleted: z.boolean(),
+  completedAt: z.string().nullable(),
+  completedByProfileId: z.string().uuid().nullable(),
+  reopenedAt: z.string().nullable(),
+  reopenedByProfileId: z.string().uuid().nullable(),
 });

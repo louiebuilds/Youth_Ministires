@@ -4,6 +4,7 @@ import Link from "next/link";
 import { requireCapability } from "@/features/auth/services/authorization-service";
 import { listEventCalendar } from "@/features/events/services/event-management-service";
 import type { EventStatus } from "@/lib/supabase/database.types";
+import { eventDisplayStatus } from "@/features/events/utils/event-lifecycle";
 
 export const metadata: Metadata = { title: "Events" };
 
@@ -115,7 +116,7 @@ export default async function EventsPage({
                 </h2>
               </div>
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                {event.eventStatus}
+                {eventDisplayStatus(event.eventStatus, event.endsAt)}
               </span>
             </div>
             <p className="mt-3 text-sm text-slate-700">

@@ -1173,3 +1173,69 @@ Implementation and automated coverage are complete. The subsequent September
 checkpoint passed live editing and public/leadership/private visibility
 persistence; the checkpoint remains non-final because further features are
 planned before comprehensive acceptance.
+
+
+## Step 26 — Event Completion Security — October 30, 2026
+
+Replaced the client-settable lifecycle flag with dedicated RPC ownership and an invoker trigger in forward migration 202610300001. Applied individually to LOCAL Supabase only and recorded in LOCAL migration history without replay. Expanded event/security suites, local SQL checks, five-role REST checks, focused lint, and diff checks pass. Exact dependent-table preservation verified. Manual UI acceptance and Technical Lead review remain pending. No hosted operation, commit, push, or deployment. See docs/09_Testing/2026-10-30_Event_Completion_Security.md.
+
+
+## Step 31AM — Legacy Completed Event Compatibility — October 31, 2026
+
+Implemented and tested LOCAL only. Forward migration `202610310001` adds a
+restricted, audited legacy reopening RPC requiring an explicit Draft/Published/
+Active choice by an active Administrator or Youth Pastor. All three original
+completion fields must be null; partial metadata cannot use legacy recovery.
+Normal Complete/Reopen and the secure invoker guard remain unchanged. Unknown
+publication history remains restricted for Parents; existing assignment access
+is preserved consistently. The event lifecycle panel explains the unknown history
+and requires a target selection. No historical lifecycle data was invented.
+
+Migration applied individually and recorded in LOCAL history. Exact contents and
+row counts of 78 public tables plus accounts match before migration, afterward,
+and after isolated fixture cleanup. Extended attendance/event tests, 44 new
+authenticated LOCAL legacy REST checks, five-role normal lifecycle REST tests,
+rollback security checks, 19-policy authorization suite, base migration checks,
+TypeScript, ESLint, production build (54 pages), and diff integrity pass.
+See `docs/09_Testing/2026-10-31_Legacy_Completed_Event_Compatibility.md`.
+Product Owner manual acceptance, Technical Lead review, hosted read-only preflight,
+and deployment approval remain pending. No hosted connection, commit, push,
+deployment, historical migration edit, reset, or milestone closure occurred.
+
+
+## Step 31AR — HOSTED Deployment Preflight — October 31, 2026
+
+**NO-GO / BLOCKED.** The three Event Completion migration hashes match prior
+LOCAL evidence. Existing reports record passing lifecycle/security/legacy tests
+and exact preservation across 78 public tables plus Auth users. Fresh LOCAL
+history verification is unavailable because Docker engine access was denied.
+HOSTED backup/recovery, full schema/operator compatibility, and safe selective
+runner/history behavior remain UNVERIFIED; no HOSTED access or changes occurred.
+The preflight stop condition is met. The report includes an exact candidate
+release manifest, historical migration inventory, manual read-only SQL and
+conditional deployment/recovery runbook. Unrelated working-tree changes remain
+untouched. No commit, push, migration repair/application, Vercel deployment,
+acceptance or milestone closure is claimed.
+
+Next: Louie verifies the actual HOSTED backup/recovery method and supplies the
+read-only compatibility/history evidence for Technical Lead review. Deployment
+requires separate approval after all documented gates pass. See
+`docs/09_Testing/2026-10-31_Event_Completion_Hosted_Deployment_Preflight.md`
+and its `_Read_Only_Checks.sql` companion.
+
+
+## Step 31AT — Authorized Production Release — October 31, 2026
+
+Product Owner authorized the controlled release. HOSTED migrations 202610290001,
+202610300001 and 202610310001 committed atomically, including real history
+entries. Restricted lifecycle ownership/grants, the ALWAYS invoker guard, no
+client owner membership and legacy preservation passed independent checks.
+All 79 recorded table fingerprints match; existing history and Live SMS are
+unchanged. Fall Costume Party remains Completed with NULL original lifecycle
+metadata. Protected logical backup is retained outside the repository; restore
+was not rehearsed and Storage bytes/full configuration are excluded.
+
+The isolated application release passed lint, TypeScript and production build.
+Application deployment and focused production smoke test are in progress.
+No Docker operations or DSCC/UPS modifications were performed. See
+`docs/09_Testing/2026-10-31_Event_Completion_Production_Deployment.md`.

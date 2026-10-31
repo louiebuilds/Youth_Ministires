@@ -12,7 +12,7 @@ export const eventDetailsSchema = z.object({
   eventId: z.string().uuid().optional(),
   name: z.string().trim().min(1).max(200),
   eventType: z.string().trim().min(1).max(100),
-  status: z.enum(["draft", "published", "active", "completed"]),
+  status: z.enum(["draft", "published", "active"]),
   description: optionalText(4000),
   startsAt: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/),
   endsAt: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/),
@@ -26,6 +26,8 @@ export const eventDetailsSchema = z.object({
 });
 
 export const archiveEventSchema = z.object({ eventId: z.string().uuid() });
+export const eventLifecycleSchema = z.object({ eventId: z.string().uuid() });
+export const legacyEventReopenSchema = eventLifecycleSchema.extend({ targetStatus: z.enum(["draft", "published", "active"]) });
 
 export const eventRegistrationSettingsSchema = z.object({
   eventId: z.string().uuid(),

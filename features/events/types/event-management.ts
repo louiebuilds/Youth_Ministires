@@ -21,6 +21,16 @@ export type EventCalendarEntry = {
   canManage: boolean;
 };
 
+export type EventCompletionSummary = {
+  attendancePresent: number;
+  attendanceTotal: number;
+  registeredCount: number;
+  waitlistedCount: number;
+  volunteerCount: number;
+  outstandingChecklistCount: number;
+  scheduledReminderCount: number;
+};
+
 export type EventWorkspace = {
   eventId: string;
   name: string;
@@ -37,6 +47,11 @@ export type EventWorkspace = {
   address: string | null;
   meetingInstructions: string | null;
   canManage: boolean;
+  isLegacyCompleted: boolean;
+  completedAt: string | null;
+  completedByProfileId: string | null;
+  reopenedAt: string | null;
+  reopenedByProfileId: string | null;
 };
 
 export type EventRegistrationSettings = {

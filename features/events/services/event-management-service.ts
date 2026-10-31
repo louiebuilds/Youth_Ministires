@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import type {
   EventCalendarEntry,
   EventChecklistItem,
+  EventCompletionSummary,
   EventReminder,
   EventRegistrationOption,
   EventRegistrationSettings,
@@ -176,6 +177,31 @@ export async function archiveEvent(eventId: string) {
     p_event_id: eventId,
   });
 
+  return !error;
+}
+
+export async function getEventCompletionSummary(eventId: string): Promise<EventCompletionSummary | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("get_event_completion_summary", { p_event_id: eventId });
+  if (error || !data || typeof data !== "object" || Array.isArray(data)) return null;
+  return data as EventCompletionSummary;
+}
+
+export async function completeEvent(eventId: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("complete_event", { p_event_id: eventId });
+  return !error;
+}
+
+export async function reopenLegacyEvent(eventId: string, targetStatus: "draft" | "published" | "active") {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("reopen_legacy_event", { p_event_id: eventId, p_target_status: targetStatus });
+  return !error;
+}
+
+export async function reopenEvent(eventId: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("reopen_event", { p_event_id: eventId });
   return !error;
 }
 
