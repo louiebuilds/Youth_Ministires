@@ -50,10 +50,13 @@ export const syntheticCommunicationSchema = z.object({
   subject: z.string().trim().max(200).transform((value) => value || null),
   messageBody: z.string().trim().min(1).max(10000),
   channel: z.enum(["in_app", "email", "sms"]),
-  audienceType: z.enum(["parents", "volunteers"]),
+  audienceType: z.enum(["parents", "volunteers", "ministry"]),
   templateId: z.string().trim().transform((value) => value || null)
     .refine((value) => value === null || z.string().uuid().safeParse(value).success),
 }).superRefine((value, context) => {
+  if (value.audienceType === "ministry" && value.channel !== "email") {
+    context.addIssue({ code: "custom", path: ["audienceType"], message: "Ministries audience requires email." });
+  }
   if (value.channel === "email" && !value.subject) {
     context.addIssue({
       code: "custom", path: ["subject"],
@@ -73,7 +76,7 @@ export const liveEmailCommunicationSchema = z.object({
   subject: z.string().trim().min(1).max(200),
   messageBody: z.string().trim().min(1).max(10000),
   channel: z.literal("email"),
-  audienceType: z.enum(["parents", "volunteers"]),
+  audienceType: z.enum(["parents", "volunteers", "ministry"]),
   templateId: z.string().trim().transform((value) => value || null)
     .refine((value) => value === null || z.string().uuid().safeParse(value).success),
   idempotencyKey: z.string().uuid(),

@@ -231,7 +231,7 @@ export async function archiveCommunicationTemplate(templateId: string) {
 }
 
 export async function previewCommunicationRecipients(input: {
-  audienceType: "parents" | "volunteers";
+  audienceType: "parents" | "volunteers" | "ministry";
   channel: CommunicationChannel;
 }): Promise<CommunicationRecipientPreview[]> {
   const supabase = await createClient();
@@ -242,7 +242,7 @@ export async function previewCommunicationRecipients(input: {
       p_channel: input.channel,
     },
   );
-  if (error) return [];
+  if (error) throw new Error("Recipient preview unavailable. Refresh before sending.");
   return (data ?? []).map((item) => ({
     recipientProfileId: item.recipient_profile_id,
     displayName: item.display_name,
@@ -253,15 +253,16 @@ export async function previewCommunicationRecipients(input: {
 }
 
 export async function previewLiveEmailRecipients(input: {
-  audienceType: "parents" | "volunteers";
+  audienceType: "parents" | "volunteers" | "ministry";
   allowlist: readonly string[];
 }): Promise<LiveEmailRecipientPreview[]> {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("preview_live_email_recipients", {
     p_audience_type: input.audienceType,
     p_allowlist: [...input.allowlist],
+    p_delivery_policy: getCommunicationsEmailEnvironment().deliveryPolicy,
   });
-  if (error) return [];
+  if (error) throw new Error("Recipient preview unavailable. Refresh before sending.");
   return (data ?? []).map((item) => ({
     recipientProfileId: item.recipient_profile_id,
     displayName: item.display_name,
@@ -297,7 +298,7 @@ export async function sendSyntheticCommunication(input: {
   subject: string | null;
   messageBody: string;
   channel: CommunicationChannel;
-  audienceType: "parents" | "volunteers";
+  audienceType: "parents" | "volunteers" | "ministry";
   templateId: string | null;
 }) {
   const supabase = await createClient();
@@ -318,7 +319,7 @@ type LiveEmailInput = {
   title: string;
   subject: string;
   messageBody: string;
-  audienceType: "parents" | "volunteers";
+  audienceType: "parents" | "volunteers" | "ministry";
   templateId: string | null;
   idempotencyKey: string;
   confirmedRecipientCount: number;
@@ -348,6 +349,7 @@ export async function sendLiveEmailCommunication(
       p_allowlist: [...environment.allowlist],
       p_confirmed_recipient_count: input.confirmedRecipientCount,
       p_idempotency_key: input.idempotencyKey,
+      p_delivery_policy: environment.deliveryPolicy,
     },
   );
   if (createError || !communicationId) {
@@ -379,7 +381,7 @@ export async function sendLiveEmailCommunication(
       fromName: environment.fromName,
       replyTo: environment.replyToEmail ?? undefined,
       idempotencyKey: delivery.submission_key,
-    });
+    }, environment.allowlist, environment.deliveryPolicy);
     const { error: finalizeError } = await supabase.rpc(
       "finalize_live_email_delivery",
       {

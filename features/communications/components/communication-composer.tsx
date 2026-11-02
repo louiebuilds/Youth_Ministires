@@ -19,16 +19,18 @@ export function CommunicationComposer({
   channel,
   templates,
   emailMode,
+  emailDeliveryPolicy,
   smsMode,
   totalRecipientCount,
   liveSendCount,
   suppressedCount,
   idempotencyKey,
 }: Readonly<{
-  audienceType: "parents" | "volunteers";
+  audienceType: "parents" | "volunteers" | "ministry";
   channel: "in_app" | "email" | "sms";
   templates: CommunicationTemplate[];
   emailMode: "synthetic" | "live" | "disabled";
+  emailDeliveryPolicy: "restricted" | "ministry";
   smsMode: "synthetic" | "live" | "disabled";
   totalRecipientCount: number;
   liveSendCount: number;
@@ -156,7 +158,8 @@ export function CommunicationComposer({
       {isLiveEmail ? (
         <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-950">
           <p className="font-bold">Live email ready</p>
-          <p className="mt-1">Audience: {audienceType}</p>
+          <p className="mt-1">{emailDeliveryPolicy === "ministry" ? "Ministry delivery — all eligible recipients" : "Restricted testing — approved test recipients only"}</p>
+          <p className="mt-1">Audience: {audienceType === "ministry" ? "Ministries" : audienceType === "parents" ? "Parents" : "Volunteers"}</p>
           <p className="mt-1">{liveSendCount} recipient{liveSendCount === 1 ? "" : "s"} will receive this email · {suppressedCount} not included</p>
         </div>
       ) : null}

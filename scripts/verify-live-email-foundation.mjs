@@ -8,6 +8,7 @@ import { resolveCommunicationsEmailEnvironment } from "../config/communications-
 const migrations = [
   "supabase/migrations/202607230001_core_database_foundation.sql",
   "supabase/migrations/202607230002_security_authorization.sql",
+  "supabase/migrations/202607240003_volunteer_management_foundation.sql",
   "supabase/migrations/202607300014_communication_center_foundation.sql",
   "supabase/migrations/202607300015_announcement_workflows.sql",
   "supabase/migrations/202607300016_communication_template_workflows.sql",
@@ -15,6 +16,9 @@ const migrations = [
   "supabase/migrations/202607300018_in_app_notification_lifecycle.sql",
   "supabase/migrations/202609150002_communication_announcement_projection.sql",
   "supabase/migrations/202610080003_live_email_foundation.sql",
+  "supabase/migrations/202611020001_communication_email_recipients.sql",
+  "supabase/migrations/202611020002_communication_email_recipient_snapshot.sql",
+  "supabase/migrations/202611020003_communication_email_delivery_policy.sql",
 ];
 
 const ids = {
@@ -60,10 +64,18 @@ try {
   assert.equal(emptyAllowlist.liveEnabled, false);
   assert.match(emptyAllowlist.disabledReason, /allowlist/);
 
+  const ministryConfig = {COMMUNICATIONS_EMAIL_MODE:"live", COMMUNICATIONS_EMAIL_DELIVERY_POLICY:"ministry", RESEND_API_KEY:"mock-key",COMMUNICATIONS_FROM_EMAIL:"sender@example.test"};
+  assert.equal(resolveCommunicationsEmailEnvironment(ministryConfig).liveEnabled,true);
+  assert.equal(resolveCommunicationsEmailEnvironment(ministryConfig).allowlist.length,0);
+  assert.equal(resolveCommunicationsEmailEnvironment({}).deliveryPolicy,"restricted");
+  assert.equal(resolveCommunicationsEmailEnvironment({...ministryConfig,COMMUNICATIONS_EMAIL_MODE:"synthetic"}).liveEnabled,false);
+  assert.equal(resolveCommunicationsEmailEnvironment({...ministryConfig,COMMUNICATIONS_EMAIL_DELIVERY_POLICY:"unknown"}).liveEnabled,false);
+  assert.equal(resolveCommunicationsEmailEnvironment({...ministryConfig,RESEND_API_KEY:""}).liveEnabled,false);
+  assert.equal(resolveCommunicationsEmailEnvironment({...ministryConfig,COMMUNICATIONS_FROM_EMAIL:""}).liveEnabled,false);
   await db.exec(`
     create schema auth;
     create schema extensions;
-    create role anon nologin;
+    create role anon nologin; create role service_role nologin;
     create role authenticated nologin;
     create table auth.users (
       id uuid primary key,
@@ -98,6 +110,8 @@ try {
     where id in ($1, $2, $3, $4, $5)
   `, Object.values(ids));
 
+  await db.query("insert into public.volunteer_profiles(profile_id) values ($1),($2)", [ids.allowedVolunteer, ids.blockedVolunteer]);
+  await db.exec("insert into private.communication_email_allowlist values ('allowed@example.test')");
   for (const id of [ids.admin, ids.youthPastor]) {
     const access = await asAuthenticated(id, () =>
       db.query("select private.can_send_live_email() as allowed"));
@@ -237,11 +251,25 @@ try {
     text: "No real provider call.",
     fromEmail: "sender@example.test",
     idempotencyKey: "mock-operation:recipient",
-  });
+  }, ["allowed@example.test"]);
   assert.equal(mockCalls, 1);
   assert.equal(mockResult.success, true);
 
-  console.log("Live email foundation verification passed.");
+  for (const list of [undefined, [], ["different@example.test"]]) {
+    const blocked = await submitOutboundEmail(mockProvider, {
+      to: "allowed@example.test", subject: "Blocked", text: "Blocked",
+      fromEmail: "sender@example.test", idempotencyKey: "blocked-operation",
+    }, list);
+    assert.equal(blocked.success, false);
+    assert.equal(blocked.classification, "configuration");
+    assert.equal(mockCalls, 1, "Delivery policy rejection must not call the provider");
+  }
+  const ministryMessage = {to:"allowed@example.test",subject:"Mock ministry",text:"No real delivery",fromEmail:"sender@example.test",idempotencyKey:"mock-ministry"};
+  const ministryResult = await submitOutboundEmail(mockProvider,ministryMessage,[],"ministry");
+  assert.equal(ministryResult.success,true); assert.equal(mockCalls,2);
+  const invalidPolicy = await submitOutboundEmail(mockProvider,ministryMessage,["allowed@example.test"],"invalid");
+  assert.equal(invalidPolicy.success,false); assert.equal(mockCalls,2);
+  console.log("Live email foundation and restricted/ministry configuration/provider mock verification passed.");
 } finally {
   await db.close();
 }

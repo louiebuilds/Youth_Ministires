@@ -6548,6 +6548,7 @@ export type Database = {
       }
       preview_live_email_recipients: {
         Args: {
+          p_delivery_policy?: "restricted" | "ministry";
           p_allowlist: string[]
           p_audience_type: Database["public"]["Enums"]["communication_audience_type"]
         }
@@ -6806,6 +6807,7 @@ export type Database = {
       }
       create_live_email_communication: {
         Args: {
+          p_delivery_policy?: "restricted" | "ministry";
           p_allowlist: string[]
           p_audience_type: Database["public"]["Enums"]["communication_audience_type"]
           p_confirmed_recipient_count: number

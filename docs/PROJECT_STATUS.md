@@ -1239,3 +1239,28 @@ The isolated application release passed lint, TypeScript and production build.
 Application deployment and focused production smoke test are in progress.
 No Docker operations or DSCC/UPS modifications were performed. See
 `docs/09_Testing/2026-10-31_Event_Completion_Production_Deployment.md`.
+
+## Communications Recipient Management — November 2, 2026 (LOCAL only)
+
+The existing audience enhancement now also supports explicit restricted testing and
+normal ministry delivery. Local branch `release/communications-recipients-2026-11-02`
+exists in the isolated Communications worktree. Parents, Volunteers (parent and
+volunteer-only), Ministries, normalized deduplication and confirmation-based sending
+are retained. Normal ministry delivery needs no manually maintained recipient list.
+It requires BOTH server `COMMUNICATIONS_EMAIL_DELIVERY_POLICY=ministry` and trusted
+private database policy `ministry`; defaults remain restricted. Browser callers cannot
+change deployment policy. Queued operations capture their original policy.
+
+The first two migrations remain unchanged. New additive migration
+`202611020003_communication_email_delivery_policy.sql` was rehearsed, applied and
+recorded on LOCAL only, preserving all 79 existing public/Auth table fingerprints.
+Combined audience/security/policy tests, mocked email delivery, actual local Auth/REST,
+all three authenticated Compose pages with exact counts, lint, types and production
+build pass. Selecting audiences created no communication/delivery records. Fixtures
+were cleaned and saved LOCAL policy remains restricted; the fake-key test server stopped.
+
+See `docs/09_Testing/2026-11-02_Communications_Recipient_Management.md` for the exact
+23-file scope, reused evidence, limitations and three-migration/two-control activation
+steps. No HOSTED/GitHub/Vercel changes or live emails occurred. Explicit deployment AND
+ministry activation approval, fresh release guards, and hosted acceptance remain
+required. No milestone closure is claimed.

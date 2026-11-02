@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated release copies, local backups, and scratch files are not source.
+    "output/**",
+    "local-backups/**",
+    "tmp/**",
   ]),
 ]);
 

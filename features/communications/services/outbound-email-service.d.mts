@@ -7,4 +7,6 @@ import type {
 export function submitOutboundEmail(
   provider: EmailProvider,
   message: OutboundEmailMessage,
+  allowedRecipients: readonly string[],
+  deliveryPolicy?: "restricted" | "ministry",
 ): Promise<OutboundEmailResult>;

@@ -21,7 +21,7 @@ import {
 export const metadata: Metadata = { title: "Compose Communication" };
 
 const channels = ["in_app", "email", "sms"] as const;
-const audiences = ["parents", "volunteers"] as const;
+const audiences = ["parents", "volunteers", "ministry"] as const;
 
 export default async function ComposeCommunicationPage({
   searchParams,
@@ -35,7 +35,8 @@ export default async function ComposeCommunicationPage({
     ? params.channel as typeof channels[number] : defaultChannel;
   const audienceType = audiences.includes(
     params.audience as typeof audiences[number],
-  ) ? params.audience as typeof audiences[number] : "parents";
+  ) && (channel === "email" || params.audience !== "ministry")
+    ? params.audience as typeof audiences[number] : "parents";
   const search = typeof params.q === "string" && params.q.trim().length <= 100
     ? params.q.trim() || null : null;
   const emailEnvironment = getCommunicationsEmailEnvironment();
@@ -60,7 +61,7 @@ export default async function ComposeCommunicationPage({
         })
       : liveSmsEnabled
         ? previewLiveSmsRecipients({
-            audienceType,
+            audienceType: audienceType === "ministry" ? "parents" : audienceType,
             allowlist: smsEnvironment.allowlist,
           })
       : previewCommunicationRecipients({ audienceType, channel }),
@@ -98,6 +99,7 @@ export default async function ComposeCommunicationPage({
             <select className={field} defaultValue={audienceType} name="audience">
               <option value="parents">Parents</option>
               <option value="volunteers">Volunteers</option>
+              <option value="ministry">Ministries (email)</option>
             </select>
           </label>
           <label className="text-sm font-semibold md:mt-3">Channel
@@ -136,7 +138,7 @@ export default async function ComposeCommunicationPage({
         <div className="rounded-xl border border-slate-200 bg-white p-5">
           <h2 className="text-xl font-bold">Recipients</h2>
           <p className="mt-1 text-sm text-slate-600">
-            {recipients.length} {audienceType} found
+            {recipients.length} matched · {recipients.filter((r) => r.suppressionReason === "Duplicate email address").length} duplicate emails excluded
           </p>
           <p className="mt-1 text-sm font-semibold text-slate-700">
             {(channel === "sms" && !liveSmsEnabled) ||
@@ -180,6 +182,7 @@ export default async function ComposeCommunicationPage({
           <h2 className="mb-4 text-xl font-bold">Message</h2>
           <CommunicationComposer audienceType={audienceType} channel={channel}
             templates={templates} emailMode={emailMode}
+            emailDeliveryPolicy={emailEnvironment.deliveryPolicy}
             smsMode={smsMode}
             totalRecipientCount={recipients.length}
             liveSendCount={liveSendCount}
@@ -229,6 +232,7 @@ function recipientStatusLabel(
   liveEmailEnabled: boolean,
   liveSmsEnabled: boolean,
 ) {
+  if (recipient.suppressionReason) return recipient.suppressionReason;
   if (!recipient.preferenceAuthorized) {
     const reason = recipient.suppressionReason?.toLowerCase() ?? "";
     if (reason.includes("preference") || reason.includes("opt")) {
@@ -264,7 +268,7 @@ function statusLabel(status: string) {
 }
 
 function audienceLabel(audience: string) {
-  if (audience === "ministry") return "Ministry community";
+  if (audience === "ministry") return "Ministries";
   return `${audience.charAt(0).toUpperCase()}${audience.slice(1).replaceAll("_", " ")}`;
 }
 
