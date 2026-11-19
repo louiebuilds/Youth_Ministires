@@ -6,7 +6,12 @@ export const metadata: Metadata = {
   title: "Choose a new password",
 };
 
-export default function ResetPasswordPage() {
+export default async function ResetPasswordPage({
+  searchParams,
+}: Readonly<{
+  searchParams: Promise<{ error?: string | string[] }>;
+}>) {
+  const invalidLink = (await searchParams).error === "invalid";
   return (
     <div>
       <div className="mb-8">
@@ -20,7 +25,22 @@ export default function ResetPasswordPage() {
         </p>
       </div>
 
-      <ResetPasswordForm />
+      {invalidLink ? (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-6 text-amber-950">
+          This recovery link is invalid, expired, or has already been used. Request
+          a new recovery email to continue.
+        </div>
+      ) : (
+        <ResetPasswordForm />
+      )}
+      {invalidLink ? (
+        <a
+          className="mt-6 flex min-h-11 w-full items-center justify-center rounded-lg bg-sky-700 px-4 py-2.5 text-sm font-semibold text-white"
+          href="/forgot-password"
+        >
+          Request a new link
+        </a>
+      ) : null}
     </div>
   );
 }
