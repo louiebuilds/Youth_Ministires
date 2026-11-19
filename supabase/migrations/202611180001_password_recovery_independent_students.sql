@@ -1,3 +1,4 @@
+
 begin;
 
 -- Independent students use the existing student record; only the initial family
@@ -166,7 +167,7 @@ returns table(person_id uuid, display_name text, household_id uuid,
 language plpgsql stable security definer set search_path = '' set row_security = off
 as $$
 begin
-  if not private.has_role(array['platform_administrator','youth_pastor']::public.account_role[]) then
+  if not private.has_role(array['platform_administrator','youth_pastor','staff_member']::public.account_role[]) then
     raise exception 'Available relationship access is denied.' using errcode = '42501';
   end if;
   return query select people.id,
@@ -178,11 +179,26 @@ begin
     or household_memberships.household_id = students.primary_household_id
   join public.households on households.id = household_memberships.household_id
   join public.people on people.id = household_memberships.person_id
-  where students.id = p_student_id and students.status <> 'archived'
-    and households.status = 'active' and people.status = 'active'
+  where students.id = p_student_id
+    and students.status <> 'archived'
+    and households.status = 'active'
+    and people.status = 'active'
     and household_memberships.is_responsible_adult
-    and not exists (select 1 from public.student_relationships sr
-      where sr.student_id = students.id and sr.person_id = people.id)
+    and not exists (
+      select 1
+      from public.student_relationships sr
+      where sr.student_id = students.id
+        and sr.person_id = people.id
+    )
+    and (
+      private.has_role(
+        array['platform_administrator','youth_pastor']::public.account_role[]
+      )
+      or (
+        students.primary_household_id is not null
+        and household_memberships.household_id = students.primary_household_id
+      )
+    )
   order by people.last_name, people.first_name;
 end;
 $$;
