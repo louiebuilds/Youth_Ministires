@@ -179,18 +179,19 @@ export async function createIndependentStudent(input: {
   status: StudentStatus;
 }) {
   const supabase = await createClient();
-  const rpc = supabase.rpc as unknown as (
-    name: string,
-    args: Record<string, unknown>,
-  ) => Promise<{ data: string | null; error: { code?: string } | null }>;
-  const { data, error } = await rpc("create_independent_student", {
-    p_first_name: input.firstName,
-    p_preferred_name: input.preferredName,
-    p_last_name: input.lastName,
-    p_birth_date: input.birthDate,
-    p_grade: input.grade,
-    p_status: input.status,
-  });
+
+  const { data, error } = await supabase.rpc(
+    "create_independent_student",
+    {
+      p_first_name: input.firstName,
+      p_preferred_name: input.preferredName,
+      p_last_name: input.lastName,
+      p_birth_date: input.birthDate,
+      p_grade: input.grade,
+      p_status: input.status,
+    },
+  );
+
   return error || !data
     ? { success: false as const, duplicate: error?.code === "23505" }
     : { success: true as const, studentId: data };
