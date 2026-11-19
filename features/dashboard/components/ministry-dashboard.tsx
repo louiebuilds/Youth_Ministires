@@ -255,7 +255,7 @@ export function MinistryDashboard({ data, displayName, spotlight }: MinistryDash
           </ul>
           {!data.birthdays.length ? (
             <p className="mt-4 text-sm text-slate-600">
-              No birthdays in the next 14 days.
+              No active student birthdays this month.
             </p>
           ) : null}
         </section>

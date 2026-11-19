@@ -1,3 +1,4 @@
+
 import "server-only";
 
 import { listAnnouncements } from "@/features/communications/services/communication-service";
@@ -19,16 +20,18 @@ type PrayerCareSummary = {
   privateCount: number;
 };
 
-async function listUpcomingBirthdays() {
+async function listCurrentMonthBirthdays() {
   const client = await createClient() as unknown as {
-    rpc(name: string, args: Record<string, unknown>): Promise<{
+    rpc(name: string): Promise<{
       data: BirthdayRow[] | null;
       error: { message: string } | null;
     }>;
   };
-  const { data, error } = await client.rpc("list_upcoming_dashboard_birthdays", {
-    p_days: 14,
-  });
+
+  const { data, error } = await client.rpc(
+    "list_current_month_dashboard_birthdays",
+  );
+
   if (error) return [];
   return data ?? [];
 }
@@ -80,7 +83,7 @@ export async function getLiveMinistryDashboard(): Promise<MinistryDashboardData>
       }),
       listAnnouncements(null, false),
       getPrayerCareSummary(),
-      listUpcomingBirthdays(),
+      listCurrentMonthBirthdays(),
     ]);
 
   return {
@@ -122,8 +125,11 @@ export async function getLiveMinistryDashboard(): Promise<MinistryDashboardData>
     },
     birthdays: birthdays.map((birthday) => ({
       displayName: birthday.display_name,
-      dateLabel: new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" })
-        .format(new Date(`${birthday.birthday_date}T12:00:00Z`)),
+      dateLabel: new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        timeZone: "UTC",
+      }).format(new Date(`${birthday.birthday_date}T12:00:00Z`)),
     })),
     announcements: announcements.success
       ? announcements.announcements.slice(0, 3).map((announcement) => ({
