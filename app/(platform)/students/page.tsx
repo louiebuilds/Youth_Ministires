@@ -25,6 +25,7 @@ export default async function StudentsPage({
     grade: typeof params.grade === "string" ? params.grade : undefined,
     status: typeof params.status === "string" ? params.status : undefined,
     tag: typeof params.tag === "string" ? params.tag : undefined,
+    guardian: typeof params.guardian === "string" ? params.guardian : undefined,
   });
   const filters = parsed.success
     ? {
@@ -32,12 +33,14 @@ export default async function StudentsPage({
         grade: parsed.data.grade,
         status: parsed.data.status ?? null,
         tagId: parsed.data.tag,
+        guardianStatus: parsed.data.guardian,
       }
     : {
         search: null,
         grade: null,
         status: null,
         tagId: null,
+        guardianStatus: null,
       };
   const familyContext = account.role === "parent";
   const [directory, tags] = await Promise.all([
@@ -63,6 +66,18 @@ export default async function StudentsPage({
             : "Search youth members by minimized name, family, grade, lifecycle status, or ministry tag."}
         </p>
       </section>
+
+      {!familyContext &&
+      (account.role === "platform_administrator" || account.role === "youth_pastor") ? (
+        <div className="flex flex-wrap gap-3">
+          <Link className="inline-flex min-h-11 items-center rounded-lg bg-sky-700 px-5 py-2 text-sm font-semibold text-white" href="/students/new">
+            Add student
+          </Link>
+          <Link className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 px-5 py-2 text-sm font-semibold text-slate-700" href="/students?guardian=unlinked">
+            Students without linked guardian
+          </Link>
+        </div>
+      ) : null}
 
       <section
         aria-label="Filter members"

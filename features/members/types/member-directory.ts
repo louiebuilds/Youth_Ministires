@@ -9,8 +9,9 @@ export type MemberTag = {
 export type MemberDirectoryEntry = {
   studentId: string;
   displayName: string;
-  householdId: string;
-  householdName: string;
+  householdId: string | null;
+  householdName: string | null;
+  guardianLinked: boolean;
   grade: string;
   status: StudentStatus;
   tags: MemberTag[];
@@ -21,4 +22,5 @@ export type MemberDirectoryFilters = {
   status: StudentStatus | null;
   grade: string | null;
   tagId: string | null;
+  guardianStatus?: "unlinked" | null;
 };

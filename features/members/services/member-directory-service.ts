@@ -45,6 +45,7 @@ export async function listMemberDirectory(
       p_status: filters.status,
       p_grade: filters.grade,
       p_tag_id: filters.tagId,
+      p_guardian_status: filters.guardianStatus,
     });
 
     if (error) {
@@ -58,6 +59,7 @@ export async function listMemberDirectory(
         displayName: member.display_name,
         householdId: member.household_id,
         householdName: member.household_name,
+        guardianLinked: Boolean(member.guardian_linked),
         grade: member.grade,
         status: member.status,
         tags: parseTags(member.tags),

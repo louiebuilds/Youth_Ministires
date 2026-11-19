@@ -47,7 +47,7 @@ export function MemberDirectoryList({
                   {member.displayName}
                 </h2>
                 <p className="mt-1 text-sm text-slate-600">
-                  {member.householdName}
+                  {member.householdName ?? "No linked household"}
                 </p>
               </div>
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
@@ -64,7 +64,7 @@ export function MemberDirectoryList({
               <div>
                 <dt className="text-slate-500">Family</dt>
                 <dd className="mt-1 font-medium text-slate-900">
-                  {member.householdName}
+                  {member.guardianLinked ? member.householdName : "Guardian not linked"}
                 </dd>
               </div>
             </dl>

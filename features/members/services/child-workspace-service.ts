@@ -102,6 +102,8 @@ export async function listAvailableChildRelationshipAdults(studentId: string) {
   return (data ?? []).map((adult) => ({
     personId: adult.person_id,
     displayName: adult.display_name,
+    householdId: adult.household_id,
+    householdName: adult.household_name,
     householdRelationship: adult.household_relationship,
   }));
 }
@@ -109,6 +111,7 @@ export async function listAvailableChildRelationshipAdults(studentId: string) {
 export async function addChildRelationship(input: {
   studentId: string;
   personId: string;
+  householdId: string;
   relationshipType: string;
   isLegalGuardian: boolean;
   isEmergencyContact: boolean;
@@ -122,6 +125,7 @@ export async function addChildRelationship(input: {
   const { error } = await supabase.rpc("add_child_relationship", {
     p_student_id: input.studentId,
     p_person_id: input.personId,
+    p_household_id: input.householdId,
     p_relationship_type: input.relationshipType,
     p_is_legal_guardian: input.isLegalGuardian,
     p_is_emergency_contact: input.isEmergencyContact,
@@ -163,6 +167,32 @@ export async function createChild(input: {
   });
   return error || !data
     ? { success: false as const }
+    : { success: true as const, studentId: data };
+}
+
+export async function createIndependentStudent(input: {
+  firstName: string;
+  preferredName: string | null;
+  lastName: string;
+  birthDate: string;
+  grade: string;
+  status: StudentStatus;
+}) {
+  const supabase = await createClient();
+  const rpc = supabase.rpc as unknown as (
+    name: string,
+    args: Record<string, unknown>,
+  ) => Promise<{ data: string | null; error: { code?: string } | null }>;
+  const { data, error } = await rpc("create_independent_student", {
+    p_first_name: input.firstName,
+    p_preferred_name: input.preferredName,
+    p_last_name: input.lastName,
+    p_birth_date: input.birthDate,
+    p_grade: input.grade,
+    p_status: input.status,
+  });
+  return error || !data
+    ? { success: false as const, duplicate: error?.code === "23505" }
     : { success: true as const, studentId: data };
 }
 

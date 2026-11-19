@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 
 import {
+  addChildRelationshipSchema,
   createChildSchema,
+  createIndependentStudentSchema,
   createTagSchema,
   childDetailsSchema,
   childRelationshipSchema,
@@ -11,6 +13,7 @@ import {
 } from "@/features/members/schemas/child-management-schema";
 import {
   createChild,
+  createIndependentStudent,
   addChildRelationship,
   createMemberTag,
   setChildTags,
@@ -75,9 +78,10 @@ export async function addChildRelationshipAction(
   _state: FamilyManagementState,
   formData: FormData,
 ): Promise<FamilyManagementState> {
-  const parsed = childRelationshipSchema.safeParse({
+  const parsed = addChildRelationshipSchema.safeParse({
     studentId: formData.get("studentId"),
     personId: formData.get("personId"),
+    householdId: formData.get("householdId"),
     relationshipType: formData.get("relationshipType"),
     isLegalGuardian: checked(formData, "isLegalGuardian"),
     isEmergencyContact: checked(formData, "isEmergencyContact"),
@@ -112,6 +116,29 @@ export async function createChildAction(
   }
   revalidatePath("/students");
   revalidatePath(`/families/${parsed.data.householdId}`);
+  redirect(`/students/${result.studentId}`);
+}
+
+export async function createIndependentStudentAction(
+  _state: FamilyManagementState,
+  formData: FormData,
+): Promise<FamilyManagementState> {
+  const parsed = createIndependentStudentSchema.safeParse(
+    Object.fromEntries(formData),
+  );
+  if (!parsed.success) {
+    return { success: false, message: "Review the student details and try again." };
+  }
+  const result = await createIndependentStudent(parsed.data);
+  if (!result.success) {
+    return {
+      success: false,
+      message: result.duplicate
+        ? "A matching student record already exists. Open the existing student instead."
+        : "This student could not be created.",
+    };
+  }
+  revalidatePath("/students");
   redirect(`/students/${result.studentId}`);
 }
 

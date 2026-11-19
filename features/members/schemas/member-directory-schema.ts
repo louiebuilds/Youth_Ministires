@@ -24,4 +24,5 @@ export const memberDirectoryQuerySchema = z.object({
     .union([z.string().uuid(), z.literal("")])
     .optional()
     .transform((value) => value || null),
+  guardian: z.enum(["unlinked"]).optional().nullable(),
 });
