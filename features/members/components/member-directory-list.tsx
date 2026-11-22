@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import type { MemberDirectoryEntry } from "@/features/members/types/member-directory";
 
 const statusLabels = {
@@ -6,6 +8,14 @@ const statusLabels = {
   active: "Active",
   inactive: "Inactive",
   archived: "Archived",
+} as const;
+
+const statusClasses = {
+  prospective: "bg-amber-100 text-amber-800",
+  registered: "bg-blue-100 text-blue-800",
+  active: "bg-emerald-100 text-emerald-800",
+  inactive: "bg-slate-100 text-slate-700",
+  archived: "bg-violet-100 text-violet-800",
 } as const;
 
 export function MemberDirectoryList({
@@ -38,7 +48,7 @@ export function MemberDirectoryList({
       <div className="grid gap-4 lg:grid-cols-2">
         {members.map((member) => (
           <article
-            className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+            className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-900/5 transition hover:-translate-y-0.5 hover:border-teal-300 hover:shadow-lg"
             key={member.studentId}
           >
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -47,10 +57,10 @@ export function MemberDirectoryList({
                   {member.displayName}
                 </h2>
                 <p className="mt-1 text-sm text-slate-600">
-                  {member.householdName}
+                  {member.householdName ?? "No linked household"}
                 </p>
               </div>
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusClasses[member.status]}`}>
                 {statusLabels[member.status]}
               </span>
             </div>
@@ -64,7 +74,7 @@ export function MemberDirectoryList({
               <div>
                 <dt className="text-slate-500">Family</dt>
                 <dd className="mt-1 font-medium text-slate-900">
-                  {member.householdName}
+                  {member.guardianLinked ? member.householdName : "Guardian not linked"}
                 </dd>
               </div>
             </dl>
@@ -96,4 +106,3 @@ export function MemberDirectoryList({
     </section>
   );
 }
-import Link from "next/link";

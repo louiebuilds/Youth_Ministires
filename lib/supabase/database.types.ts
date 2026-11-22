@@ -4627,6 +4627,7 @@ export type Database = {
       }
       add_child_relationship: {
         Args: {
+          p_household_id: string
           p_is_authorized_pickup: boolean
           p_is_emergency_contact: boolean
           p_is_legal_guardian: boolean
@@ -4928,6 +4929,17 @@ export type Database = {
           p_household_id: string
           p_last_name: string
           p_medical_summary: string
+          p_preferred_name: string
+          p_status: Database["public"]["Enums"]["student_status"]
+        }
+        Returns: string
+      }
+      create_independent_student: {
+        Args: {
+          p_birth_date: string
+          p_first_name: string
+          p_grade: string
+          p_last_name: string
           p_preferred_name: string
           p_status: Database["public"]["Enums"]["student_status"]
         }
@@ -5495,6 +5507,8 @@ export type Database = {
         Args: { p_student_id: string }
         Returns: {
           display_name: string
+          household_id: string
+          household_name: string
           household_relationship: string
           person_id: string
         }[]
@@ -6087,12 +6101,14 @@ export type Database = {
           p_search?: string
           p_status?: Database["public"]["Enums"]["student_status"]
           p_tag_id?: string
+          p_guardian_status?: string
         }
         Returns: {
           display_name: string
           grade: string
-          household_id: string
-          household_name: string
+          household_id: string | null
+          household_name: string | null
+          guardian_linked: boolean
           status: Database["public"]["Enums"]["student_status"]
           student_id: string
           tags: Json

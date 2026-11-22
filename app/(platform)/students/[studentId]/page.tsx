@@ -54,7 +54,7 @@ export default async function ChildWorkspacePage({
           {child.displayName}
         </h1>
         <p className="mt-2 text-base text-slate-600">
-          Grade {child.grade} · {child.status} · {child.householdName}
+          Grade {child.grade} · {child.status} · {child.householdName ?? "No linked household"}
         </p>
       </section>
 
@@ -64,7 +64,7 @@ export default async function ChildWorkspacePage({
           <dl className="mt-4 space-y-3 text-sm">
             <div><dt className="text-slate-500">Birth date</dt><dd className="font-medium text-slate-900">{child.birthDate}</dd></div>
             <div><dt className="text-slate-500">Grade</dt><dd className="font-medium text-slate-900">{child.grade}</dd></div>
-            <div><dt className="text-slate-500">Family</dt><dd className="font-medium text-slate-900">{child.householdName}</dd></div>
+            <div><dt className="text-slate-500">Guardian association</dt><dd className="font-medium text-slate-900">{child.relationships.some((relationship) => relationship.isLegalGuardian && relationship.mayViewStudentInformation) ? "Approved guardian linked" : "No approved guardian linked"}</dd></div>
           </dl>
           {child.tags.length > 0 ? (
             <ul className="mt-5 flex flex-wrap gap-2">
@@ -103,6 +103,11 @@ export default async function ChildWorkspacePage({
           </div>
           <ChildDetailsForm child={child} />
           <div className="space-y-4">
+            {child.relationships.length === 0 ? (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
+                This student has no linked guardian. Link an existing responsible adult below, or <Link className="font-semibold underline" href="/administration/invitations">invite a parent or guardian</Link>. After acceptance, use the existing account-to-person approval workflow before granting student access.
+              </div>
+            ) : null}
             {child.relationships.map((relationship) => (
               <ChildRelationshipForm key={relationship.personId} relationship={relationship} studentId={child.id} />
             ))}

@@ -35,11 +35,22 @@ export const childRelationshipSchema = z.object({
   receiveSms: z.boolean(),
 });
 
+export const addChildRelationshipSchema = childRelationshipSchema.extend({
+  householdId: z.string().uuid(),
+});
+
 export const createChildSchema = childDetailsSchema.omit({
   studentId: true,
 }).extend({
   householdId: z.string().uuid(),
   guardianPersonId: z.string().uuid(),
+});
+
+export const createIndependentStudentSchema = childDetailsSchema.omit({
+  studentId: true,
+  medicalSummary: true,
+  allergySummary: true,
+  dietarySummary: true,
 });
 
 export const createTagSchema = z.object({

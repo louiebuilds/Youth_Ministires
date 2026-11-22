@@ -16,6 +16,8 @@ import type {
 type AvailableAdult = {
   personId: string;
   displayName: string;
+  householdId: string;
+  householdName: string;
   householdRelationship: string;
 };
 
@@ -136,24 +138,39 @@ export function AddChildRelationshipForm({
     <form action={action}
       className="space-y-4 rounded-lg border border-dashed border-sky-300 bg-white p-4">
       <input name="studentId" type="hidden" value={studentId} />
-      <h3 className="font-semibold text-slate-950">
-        Add parent or guardian relationship
-      </h3>
+      <h3 className="font-semibold text-slate-950">Link Parent/Guardian</h3>
       <p className="text-sm text-slate-600">
-        Only adults already recorded in this family are available. Select each
-        permission explicitly.
+        Select an existing household and responsible adult, then review each
+        permission explicitly before linking.
       </p>
       <label className="block text-sm font-medium text-slate-800">
-        Family adult
-        <select className={inputClass} name="personId" required>
+        Household and responsible adult
+        <select
+          className={inputClass}
+          name="relationshipSelection"
+          onChange={(event) => {
+            const [householdId, personId] = event.currentTarget.value.split(":");
+            const form = event.currentTarget.form;
+            if (form) {
+              (form.elements.namedItem("householdId") as HTMLInputElement).value = householdId ?? "";
+              (form.elements.namedItem("personId") as HTMLInputElement).value = personId ?? "";
+            }
+          }}
+          required
+        >
           <option value="">Select an adult</option>
           {adults.map((adult) => (
-            <option key={adult.personId} value={adult.personId}>
-              {adult.displayName} — {adult.householdRelationship}
+            <option
+              key={`${adult.householdId}:${adult.personId}`}
+              value={`${adult.householdId}:${adult.personId}`}
+            >
+              {adult.householdName} — {adult.displayName} ({adult.householdRelationship})
             </option>
           ))}
         </select>
       </label>
+      <input name="householdId" type="hidden" />
+      <input name="personId" type="hidden" />
       <label className="block text-sm font-medium text-slate-800">
         Relationship to child
         <input className={inputClass} maxLength={80} name="relationshipType"

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { PageHero } from "@/components/ui/page-hero";
+
 import { requireCapability } from "@/features/auth/services/authorization-service";
 import { MemberDirectoryList } from "@/features/members/components/member-directory-list";
 import { memberDirectoryQuerySchema } from "@/features/members/schemas/member-directory-schema";
@@ -25,6 +27,7 @@ export default async function StudentsPage({
     grade: typeof params.grade === "string" ? params.grade : undefined,
     status: typeof params.status === "string" ? params.status : undefined,
     tag: typeof params.tag === "string" ? params.tag : undefined,
+    guardian: typeof params.guardian === "string" ? params.guardian : undefined,
   });
   const filters = parsed.success
     ? {
@@ -32,12 +35,14 @@ export default async function StudentsPage({
         grade: parsed.data.grade,
         status: parsed.data.status ?? null,
         tagId: parsed.data.tag,
+        guardianStatus: parsed.data.guardian,
       }
     : {
         search: null,
         grade: null,
         status: null,
         tagId: null,
+        guardianStatus: null,
       };
   const familyContext = account.role === "parent";
   const [directory, tags] = await Promise.all([
@@ -47,26 +52,27 @@ export default async function StudentsPage({
 
   return (
     <div className="space-y-8">
-      <section aria-labelledby="member-directory-heading">
-        <p className="text-sm font-semibold text-sky-700">
-          {familyContext ? "Family" : "Member management"}
-        </p>
-        <h1
-          className="mt-1 text-3xl font-bold tracking-tight text-slate-950"
-          id="member-directory-heading"
-        >
-          {familyContext ? "Your children" : "Member directory"}
-        </h1>
-        <p className="mt-2 max-w-3xl text-base leading-7 text-slate-600">
-          {familyContext
-            ? "View children connected to this family account through an approved relationship."
-            : "Search youth members by minimized name, family, grade, lifecycle status, or ministry tag."}
-        </p>
-      </section>
+      <PageHero
+        description={familyContext ? "View children connected to this family account through an approved relationship." : "Search youth members by minimized name, family, grade, lifecycle status, or ministry tag."}
+        eyebrow={familyContext ? "Family" : "Member management"}
+        title={familyContext ? "Your children" : "Students"}
+      />
+
+      {!familyContext &&
+      (account.role === "platform_administrator" || account.role === "youth_pastor") ? (
+        <div className="flex flex-wrap gap-3">
+          <Link className="inline-flex min-h-11 items-center rounded-lg bg-sky-700 px-5 py-2 text-sm font-semibold text-white" href="/students/new">
+            Add student
+          </Link>
+          <Link className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 px-5 py-2 text-sm font-semibold text-slate-700" href="/students?guardian=unlinked">
+            Students without linked guardian
+          </Link>
+        </div>
+      ) : null}
 
       <section
         aria-label="Filter members"
-        className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+        className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-900/5 sm:p-6"
       >
         <form className="grid gap-4 md:grid-cols-2 xl:grid-cols-5" method="get">
           <label className="text-sm font-medium text-slate-800 xl:col-span-2">
