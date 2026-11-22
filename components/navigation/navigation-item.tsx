@@ -90,11 +90,11 @@ export function NavigationItem({
           isActive ? "page" : undefined
         }
         className={[
-          "flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+          "flex min-h-11 items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-all",
           "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
           isActive
-            ? "bg-white text-slate-950 shadow-sm"
-            : "text-slate-300 hover:bg-slate-800 hover:text-white",
+            ? "border-teal-400/40 bg-teal-400/15 text-teal-100 shadow-sm"
+            : "border-transparent text-slate-300 hover:border-white/10 hover:bg-white/10 hover:text-white",
         ].join(" ")}
         href={item.href}
         onClick={onNavigate}

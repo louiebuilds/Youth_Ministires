@@ -52,14 +52,14 @@ export default async function AdministrationPage() {
 
   return (
     <div className="space-y-7">
-      <header>
-        <p className="text-sm font-semibold text-sky-700">
+      <header className="rounded-3xl bg-gradient-to-br from-[#0b1739] via-indigo-950 to-violet-800 px-6 py-8 text-white shadow-xl shadow-slate-950/10 sm:px-8">
+        <p className="text-sm font-semibold text-violet-200">
           Platform management
         </p>
-        <h1 className="mt-1 text-3xl font-bold text-slate-950">
+        <h1 className="mt-1 text-3xl font-bold text-white sm:text-4xl">
           Administration
         </h1>
-        <p className="mt-2 max-w-3xl text-slate-600">
+        <p className="mt-2 max-w-3xl text-violet-100">
           Manage accounts, access, audit history, and ministry administration.
         </p>
       </header>
@@ -71,7 +71,7 @@ export default async function AdministrationPage() {
         {visibleSections.map((section) => (
           section.href ? (
             <Link
-              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-sky-300 hover:bg-sky-50"
+              className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-900/5 transition hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-lg"
               href={section.href}
               key={section.title}
             >

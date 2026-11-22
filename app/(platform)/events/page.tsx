@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { PageHero } from "@/components/ui/page-hero";
+
 import { requireCapability } from "@/features/auth/services/authorization-service";
 import { listEventCalendar } from "@/features/events/services/event-management-service";
 import type { EventStatus } from "@/lib/supabase/database.types";
@@ -46,23 +48,19 @@ export default async function EventsPage({
 
   return (
     <div className="space-y-8">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm font-semibold text-sky-700">Ministry planning</p>
-          <h1 className="mt-1 text-3xl font-bold text-slate-950">Events</h1>
-          <p className="mt-2 max-w-3xl text-slate-600">
-            View the ministry calendar and open an event workspace.
-          </p>
-        </div>
-        {canManage ? (
+      <PageHero
+        actions={canManage ? (
           <Link className="inline-flex min-h-11 items-center justify-center rounded-lg bg-sky-700 px-5 font-semibold text-white"
             href="/events/new">
             Create event
           </Link>
         ) : null}
-      </header>
+        description="View the ministry calendar and open an event workspace."
+        eyebrow="Ministry planning"
+        title="Events"
+      />
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-900/5 sm:p-6">
         <form className="grid gap-4 md:grid-cols-5" method="get">
           <label className="text-sm font-semibold text-slate-700">
             From
@@ -104,7 +102,7 @@ export default async function EventsPage({
       <section className="grid gap-4 lg:grid-cols-2">
         {events.map((event) => (
           <Link
-            className="block rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-sky-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700"
+            className="group block rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-900/5 transition hover:-translate-y-0.5 hover:border-teal-300 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
             href={`/events/${event.eventId}`}
             key={event.eventId}
           >

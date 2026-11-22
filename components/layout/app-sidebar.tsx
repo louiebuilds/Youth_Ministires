@@ -9,9 +9,9 @@ type AppSidebarProps = Readonly<{
 
 export function AppSidebar({ navigation }: AppSidebarProps) {
   return (
-    <aside className="hidden w-64 shrink-0 border-r border-slate-800 bg-slate-950 text-white lg:flex lg:flex-col">
-      <div className="border-b border-slate-800 px-6 py-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-400">
+    <aside className="hidden w-72 shrink-0 border-r border-white/10 bg-[#0b1739] text-white lg:sticky lg:top-0 lg:flex lg:h-dvh lg:flex-col">
+      <div className="border-b border-white/10 px-6 py-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-300">
           Ministry operations
         </p>
         <Image
@@ -24,7 +24,7 @@ export function AppSidebar({ navigation }: AppSidebarProps) {
         />
       </div>
 
-      <nav aria-label="Primary navigation" className="flex-1 px-3 py-5">
+      <nav aria-label="Primary navigation" className="flex-1 overflow-y-auto px-3 py-5">
         <ul className="space-y-1">
           {navigation.map((item) => (
             <NavigationItem item={item} key={item.href} />

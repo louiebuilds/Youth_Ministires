@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { PageHero } from "@/components/ui/page-hero";
+
 import { requireCapability } from "@/features/auth/services/authorization-service";
 import { CreateAttendanceSessionForm } from "@/features/attendance/components/attendance-management-forms";
 import {
@@ -72,25 +74,14 @@ export default async function AttendancePage({
   return (
     <div className="space-y-8">
       <header>
-        <div className="max-w-4xl">
-          <p className="text-sm font-semibold text-sky-700">
-            Attendance &amp; Participation
-          </p>
-
-          <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-950">
-            Attendance
-          </h1>
-
-          <p className="mt-2 max-w-3xl text-base leading-7 text-slate-600">
-            Track attendance sessions, update
-            rosters, preserve corrections, and
-            finalize attendance records.
-          </p>
-        </div>
-
+        <PageHero
+          description="Track attendance sessions, update rosters, preserve corrections, and finalize attendance records."
+          eyebrow="Attendance & Participation"
+          title="Attendance"
+        />
         <nav
           aria-label="Attendance workspaces"
-          className="mt-8 flex flex-wrap border-b border-slate-200"
+          className="mt-6 flex flex-wrap rounded-2xl border border-slate-200 bg-white px-2 shadow-sm"
         >
           <WorkspaceLink
             active={view === "sessions"}
@@ -156,7 +147,7 @@ export default async function AttendancePage({
             <ul className="grid gap-4 lg:grid-cols-2">
               {sessions.map((session) => (
                 <li
-                  className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+                  className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-900/5 transition hover:-translate-y-0.5 hover:shadow-lg"
                   key={session.sessionId}
                 >
                   <div className="flex items-start justify-between gap-3">

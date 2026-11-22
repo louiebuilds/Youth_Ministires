@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { PageHero } from "@/components/ui/page-hero";
+
 import { getMinistryContact } from "@/features/administration/services/ministry-settings-service";
 import { requireCapability } from "@/features/auth/services/authorization-service";
 import { FamilyDirectoryList } from "@/features/members/components/family-directory-list";
@@ -59,28 +61,11 @@ export default async function FamiliesPage({
 
   return (
     <div className="space-y-8">
-      <section aria-labelledby="family-directory-heading">
-        <p className="text-sm font-semibold text-sky-700">
-          {familyContext
-            ? "Family"
-            : "Member management"}
-        </p>
-
-        <h1
-          className="mt-1 text-3xl font-bold tracking-tight text-slate-950"
-          id="family-directory-heading"
-        >
-          {familyContext
-            ? "Your family"
-            : "Families"}
-        </h1>
-
-        <p className="mt-2 max-w-3xl text-base leading-7 text-slate-600">
-          {familyContext
-            ? "View family records connected to this account."
-            : "Find families by family name, city, or region. Street addresses and contact details stay out of directory results."}
-        </p>
-      </section>
+      <PageHero
+        description={familyContext ? "View family records connected to this account." : "Find families by family name, city, or region. Street addresses and contact details stay out of directory results."}
+        eyebrow={familyContext ? "Family" : "Member management"}
+        title={familyContext ? "Your family" : "Families"}
+      />
 
       {!familyContext ? (
         <div>
@@ -132,7 +117,7 @@ export default async function FamiliesPage({
       {!familyContext ? (
         <section
           aria-label="Search families"
-          className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+          className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-900/5 sm:p-6"
         >
           <form
             className="flex flex-col gap-3 sm:flex-row"

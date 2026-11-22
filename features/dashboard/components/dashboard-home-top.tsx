@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, CalendarDays, Megaphone, Sparkles } from "lucide-react";
 
 import { openHeaderNotificationAction } from "@/features/notifications/actions/header-notification-actions";
@@ -37,17 +38,17 @@ export function DashboardHomeTop({
   }).format(new Date());
   return (
     <>
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-sky-800 via-blue-800 to-indigo-950 px-6 py-8 text-white shadow-lg sm:px-8 sm:py-10">
-        <div aria-hidden="true" className="absolute -right-16 -top-20 size-64 rounded-full bg-white/10" />
-        <div aria-hidden="true" className="absolute -bottom-24 right-24 size-48 rounded-full bg-sky-300/10" />
+      <section className="relative isolate overflow-hidden rounded-3xl bg-slate-950 px-6 py-8 text-white shadow-xl shadow-slate-950/10 sm:px-8 sm:py-10 lg:min-h-72">
+        <Image alt="Four young people looking toward a cross on a hillside at sunset" className="absolute inset-0 -z-20 size-full object-cover object-[58%_52%]" fill priority sizes="(min-width: 1024px) calc(100vw - 20rem), 100vw" src="/images/ministry-sunset-banner.png" />
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-slate-950/95 via-slate-950/75 to-slate-950/15" />
         <div className="relative max-w-3xl">
-          <p className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.15em] text-sky-200">
+          <p className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.15em] text-teal-300">
             <Sparkles aria-hidden="true" className="size-4" /> {eyebrow}
           </p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
             {greeting()}, {displayName}
           </h1>
-          <p className="mt-3 flex items-center gap-2 text-sm font-medium text-sky-100">
+          <p className="mt-3 flex items-center gap-2 text-sm font-medium text-slate-100">
             <CalendarDays aria-hidden="true" className="size-4" /> {today}
           </p>
           <p className="mt-4 max-w-2xl text-base leading-7 text-blue-50 sm:text-lg">{summary}</p>

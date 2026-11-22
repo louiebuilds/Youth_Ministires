@@ -76,31 +76,31 @@ export default async function CommunicationsPage({
 
   return (
     <div className="space-y-8">
-      <header>
+      <header className="rounded-3xl bg-gradient-to-br from-[#0b1739] via-blue-900 to-teal-800 px-5 py-7 text-white shadow-xl shadow-slate-950/10 sm:px-8 sm:py-9">
         <div className="max-w-4xl">
-          <p className="text-sm font-semibold text-sky-700">
+          <p className="text-sm font-semibold text-teal-300">
             Communication Center
           </p>
 
-          <h1 className="mt-1 text-3xl font-bold text-slate-950">
+          <h1 className="mt-1 text-3xl font-bold text-white sm:text-4xl">
             Announcements
           </h1>
 
-          <p className="mt-2 text-slate-600">
+          <p className="mt-2 text-blue-100">
             Create and manage ministry announcements.
           </p>
         </div>
 
         <nav
           aria-label="Communications workspaces"
-          className="mt-8 flex flex-wrap border-b border-slate-200"
+          className="mt-8 flex flex-wrap border-b border-white/20"
         >
-          <span className="inline-flex min-h-12 items-center border-b-2 border-sky-700 px-4 font-semibold text-sky-800">
+          <span className="inline-flex min-h-12 items-center border-b-2 border-teal-300 px-4 font-semibold text-white">
             Announcements
           </span>
 
           <Link
-            className="inline-flex min-h-12 items-center border-b-2 border-transparent px-4 font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-950"
+            className="inline-flex min-h-12 items-center border-b-2 border-transparent px-4 font-semibold text-blue-100 transition hover:border-white/50 hover:text-white"
             href="/communications/chat"
           >
             Group Chat
@@ -110,21 +110,21 @@ export default async function CommunicationsPage({
         {canManage ? (
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
-              className="inline-flex min-h-11 items-center rounded-lg bg-sky-700 px-4 font-semibold text-white"
+              className="inline-flex min-h-11 items-center rounded-xl bg-teal-500 px-4 font-semibold text-slate-950 shadow-sm hover:bg-teal-400"
               href="/communications/new"
             >
               New announcement
             </Link>
 
             <Link
-              className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 bg-white px-4 font-semibold text-slate-700"
+              className="inline-flex min-h-11 items-center rounded-xl border border-white/30 bg-white/10 px-4 font-semibold text-white hover:bg-white/20"
               href="/communications/templates"
             >
               Manage templates
             </Link>
 
             <Link
-              className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 bg-white px-4 font-semibold text-slate-700"
+              className="inline-flex min-h-11 items-center rounded-xl border border-white/30 bg-white/10 px-4 font-semibold text-white hover:bg-white/20"
               href="/communications/compose"
             >
               Compose message
@@ -138,7 +138,7 @@ export default async function CommunicationsPage({
         unreadCount={unreadCount}
       />
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5">
+      <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-900/5">
         <form className="flex flex-wrap items-end gap-4" method="get">
           <label className="min-w-64 flex-1 text-sm font-semibold">
             Search

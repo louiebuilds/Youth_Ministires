@@ -29,14 +29,14 @@ export async function AppHeader({
 
   return (
     <header
-      className="relative z-30 border-b border-slate-200 bg-white pt-[env(safe-area-inset-top)]"
+      className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 pt-[env(safe-area-inset-top)] shadow-sm backdrop-blur"
       data-app-header
     >
       <div className="flex min-h-16 items-center justify-between gap-2 px-3 sm:gap-4 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <MobileNavigation navigation={navigation} />
           <div className="min-w-0">
-            <p className="truncate text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">
+            <p className="truncate text-xs font-semibold uppercase tracking-[0.16em] text-teal-700">
               {ministryDisplayName}
             </p>
             <p className="truncate text-sm font-semibold text-slate-900">

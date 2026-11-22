@@ -60,7 +60,7 @@ export function MobileNavigation({ navigation }: MobileNavigationProps) {
 
       <dialog
         aria-labelledby={`${dialogId}-title`}
-        className="fixed inset-y-0 left-0 m-0 h-dvh max-h-none w-[min(20rem,calc(100vw-2rem))] max-w-none overflow-y-auto border-0 bg-slate-950 p-0 text-white shadow-2xl backdrop:bg-slate-950/60"
+        className="fixed inset-y-0 left-0 m-0 h-dvh max-h-none w-[min(20rem,calc(100vw-2rem))] max-w-none overflow-y-auto border-0 bg-[#0b1739] p-0 text-white shadow-2xl backdrop:bg-slate-950/60"
         id={dialogId}
         onCancel={() => setIsOpen(false)}
         onClick={(event) => {
