@@ -52,6 +52,7 @@ export function getPublicEnvironment() {
 
 export type CommunicationsEmailEnvironment = {
   mode: "synthetic" | "live";
+  deliveryPolicy: "restricted" | "ministry" | null;
   liveEnabled: boolean;
   disabledReason: string | null;
   apiKey: string | null;

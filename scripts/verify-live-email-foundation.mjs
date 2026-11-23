@@ -8,6 +8,7 @@ import { resolveCommunicationsEmailEnvironment } from "../config/communications-
 const migrations = [
   "supabase/migrations/202607230001_core_database_foundation.sql",
   "supabase/migrations/202607230002_security_authorization.sql",
+  "supabase/migrations/202607240003_volunteer_management_foundation.sql",
   "supabase/migrations/202607300014_communication_center_foundation.sql",
   "supabase/migrations/202607300015_announcement_workflows.sql",
   "supabase/migrations/202607300016_communication_template_workflows.sql",
@@ -15,6 +16,9 @@ const migrations = [
   "supabase/migrations/202607300018_in_app_notification_lifecycle.sql",
   "supabase/migrations/202609150002_communication_announcement_projection.sql",
   "supabase/migrations/202610080003_live_email_foundation.sql",
+  "supabase/migrations/202611020001_communication_email_recipients.sql",
+  "supabase/migrations/202611020002_communication_email_recipient_snapshot.sql",
+  "supabase/migrations/202611020003_communication_email_delivery_policy.sql",
 ];
 
 const ids = {
@@ -63,7 +67,7 @@ try {
   await db.exec(`
     create schema auth;
     create schema extensions;
-    create role anon nologin;
+    create role anon nologin; create role service_role nologin;
     create role authenticated nologin;
     create table auth.users (
       id uuid primary key,
@@ -98,6 +102,8 @@ try {
     where id in ($1, $2, $3, $4, $5)
   `, Object.values(ids));
 
+  await db.query("insert into public.volunteer_profiles(profile_id) values ($1),($2)", [ids.allowedVolunteer, ids.blockedVolunteer]);
+  await db.exec("insert into private.communication_email_allowlist values ('allowed@example.test')");
   for (const id of [ids.admin, ids.youthPastor]) {
     const access = await asAuthenticated(id, () =>
       db.query("select private.can_send_live_email() as allowed"));
@@ -199,6 +205,54 @@ try {
   assert.equal(successfulResult.rows[0].suppressed_count, 1);
   assert.equal(successfulResult.rows[0].pending_count, 0);
 
+  // Policy-aware delivery: restricted stays protected; ministry enables
+  // eligible recipients without adding them to the beta allowlist.
+  const ministryBlocked = await asAuthenticated(ids.admin, () => db.query(
+    "select * from public.preview_live_email_recipients('volunteers', array[]::text[], 'ministry')",
+  ));
+  assert.equal(
+    ministryBlocked.rows.filter((row) => row.live_send_allowed).length,
+    0,
+    "Server restricted policy must block ministry delivery",
+  );
+
+  await db.query(
+    "update private.communication_email_delivery_policy set delivery_policy = 'ministry' where singleton = true",
+  );
+
+  const ministryPreview = await asAuthenticated(ids.admin, () => db.query(
+    "select * from public.preview_live_email_recipients('volunteers', array[]::text[], 'ministry')",
+  ));
+  assert.equal(
+    ministryPreview.rows.filter((row) => row.live_send_allowed).length,
+    2,
+    "Ministry policy must allow both eligible volunteer emails",
+  );
+
+  const ministryCreated = await asAuthenticated(ids.admin, () => db.query(
+    `select public.create_live_email_communication(
+      'Ministry policy test', 'Synthetic subject', 'Synthetic body',
+      'volunteers', null, array[]::text[], 2, gen_random_uuid(), 'ministry'
+    ) as id`,
+  ));
+
+  const ministryClaims = [];
+  for (let i = 0; i < 3; i++) {
+    const result = await asAuthenticated(ids.admin, () => db.query(
+      "select * from public.claim_live_email_delivery($1)",
+      [ministryCreated.rows[0].id],
+    ));
+    ministryClaims.push(...result.rows);
+  }
+
+  assert.equal(ministryClaims.length, 2);
+  assert.equal(
+    new Set(ministryClaims.map((row) => row.email_address)).size,
+    2,
+    "Each eligible ministry recipient must be claimed only once",
+  );
+
+  console.log("Ministry policy preview, creation, and claim checks passed.");
   let liveSmsDenied = false;
   try {
     await db.query(`
@@ -237,10 +291,41 @@ try {
     text: "No real provider call.",
     fromEmail: "sender@example.test",
     idempotencyKey: "mock-operation:recipient",
+  }, {
+    policy: "restricted",
+    allowedRecipients: ["allowed@example.test"],
   });
   assert.equal(mockCalls, 1);
   assert.equal(mockResult.success, true);
 
+  for (const authorization of [
+    undefined,
+    { policy: "restricted", allowedRecipients: [] },
+    { policy: "restricted", allowedRecipients: ["different@example.test"] },
+    { policy: "ministry", approvedRecipient: "different@example.test" },
+    { policy: "invalid", approvedRecipient: "allowed@example.test" },
+  ]) {
+    const blocked = await submitOutboundEmail(mockProvider, {
+      to: "allowed@example.test", subject: "Blocked", text: "Blocked",
+      fromEmail: "sender@example.test", idempotencyKey: "blocked-operation",
+    }, authorization);
+    assert.equal(blocked.success, false);
+    assert.equal(blocked.classification, "configuration");
+    assert.equal(mockCalls, 1, "Delivery policy rejection must not call the provider");
+  }
+
+  const ministryResult = await submitOutboundEmail(mockProvider, {
+    to: "allowed@example.test",
+    subject: "Ministry policy test",
+    text: "Synthetic delivery only.",
+    fromEmail: "sender@example.test",
+    idempotencyKey: "ministry-test",
+  }, {
+    policy: "ministry",
+    approvedRecipient: "allowed@example.test",
+  });
+  assert.equal(ministryResult.success, true);
+  assert.equal(mockCalls, 2);
   console.log("Live email foundation verification passed.");
 } finally {
   await db.close();

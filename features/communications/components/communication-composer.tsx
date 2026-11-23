@@ -25,7 +25,7 @@ export function CommunicationComposer({
   suppressedCount,
   idempotencyKey,
 }: Readonly<{
-  audienceType: "parents" | "volunteers";
+  audienceType: "parents" | "volunteers" | "ministry";
   channel: "in_app" | "email" | "sms";
   templates: CommunicationTemplate[];
   emailMode: "synthetic" | "live" | "disabled";
