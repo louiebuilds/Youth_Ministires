@@ -1,7 +1,24 @@
 import { z } from "zod";
 
 const optionalText = (maximum: number) =>
-  z.string().trim().max(maximum).transform((value) => value || null);
+  z.preprocess(
+    (value) => value ?? "",
+    z.string().trim().max(maximum).transform((value) => value || null),
+  );
+
+const formText = (formData: FormData, name: string) => {
+  const value = formData.get(name);
+  return typeof value === "string" ? value : "";
+};
+
+const studentFieldsFromFormData = (formData: FormData) => ({
+  firstName: formText(formData, "firstName"),
+  preferredName: formText(formData, "preferredName"),
+  lastName: formText(formData, "lastName"),
+  birthDate: formText(formData, "birthDate"),
+  grade: formText(formData, "grade"),
+  status: formText(formData, "status"),
+});
 
 export const childDetailsSchema = z.object({
   studentId: z.string().uuid(),
@@ -52,6 +69,36 @@ export const createIndependentStudentSchema = childDetailsSchema.omit({
   allergySummary: true,
   dietarySummary: true,
 });
+
+export const createChildInputFromFormData = (formData: FormData) => ({
+  ...studentFieldsFromFormData(formData),
+  householdId: formText(formData, "householdId"),
+  guardianPersonId: formText(formData, "guardianPersonId"),
+  medicalSummary: formText(formData, "medicalSummary"),
+  allergySummary: formText(formData, "allergySummary"),
+  dietarySummary: formText(formData, "dietarySummary"),
+});
+
+export const createIndependentStudentInputFromFormData = (formData: FormData) =>
+  studentFieldsFromFormData(formData);
+
+const fieldLabels: Record<string, string> = {
+  firstName: "first name",
+  lastName: "last name",
+  birthDate: "birth date",
+  grade: "grade",
+  status: "student status",
+  householdId: "household",
+  guardianPersonId: "initial legal guardian",
+};
+
+export function studentValidationMessage(error: z.ZodError) {
+  const field = String(error.issues[0]?.path[0] ?? "");
+  const label = fieldLabels[field];
+  return label
+    ? `Enter a valid ${label}.`
+    : "Review the student details and try again.";
+}
 
 export const createTagSchema = z.object({
   studentId: z.string().uuid(),

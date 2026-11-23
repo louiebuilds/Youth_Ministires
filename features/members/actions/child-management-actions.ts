@@ -5,11 +5,14 @@ import { revalidatePath } from "next/cache";
 import {
   addChildRelationshipSchema,
   createChildSchema,
+  createChildInputFromFormData,
   createIndependentStudentSchema,
+  createIndependentStudentInputFromFormData,
   createTagSchema,
   childDetailsSchema,
   childRelationshipSchema,
   setChildTagsSchema,
+  studentValidationMessage,
 } from "@/features/members/schemas/child-management-schema";
 import {
   createChild,
@@ -106,13 +109,21 @@ export async function createChildAction(
   _state: FamilyManagementState,
   formData: FormData,
 ): Promise<FamilyManagementState> {
-  const parsed = createChildSchema.safeParse(Object.fromEntries(formData));
+  const parsed = createChildSchema.safeParse(
+    createChildInputFromFormData(formData),
+  );
   if (!parsed.success) {
-    return { success: false, message: "Review the child and guardian details." };
+    return { success: false, message: studentValidationMessage(parsed.error) };
   }
   const result = await createChild(parsed.data);
   if (!result.success) {
-    return { success: false, message: "This child could not be created." };
+    const messages = {
+      denied: "You do not have permission to create students.",
+      duplicate: "A matching student may already exist. Open the existing student instead.",
+      invalid: "The student or guardian details are no longer valid. Review them and try again.",
+      unavailable: "The student could not be created because of a temporary server problem. Try again.",
+    } as const;
+    return { success: false, message: messages[result.reason] };
   }
   revalidatePath("/students");
   revalidatePath(`/families/${parsed.data.householdId}`);
@@ -124,18 +135,22 @@ export async function createIndependentStudentAction(
   formData: FormData,
 ): Promise<FamilyManagementState> {
   const parsed = createIndependentStudentSchema.safeParse(
-    Object.fromEntries(formData),
+    createIndependentStudentInputFromFormData(formData),
   );
   if (!parsed.success) {
-    return { success: false, message: "Review the student details and try again." };
+    return { success: false, message: studentValidationMessage(parsed.error) };
   }
   const result = await createIndependentStudent(parsed.data);
   if (!result.success) {
+    const messages = {
+      denied: "You do not have permission to create students.",
+      duplicate: "A matching student record already exists. Open the existing student instead.",
+      invalid: "The student details are no longer valid. Review them and try again.",
+      unavailable: "The student could not be created because of a temporary server problem. Try again.",
+    } as const;
     return {
       success: false,
-      message: result.duplicate
-        ? "A matching student record already exists. Open the existing student instead."
-        : "This student could not be created.",
+      message: messages[result.reason],
     };
   }
   revalidatePath("/students");

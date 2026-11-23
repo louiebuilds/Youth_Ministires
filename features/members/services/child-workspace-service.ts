@@ -6,6 +6,20 @@ import { createClient } from "@/lib/supabase/server";
 import type { ChildWorkspace } from "@/features/members/types/child-workspace";
 import type { StudentStatus } from "@/lib/supabase/database.types";
 
+type StudentCreationFailure = "denied" | "duplicate" | "invalid" | "unavailable";
+
+function studentCreationFailure(
+  operation: "create_child" | "create_independent_student",
+  error: { code?: string } | null,
+): StudentCreationFailure {
+  const code = error?.code;
+  console.error("Student creation RPC failed", { operation, code: code ?? "unknown" });
+  if (code === "42501") return "denied";
+  if (code === "23505") return "duplicate";
+  if (code === "22023") return "invalid";
+  return "unavailable";
+}
+
 export async function getChildWorkspace(
   studentId: string,
 ): Promise<
@@ -166,7 +180,10 @@ export async function createChild(input: {
     p_dietary_summary: input.dietarySummary,
   });
   return error || !data
-    ? { success: false as const }
+    ? {
+        success: false as const,
+        reason: studentCreationFailure("create_child", error),
+      }
     : { success: true as const, studentId: data };
 }
 
@@ -193,7 +210,10 @@ export async function createIndependentStudent(input: {
   );
 
   return error || !data
-    ? { success: false as const, duplicate: error?.code === "23505" }
+    ? {
+        success: false as const,
+        reason: studentCreationFailure("create_independent_student", error),
+      }
     : { success: true as const, studentId: data };
 }
 
